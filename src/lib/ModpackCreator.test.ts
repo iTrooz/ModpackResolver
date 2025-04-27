@@ -262,6 +262,7 @@ describe('ModpackCreator', () => {
         it('should find a compatible configuration for a single mod', async () => {
             modpackCreator.addModFromID('ice-and-fire-dragons');
             const result = (await modpackCreator.work(1))[0];
+
             expect(result).toHaveProperty('mcConfig');
             expect(result).toHaveProperty('mods');
             expect(result.mcConfig).toEqual({
@@ -277,6 +278,7 @@ describe('ModpackCreator', () => {
             modpackCreator.addModFromID('jei');
             modpackCreator.addModFromID('ice-and-fire-dragons');
             const result = (await modpackCreator.work(1))[0];
+
             expect(result).toHaveProperty('mcConfig');
             expect(result).toHaveProperty('mods');
             expect(result.mcConfig).toEqual({
@@ -316,7 +318,7 @@ describe('ModpackCreator', () => {
             expect(['1.16.5', '1.17.1', '1.18.1']).toContain(result.mcConfig.mcVersion);
         });
         
-        it('should throw an error when no compatible configuration exists', async () => {
+        it('should handle when no compatible configuration exists', async () => {
             modpackCreator.setExactVersion('1.12.2');
             modpackCreator.setLoaders([ModLoader.FABRIC]);
             modpackCreator.addModFromID('ice-and-fire-dragons');
@@ -332,6 +334,7 @@ describe('ModpackCreator', () => {
         });
 
         it('should handle multiple mod repositories', async () => {
+            // Setup second repository
             const secondMockRepo = new MockRepository();
             const secondRepoMod: ModAndReleases = {
                 name: 'Second Repo Mod',
@@ -344,9 +347,11 @@ describe('ModpackCreator', () => {
             };
             secondMockRepo.setMod('second-repo-mod', secondRepoMod);
             (modpackCreator as any).repositories = [mockRepository, secondMockRepo];
+
             modpackCreator.addModFromID('ice-and-fire-dragons');
             modpackCreator.addModFromID('second-repo-mod');
             const result = (await modpackCreator.work(1))[0];
+
             expect(result.mods).toHaveLength(2);
             const modNames = result.mods.map(mod => mod.name);
             expect(modNames).toContain('Ice and Fire: Dragons');
