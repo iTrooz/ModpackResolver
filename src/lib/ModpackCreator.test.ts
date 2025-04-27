@@ -224,20 +224,8 @@ describe('ModpackCreator', () => {
                     }
                 ]
             };
-            
-            const dragonsModFabric: ModAndReleases = {
-                name: 'Ice and Fire: Dragons',
-                releases: [
-                    {
-                        mcVersions: ['1.16.5', '1.17.1', '1.18.1'],
-                        modVersion: '2.0.0',
-                        repository: ModRepository.MODRINTH,
-                        loaders: [ModLoader.FABRIC]
-                    }
-                ]
-            };
-            
-            const dragonsModForge: ModAndReleases = {
+
+            const dragonsMod: ModAndReleases = {
                 name: 'Ice and Fire: Dragons',
                 releases: [
                     {
@@ -251,16 +239,21 @@ describe('ModpackCreator', () => {
                         modVersion: '1.0.0',
                         repository: ModRepository.MODRINTH,
                         loaders: [ModLoader.FORGE]
+                    },
+                    {
+                        mcVersions: ['1.16.5', '1.17.1', '1.18.1'],
+                        modVersion: '2.0.0',
+                        repository: ModRepository.MODRINTH,
+                        loaders: [ModLoader.FABRIC]
                     }
                 ]
             };
             
             mockRepository.setMod('jei', jeiMod);
-            mockRepository.setMod('ice-and-fire-dragons-forge', dragonsModForge);
-            mockRepository.setMod('ice-and-fire-dragons', dragonsModFabric);
+            mockRepository.setMod('ice-and-fire-dragons', dragonsMod);
             
             mockRepository.setHash('123abc', 'jei');
-            mockRepository.setHash('456def', 'ice-and-fire-dragons-forge');
+            mockRepository.setHash('456def', 'ice-and-fire-dragons');
 
             modpackCreator = new ModpackCreator();
             (modpackCreator as any).repositories = [mockRepository];
@@ -298,7 +291,7 @@ describe('ModpackCreator', () => {
         
         it('should respect loader constraints', async () => {
             modpackCreator.setLoaders([ModLoader.FORGE]);
-            modpackCreator.addModFromID('ice-and-fire-dragons-forge');
+            modpackCreator.addModFromID('ice-and-fire-dragons');
             const result = await modpackCreator.work();
             expect(result.mcConfig.loader).toBe(ModLoader.FORGE);
             expect(result.mcConfig.mcVersion).toBe('1.17.1');
@@ -318,16 +311,15 @@ describe('ModpackCreator', () => {
         
         it('should respect minimal version constraints', async () => {
             modpackCreator.chooseMinimalVersion('1.16.0');
-            modpackCreator.addModFromID('ice-and-fire-dragons-forge');
+            modpackCreator.addModFromID('ice-and-fire-dragons');
             const result = await modpackCreator.work();
-            expect(['1.16.5', '1.17.1']).toContain(result.mcConfig.mcVersion);
-            expect(result.mcConfig.mcVersion).not.toBe('1.12.2');
+            expect(['1.16.5', '1.17.1', '1.18.1']).toContain(result.mcConfig.mcVersion);
         });
         
         it('should throw an error when no compatible configuration exists', async () => {
             modpackCreator.setExactVersion('1.12.2');
             modpackCreator.setLoaders([ModLoader.FABRIC]);
-            modpackCreator.addModFromID('ice-and-fire-dragons-forge');
+            modpackCreator.addModFromID('ice-and-fire-dragons');
             await expect(modpackCreator.work()).rejects.toThrow('No compatible Minecraft configuration found for all mods');
         });
         
