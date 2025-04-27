@@ -1,1 +1,15 @@
 // place files you want to import through the `$lib` alias in this folder.
+export { 
+    ModpackCreator, 
+    ModRepository, 
+    ModSourceType,
+    ModLoader
+} from './ModpackCreator';
+
+export type {
+    ModAndReleases,
+    UnresolvedMod,
+    ModReleaseMetadata as ModRelease,
+    MCVersion,
+    ResolvedMod
+} from './ModpackCreator';
