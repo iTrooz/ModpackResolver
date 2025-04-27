@@ -22,22 +22,16 @@ export enum ModLoader {
     NEOFORGE = "neoforge"
 }
 
-/**
- * Represents a Minecraft version
- */
+/** Represents a Minecraft version */
 export type MCVersion = string;
 
-/**
- * Represents a Minecraft configuration with version and loader
- */
+/** Represents a Minecraft configuration with version and loader */
 export type MCConfig = {
     mcVersion: MCVersion;
     loader: ModLoader;
 };
 
-/**
- * Represents a release of a mod
- */
+/** Represents a release of a mod */
 export type ModReleaseMetadata = {
     /** List of Minecraft versions compatible with this release */
     mcVersions: MCVersion[];
@@ -49,9 +43,7 @@ export type ModReleaseMetadata = {
     loaders: ModLoader[];
 };
 
-/**
- * Type for an unresolved mod that needs to be processed
- */
+/** Unresolved mod that needs to be processed */
 export type UnresolvedMod = {
     /** Type of source identifier */
     source: ModSourceType;
@@ -65,9 +57,7 @@ export type ModAndRelease = {
     release: ModReleaseMetadata;
 }
 
-/**
- * Type for a mod with all its available releases
- */
+/** Mod with all its available releases */
 export type ModAndReleases = {
     /** Mod name */
     name: string;
@@ -75,6 +65,7 @@ export type ModAndReleases = {
     releases: ModReleaseMetadata[];
 };
 
+/** Solution to run the modpack, using the given Minecraft version/loader, and the mod releases to use */
 export type Solution = {
     /** The Minecraft configuration */
     mcConfig: MCConfig;
@@ -92,38 +83,22 @@ export class ModpackCreator {
     private minimalVersion: string | null = null;
     private loaders: ModLoader[] = [];
     private unresolvedMods: UnresolvedMod[] = [];
-    private cache: Map<UnresolvedMod, ModAndReleases> = new Map(); // TODO check if key is working
+    private cache: Map<UnresolvedMod, ModAndReleases> = new Map();
     private repositories: IRepository[] = [new ModrinthRepository()];
 
     constructor() {
-        // Initialize empty ModpackCreator
     }
 
-    /**
-     * Set the exact Minecraft version for the modpack
-     * @param version Minecraft version (e.g., "1.21.1")
-     * @returns this instance for method chaining
-     */
     setExactVersion(version: string): ModpackCreator {
         this.exactVersion = version;
         return this;
     }
 
-    /**
-     * Set the minimum Minecraft version required for the modpack
-     * @param version Minimum Minecraft version (e.g., "1.12.2")
-     * @returns this instance for method chaining
-     */
     chooseMinimalVersion(version: string): ModpackCreator {
         this.minimalVersion = version;
         return this;
     }
 
-    /**
-     * Set the mod loaders to use (e.g., ModLoader.FORGE, ModLoader.FABRIC)
-     * @param loaders Array of mod loaders
-     * @returns this instance for method chaining
-     */
     setLoaders(loaders: ModLoader[]): ModpackCreator {
         this.loaders = [...loaders];
         return this;
@@ -131,8 +106,6 @@ export class ModpackCreator {
 
     /**
      * Add a mod to the modpack using its file hash
-     * @param hash Hash of the mod file
-     * @returns this instance for method chaining
      */
     addModFromHash(hash: string): ModpackCreator {
         this.unresolvedMods.push({
@@ -142,11 +115,6 @@ export class ModpackCreator {
         return this;
     }
 
-    /**
-     * Add a mod to the modpack using its ID from a specified repository
-     * @param id ID of the mod in the repository
-     * @returns this instance for method chaining
-     */
     addModFromID(id: string): ModpackCreator {
         this.unresolvedMods.push({
             source: ModSourceType.ID,
@@ -155,11 +123,6 @@ export class ModpackCreator {
         return this;
     }
 
-    /**
-     * Add a mod to the modpack using its name from a specified repository
-     * @param name Name of the mod in the repository
-     * @returns this instance for method chaining
-     */
     addModFromName(name: string): ModpackCreator {
         this.unresolvedMods.push({
             source: ModSourceType.NAME,
@@ -169,13 +132,14 @@ export class ModpackCreator {
     }
 
     /**
-     * Process the modpack configuration and fetch all required information
+     * Download releases metadata for all mods, and return solutions that try to satisfy the constraints (Best solutions are returned first)
+     * This is the method you should use for the main functionality of the class.
      * @param nbSolution Number of solutions to return
      * @returns Array of compatible solutions
      */
     async work(nbSolution: number): Promise<Solution[]> {
         const resolvedMods = await this.resolveMods();
-        return this.resolveBestMcConfig(resolvedMods, nbSolution);
+        return this.resolveSolutions(resolvedMods, nbSolution);
     }
 
     /**
@@ -184,7 +148,7 @@ export class ModpackCreator {
      * @param nbSolution Maximum number of solutions to return
      * @returns Array of compatible solutions
      */
-    private resolveBestMcConfig(mods: ModAndReleases[], nbSolution: number): Solution[] {
+    private resolveSolutions(mods: ModAndReleases[], nbSolution: number): Solution[] {
         // Get flat list of all mod releases
         const flatReleases = this.getFlatReleases(mods);
 
@@ -243,20 +207,14 @@ export class ModpackCreator {
     private async resolveMods(): Promise<ModAndReleases[]> {
         const resolvedMods: ModAndReleases[] = [];
 
-        // Process each unresolved mod
         for (const unresolvedMod of this.unresolvedMods) {
-            // Check if this mod is already in the cache
             let resolvedMod = this.cache.get(unresolvedMod);
 
             if (!resolvedMod) {
-                // Not in cache, we need to resolve it
                 resolvedMod = await this.resolveMod(unresolvedMod);
-
-                // Add to cache for future use
                 this.cache.set(unresolvedMod, resolvedMod);
             }
 
-            // Add to our result map
             resolvedMods.push(resolvedMod);
         }
 
@@ -299,7 +257,7 @@ export class ModpackCreator {
     }
 
     /**
-     * Check if a release matches the current constraints
+     * Check if a mod release matches the current constraints
      * @param release The mod release to check
      * @returns True if the release matches the constraints
      */
