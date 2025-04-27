@@ -172,7 +172,7 @@ export class ModpackCreator {
     /**
      * Process the modpack configuration and fetch all required information
      */
-    async work(): Promise<{mcConfig: MCConfig, mods: ModAndRelease[]}> {
+    async work(): Promise<{ mcConfig: MCConfig, mods: ModAndRelease[] }> {
 
         const resolvedMods = await this.resolveMods();
 
@@ -184,35 +184,35 @@ export class ModpackCreator {
      * @param mods List of mods with their releases
      * @returns The best configuration and compatible mod releases
      */
-    private resolveBestMcConfig(mods: ModAndReleases[]): {mcConfig: MCConfig, mods: ModAndRelease[]} {
+    private resolveBestMcConfig(mods: ModAndReleases[]): { mcConfig: MCConfig, mods: ModAndRelease[] } {
         // Get flat list of all mod releases
         const flatReleases = this.getFlatReleases(mods);
-        
+
         // Filter releases based on constraints
-        const matchingReleases = flatReleases.filter(([_, release]) => 
+        const matchingReleases = flatReleases.filter(([_, release]) =>
             this.matchConstraints(release)
         );
-        
+
         // Create config candidates (unique mcVersion + loader combinations)
         const configCandidates = this.extractConfigCandidates(matchingReleases);
-        
+
         // Sort config candidates in descending order by version
         configCandidates.sort((a, b) => {
             // Compare versions directly, for descending order we pass args in reverse
             return this.compareVersions(b.mcVersion, a.mcVersion);
         });
-        
+
         // Find the first config that has a compatible release for each mod
         for (const config of configCandidates) {
             const matchingModReleases: ModAndRelease[] = [];
             const matchedModNames = new Set<string>();
-            
+
             for (const [mod, release] of matchingReleases) {
                 // Skip if we already found a release for this mod
                 if (matchedModNames.has(mod.name)) continue;
-                
+
                 // Check if this release matches the current config
-                if (release.mcVersions.includes(config.mcVersion) && 
+                if (release.mcVersions.includes(config.mcVersion) &&
                     release.loaders.includes(config.loader)) {
                     matchingModReleases.push({
                         name: mod.name,
@@ -221,7 +221,7 @@ export class ModpackCreator {
                     matchedModNames.add(mod.name);
                 }
             }
-            
+
             // If we found a match for every mod, return this config
             if (matchedModNames.size === mods.length) {
                 return {
@@ -230,12 +230,12 @@ export class ModpackCreator {
                 };
             }
         }
-        
+
         // No compatible configuration found
         throw new Error("No compatible Minecraft configuration found for all mods");
     }
 
-    private async resolveMods() : Promise<ModAndReleases[]> {
+    private async resolveMods(): Promise<ModAndReleases[]> {
         const resolvedMods: ModAndReleases[] = [];
 
         // Process each unresolved mod
@@ -254,7 +254,7 @@ export class ModpackCreator {
             // Add to our result map
             resolvedMods.push(resolvedMod);
         }
-        
+
         return resolvedMods;
     }
 
@@ -263,21 +263,21 @@ export class ModpackCreator {
      * @param mods List of mods with their releases
      * @returns Flattened list of (mod, release) pairs
      */
-    private getFlatReleases(mods: ModAndReleases[]): Array<[{name: string}, ModReleaseMetadata]> {
-        return mods.flatMap(mod => 
-            mod.releases.map(release => [{name: mod.name}, release] as [{name: string}, ModReleaseMetadata])
+    private getFlatReleases(mods: ModAndReleases[]): Array<[{ name: string }, ModReleaseMetadata]> {
+        return mods.flatMap(mod =>
+            mod.releases.map(release => [{ name: mod.name }, release] as [{ name: string }, ModReleaseMetadata])
         );
     }
-    
+
     /**
      * Extract all unique configuration candidates (version + loader combinations)
      * @param releases Flattened list of mod releases
      * @returns List of unique configuration candidates
      */
-    private extractConfigCandidates(releases: Array<[{name: string}, ModReleaseMetadata]>): MCConfig[] {
+    private extractConfigCandidates(releases: Array<[{ name: string }, ModReleaseMetadata]>): MCConfig[] {
         const configs: MCConfig[] = [];
         const configSet = new Set<string>();
-        
+
         for (const [_, release] of releases) {
             for (const mcVersion of release.mcVersions) {
                 for (const loader of release.loaders) {
@@ -289,10 +289,10 @@ export class ModpackCreator {
                 }
             }
         }
-        
+
         return configs;
     }
-    
+
     /**
      * Check if a release matches the current constraints
      * @param release The mod release to check
@@ -303,25 +303,25 @@ export class ModpackCreator {
         if (this.loaders.length > 0 && !this.loaders.some(l => release.loaders.includes(l))) {
             return false;
         }
-        
+
         // Check exact version constraint
         if (this.exactVersion && !release.mcVersions.includes(this.exactVersion)) {
             return false;
         }
-        
+
         // Check minimal version constraint
         if (this.minimalVersion) {
-            const hasVersionAboveMin = release.mcVersions.some(v => 
+            const hasVersionAboveMin = release.mcVersions.some(v =>
                 this.compareVersions(v, this.minimalVersion as string) >= 0
             );
             if (!hasVersionAboveMin) {
                 return false;
             }
         }
-        
+
         return true;
     }
-    
+
     /**
      * Compare two Minecraft versions
      * @param a First version
@@ -331,18 +331,18 @@ export class ModpackCreator {
     private compareVersions(a: string, b: string): number {
         const aParts = a.split('.').map(p => parseInt(p) || 0);
         const bParts = b.split('.').map(p => parseInt(p) || 0);
-        
+
         for (let i = 0; i < Math.max(aParts.length, bParts.length); i++) {
             const aVal = i < aParts.length ? aParts[i] : 0;
             const bVal = i < bParts.length ? bParts[i] : 0;
-            
+
             if (aVal < bVal) {
                 return -1;
             } else if (aVal > bVal) {
                 return 1;
             }
         }
-        
+
         // If we get here, the versions are equal
         return 0;
     }
