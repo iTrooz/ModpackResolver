@@ -3,34 +3,43 @@
   import { onMount } from 'svelte';
 
   let results: {
-    mods: Array<{ name: string; version: string; loader: string }>;
+    mcConfig: { mcVersion: string; loader: ModLoader };
+    mods: Array<{ name: string; release: any }>;
   } | null = null;
   
   let consoleOutput: string[] = [];
   
-  function runModpackCreator() {
-    // Clear previous console output
-    consoleOutput = [];
-    
-    // Create logic instance
-    let mc = new ModpackCreator();
-    
-    // Configure MC version and loader
-    mc.setExactVersion("1.21.1");
-    mc.chooseMinimalVersion("1.12.2");
-    mc.setLoaders([ModLoader.FORGE]);
-    
-    // Add mods to the modpack
-    mc.addModFromHash("3f786850e387550fdab836ed7e6dc881de23001b");
-    mc.addModFromID("ice-and-fire-dragons");
-    mc.addModFromName("JourneyMap");
-    
-    // Let the logic run with the constraints
-    results = mc.work();
-    
-    // Log the results to our virtual console
-    for (let mod of results.mods) {
-      consoleOutput.push(`Mod ${mod.name} with version ${mod.version} on loader ${mod.loader}`);
+  async function runModpackCreator() {
+    try {
+      // Clear previous console output
+      consoleOutput = [];
+      
+      // Create logic instance
+      let mc = new ModpackCreator();
+      
+      // Configure MC version and loader
+      mc.setExactVersion("1.21.1");
+      mc.chooseMinimalVersion("1.12.2");
+      mc.setLoaders([ModLoader.FORGE]);
+      
+      // Add mods to the modpack
+      mc.addModFromHash("3f786850e387550fdab836ed7e6dc881de23001b");
+      mc.addModFromID("ice-and-fire-dragons");
+      mc.addModFromName("JourneyMap");
+      
+      // Let the logic run with the constraints
+      results = await mc.work();
+      
+      // Log the best compatible configuration
+      consoleOutput.push(`Best Minecraft configuration: ${results.mcConfig.mcVersion} with ${results.mcConfig.loader}`);
+      
+      // Log the compatible mods with their versions
+      for (let mod of results.mods) {
+        consoleOutput.push(`Mod ${mod.name} with version ${mod.release.modVersion}`);
+      }
+    } catch (error: any) {
+      consoleOutput.push(`Error: ${error.message || 'Unknown error'}`);
+      console.error(error);
     }
   }
   
@@ -60,8 +69,28 @@
 
   {#if results}
     <div class="mt-8">
-      <h2 class="text-xl font-bold mb-2">Raw Results:</h2>
-      <pre class="bg-gray-100 p-4 rounded-md overflow-auto">
+      <h2 class="text-xl font-bold mb-2">Results:</h2>
+      <div class="bg-gray-100 p-4 rounded-md overflow-auto">
+        <h3 class="font-bold">Best Minecraft Configuration:</h3>
+        <p>Version: {results.mcConfig.mcVersion}</p>
+        <p>Loader: {results.mcConfig.loader}</p>
+        
+        <h3 class="font-bold mt-4">Compatible Mods:</h3>
+        <ul class="list-disc ml-6">
+          {#each results.mods as mod}
+            <li>
+              <strong>{mod.name}</strong>: {mod.release.modVersion}
+              <ul class="list-circle ml-4 text-sm">
+                <li>Loaders: {mod.release.loaders.join(', ')}</li>
+                <li>MC Versions: {mod.release.mcVersions.join(', ')}</li>
+              </ul>
+            </li>
+          {/each}
+        </ul>
+      </div>
+      
+      <h3 class="font-bold mt-4">Raw Data:</h3>
+      <pre class="bg-gray-100 p-4 rounded-md overflow-auto text-xs">
         {JSON.stringify(results, null, 2)}
       </pre>
     </div>
@@ -85,11 +114,15 @@ mc.addModFromHash("3f786850e387550fdab836ed7e6dc881de23001b");
 mc.addModFromID("ice-and-fire-dragons");
 mc.addModFromName("JourneyMap");
 
-// Let the logic run with the constraints
-let result = mc.work();
+// Let the logic run with the constraints (async)
+const result = await mc.work();
 
+// Display best Minecraft configuration
+console.log(\`Best config: \${result.mcConfig.mcVersion} with \${result.mcConfig.loader}\`);
+
+// Display compatible mods
 for (let mod of result.mods) {
-    console.log(\`Mod \${mod.name} with version \${mod.version} on loader \${mod.loader}\`);
+    console.log(\`Mod \${mod.name} with version \${mod.release.modVersion}\`);
 }`}
     </pre>
   </div>
