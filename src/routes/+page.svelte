@@ -18,14 +18,10 @@
       let mc = new ModpackCreator();
       
       // Configure MC version and loader
-      mc.setExactVersion("1.21.1");
-      mc.chooseMinimalVersion("1.12.2");
       mc.setLoaders([ModLoader.FORGE]);
       
       // Add mods to the modpack
-      mc.addModFromHash("3f786850e387550fdab836ed7e6dc881de23001b");
       mc.addModFromID("ice-and-fire-dragons");
-      mc.addModFromName("JourneyMap");
       
       // Let the logic run with the constraints
       results = await mc.work();
@@ -42,10 +38,6 @@
       console.error(error);
     }
   }
-  
-  onMount(() => {
-    runModpackCreator();
-  });
 </script>
 
 <div class="container mx-auto p-4">
