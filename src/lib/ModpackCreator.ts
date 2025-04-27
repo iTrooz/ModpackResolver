@@ -1,9 +1,7 @@
 import type { IRepository } from "./IRepository";
 import { ModrinthRepository } from "./ModrinthRepository";
 
-/**
- * Enum for mod repositories
- */
+
 export enum ModRepository {
     MODRINTH = "modrinth",
     CURSEFORGE = "curseforge",
@@ -11,18 +9,12 @@ export enum ModRepository {
     CUSTOM = "custom"
 }
 
-/**
- * Enum for mod source types
- */
 export enum ModSourceType {
     HASH = "hash",
     ID = "id",
     NAME = "name"
 }
 
-/**
- * Enum for mod loaders
- */
 export enum ModLoader {
     FORGE = "forge",
     FABRIC = "fabric",
