@@ -95,35 +95,4 @@
       </pre>
     </div>
   {/if}
-  
-  <div class="mt-8 bg-yellow-50 border-l-4 border-yellow-400 p-4">
-    <h2 class="font-bold">Usage Example Code:</h2>
-    <pre class="bg-gray-100 p-4 rounded-md overflow-auto mt-2">
-{`import { ModpackCreator, ModRepository, ModSourceType, ModLoader } from '$lib';
-      
-// Create logic instance
-let mc = new ModpackCreator();
-
-// Configure MC version and loader
-mc.setExactVersion("1.21.1");
-mc.chooseMinimalVersion("1.12.2");
-mc.setLoaders([ModLoader.FORGE]);
-
-// Add mods to the modpack
-mc.addModFromHash("3f786850e387550fdab836ed7e6dc881de23001b");
-mc.addModFromID("ice-and-fire-dragons");
-mc.addModFromName("JourneyMap");
-
-// Let the logic run with the constraints (async)
-const result = await mc.work();
-
-// Display best Minecraft configuration
-console.log(\`Best config: \${result.mcConfig.mcVersion} with \${result.mcConfig.loader}\`);
-
-// Display compatible mods
-for (let mod of result.mods) {
-    console.log(\`Mod \${mod.name} with version \${mod.release.modVersion}\`);
-}`}
-    </pre>
-  </div>
 </div>
