@@ -5,19 +5,19 @@ import type { IRepository } from './IRepository';
 class MockRepository implements IRepository {
     private mods: Record<string, ModAndReleases> = {};
     private hashes: Record<string, string> = {};
-    
+
     setMod(modId: string, mod: ModAndReleases) {
         this.mods[modId] = mod;
     }
-    
+
     setHash(hash: string, modId: string) {
         this.hashes[hash] = modId;
     }
-    
+
     async getModIdFromHash(hash: string): Promise<string | null> {
         return this.hashes[hash] || null;
     }
-    
+
     async getModReleases(modId: string): Promise<ModAndReleases> {
         if (!this.mods[modId]) {
             throw new Error(`Mod with ID ${modId} not found`);
@@ -199,14 +199,14 @@ describe('ModpackCreator', () => {
             });
         });
     });
-    
+
     describe('work', () => {
         let modpackCreator: ModpackCreator;
         let mockRepository: MockRepository;
-        
+
         beforeEach(() => {
             mockRepository = new MockRepository();
-            
+
             const jeiMod: ModAndReleases = {
                 name: 'Just Enough Items',
                 releases: [
@@ -248,17 +248,17 @@ describe('ModpackCreator', () => {
                     }
                 ]
             };
-            
+
             mockRepository.setMod('jei', jeiMod);
             mockRepository.setMod('ice-and-fire-dragons', dragonsMod);
-            
+
             mockRepository.setHash('123abc', 'jei');
             mockRepository.setHash('456def', 'ice-and-fire-dragons');
 
             modpackCreator = new ModpackCreator();
             (modpackCreator as any).repositories = [mockRepository];
         });
-        
+
         it('should find a compatible configuration for a single mod', async () => {
             modpackCreator.addModFromID('ice-and-fire-dragons');
             const result = (await modpackCreator.work(1))[0];
@@ -273,7 +273,7 @@ describe('ModpackCreator', () => {
             expect(result.mods[0].name).toBe('Ice and Fire: Dragons');
             expect(result.mods[0].release.modVersion).toBe('2.0.0');
         });
-        
+
         it('should find a compatible configuration for multiple mods', async () => {
             modpackCreator.addModFromID('jei');
             modpackCreator.addModFromID('ice-and-fire-dragons');
@@ -290,7 +290,7 @@ describe('ModpackCreator', () => {
             expect(modNames).toContain('Ice and Fire: Dragons');
             expect(modNames).toContain('Just Enough Items');
         });
-        
+
         it('should respect loader constraints', async () => {
             modpackCreator.setLoaders([ModLoader.FORGE]);
             modpackCreator.addModFromID('ice-and-fire-dragons');
@@ -299,7 +299,7 @@ describe('ModpackCreator', () => {
             expect(result.mcConfig.mcVersion).toBe('1.17.1');
             expect(result.mods[0].release.loaders).toContain(ModLoader.FORGE);
         });
-        
+
         it('should respect exact version constraints', async () => {
             modpackCreator.setExactVersion('1.16.5');
             modpackCreator.addModFromID('ice-and-fire-dragons');
@@ -310,14 +310,14 @@ describe('ModpackCreator', () => {
                 expect(mod.release.mcVersions).toContain('1.16.5');
             }
         });
-        
+
         it('should respect minimal version constraints', async () => {
             modpackCreator.chooseMinimalVersion('1.16.0');
             modpackCreator.addModFromID('ice-and-fire-dragons');
             const result = (await modpackCreator.work(1))[0];
             expect(['1.16.5', '1.17.1', '1.18.1']).toContain(result.mcConfig.mcVersion);
         });
-        
+
         it('should handle when no compatible configuration exists', async () => {
             modpackCreator.setExactVersion('1.12.2');
             modpackCreator.setLoaders([ModLoader.FABRIC]);
@@ -325,7 +325,7 @@ describe('ModpackCreator', () => {
             const result = await modpackCreator.work(1);
             expect(result).toHaveLength(0);
         });
-        
+
         it('should handle mod lookups by hash', async () => {
             modpackCreator.addModFromHash('123abc');
             const result = (await modpackCreator.work(1))[0];
