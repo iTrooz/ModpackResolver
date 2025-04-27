@@ -353,5 +353,32 @@ describe('ModpackCreator', () => {
             expect(result.mcConfig.mcVersion).toBe('1.17.1');
             expect(result.mcConfig.loader).toBe(ModLoader.FABRIC);
         });
+
+        it('should use cached mod data if available', async () => {
+            const cachedMod: ModAndReleases = {
+                name: 'Cached Mod',
+                releases: [{
+                    mcVersions: ['1.16.5'],
+                    modVersion: '1.0.0',
+                    repository: ModRepository.MODRINTH,
+                    loaders: [ModLoader.FORGE]
+                }]
+            };
+            mockRepository.setMod('cached-mod', cachedMod);
+            modpackCreator.addModFromID('cached-mod');
+
+            // Count number of times repository is called
+            let foo = mockRepository.getModReleases.bind(mockRepository);
+            let hits = 0;
+            mockRepository.getModReleases = (args) => {
+                hits++;
+                return foo(args);
+            }
+
+            expect(hits).toBe(0);
+            await modpackCreator.work();
+            await modpackCreator.work();
+            expect(hits).toBe(1);
+        });
     });
 });
