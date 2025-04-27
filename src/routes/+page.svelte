@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { ModpackCreator, ModRepository, ModSourceType, ModLoader } from '$lib';
-	import { onMount } from 'svelte';
+	import { ModpackCreator, ModLoader } from '$lib';
 
 	let results: {
 		mcConfig: { mcVersion: string; loader: ModLoader };
