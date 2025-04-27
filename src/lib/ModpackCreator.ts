@@ -11,8 +11,7 @@ export enum ModRepository {
 
 export enum ModSourceType {
     HASH = "hash",
-    ID = "id",
-    NAME = "name"
+    ID = "id"
 }
 
 export enum ModLoader {
@@ -119,14 +118,6 @@ export class ModpackCreator {
         this.unresolvedMods.push({
             source: ModSourceType.ID,
             data: id
-        });
-        return this;
-    }
-
-    addModFromName(name: string): ModpackCreator {
-        this.unresolvedMods.push({
-            source: ModSourceType.NAME,
-            data: name
         });
         return this;
     }
@@ -338,11 +329,6 @@ export class ModpackCreator {
                     }
                 }
                 throw new Error(`Mod with ID ${unresolvedMod.data} not found in any repository`);
-            case ModSourceType.NAME:
-                // Name-based lookup not implemented
-                throw new Error("Mod lookup by name is not implemented yet");
-            default:
-                throw new Error(`Unknown mod source type: ${unresolvedMod.source}`);
         }
     }
 }
