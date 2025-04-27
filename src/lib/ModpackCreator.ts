@@ -363,6 +363,7 @@ export class ModpackCreator {
                         return await repo.getModReleases(unresolvedMod.data);
                     } catch {
                         // Ignore and try next repository
+                        // TODO handle error
                     }
                 }
                 throw new Error(`Mod with ID ${unresolvedMod.data} not found in any repository`);
