@@ -24,11 +24,11 @@
       mc.addModFromID("ice-and-fire-dragons");
       
       // Let the logic run with the constraints
-      results = await mc.work();
-      
+      let solutions = await mc.work(1);
+      results = solutions[0];
+
       // Log the best compatible configuration
       consoleOutput.push(`Best Minecraft configuration: ${results.mcConfig.mcVersion} with ${results.mcConfig.loader}`);
-      
       // Log the compatible mods with their versions
       for (let mod of results.mods) {
         consoleOutput.push(`Mod ${mod.name} with version ${mod.release.modVersion}`);
