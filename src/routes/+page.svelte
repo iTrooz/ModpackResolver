@@ -7,12 +7,15 @@
     mods: Array<{ name: string; release: any }>;
   } | null = null;
   
-  let consoleOutput: string[] = [];
+  let isLoading = false;
+  let error: string | null = null;
   
   async function runModpackCreator() {
     try {
-      // Clear previous console output
-      consoleOutput = [];
+      // Reset state
+      results = null;
+      error = null;
+      isLoading = true;
       
       // Create logic instance
       let mc = new ModpackCreator();
@@ -26,16 +29,12 @@
       // Let the logic run with the constraints
       let solutions = await mc.work(1);
       results = solutions[0];
-
-      // Log the best compatible configuration
-      consoleOutput.push(`Best Minecraft configuration: ${results.mcConfig.mcVersion} with ${results.mcConfig.loader}`);
-      // Log the compatible mods with their versions
-      for (let mod of results.mods) {
-        consoleOutput.push(`Mod ${mod.name} with version ${mod.release.modVersion}`);
-      }
-    } catch (error: any) {
-      consoleOutput.push(`Error: ${error.message || 'Unknown error'}`);
-      console.error(error);
+      
+    } catch (err: any) {
+      error = err.message || 'Unknown error';
+      console.error(err);
+    } finally {
+      isLoading = false;
     }
   }
 </script>
@@ -45,19 +44,30 @@
   
   <div class="mb-4">
     <button 
-      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded {isLoading ? 'opacity-50 cursor-not-allowed' : ''}"
       on:click={runModpackCreator}
+      disabled={isLoading}
     >
-      Run ModpackCreator
+      {#if isLoading}
+        Processing...
+      {:else}
+        Run ModpackCreator
+      {/if}
     </button>
   </div>
   
-  <div class="bg-gray-900 text-green-400 p-4 rounded-md font-mono">
-    <h2 class="text-white mb-2">Console Output:</h2>
-    {#each consoleOutput as line}
-      <div class="mb-1">{line}</div>
-    {/each}
-  </div>
+  {#if error}
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
+      <strong class="font-bold">Error:</strong>
+      <span class="block sm:inline">{error}</span>
+    </div>
+  {/if}
+
+  {#if isLoading}
+    <div class="flex justify-center items-center p-8">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+    </div>
+  {/if}
 
   {#if results}
     <div class="mt-8">
