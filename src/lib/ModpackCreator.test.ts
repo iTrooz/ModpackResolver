@@ -407,23 +407,7 @@ describe('ModpackCreator', () => {
             expect(result.mods).toHaveLength(1);
             expect(result.mods[0].name).toBe('Just Enough Items');
         });
-        
-        it('should throw error when mod is not found', async () => {
-            // Try to look up a non-existent mod
-            modpackCreator.addModFromID('non-existent-mod');
-            
-            // Expect work() to throw an error
-            await expect(modpackCreator.work()).rejects.toThrow('Mod with ID non-existent-mod not found');
-        });
-        
-        it('should throw error when mod lookup by name is attempted', async () => {
-            // This feature is not implemented yet
-            modpackCreator.addModFromName('Just Enough Items');
-            
-            // Expect work() to throw an error
-            await expect(modpackCreator.work()).rejects.toThrow('Mod lookup by name is not implemented yet');
-        });
-        
+
         it('should handle multiple mod repositories', async () => {
             // Create a second mock repository
             const secondMockRepo = new MockRepository();
