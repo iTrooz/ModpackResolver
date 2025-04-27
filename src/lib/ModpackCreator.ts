@@ -75,6 +75,13 @@ export type ModAndReleases = {
     releases: ModReleaseMetadata[];
 };
 
+export type Solution = {
+    /** The Minecraft configuration */
+    mcConfig: MCConfig;
+    /** The mod releases that are compatible with this configuration */
+    mods: ModAndRelease[];
+};
+
 /**
  * ModpackCreator Class
  * This class helps to create and manage Minecraft modpacks, handling version compatibility,
@@ -163,20 +170,21 @@ export class ModpackCreator {
 
     /**
      * Process the modpack configuration and fetch all required information
+     * @param nbSolution Number of solutions to return
+     * @returns Array of compatible solutions
      */
-    async work(): Promise<{ mcConfig: MCConfig, mods: ModAndRelease[] }> {
-
+    async work(nbSolution: number): Promise<Solution[]> {
         const resolvedMods = await this.resolveMods();
-
-        return this.resolveBestMcConfig(resolvedMods);
+        return this.resolveBestMcConfig(resolvedMods, nbSolution);
     }
 
     /**
-     * Finds the best Minecraft configuration (version + loader) that satisfies all mods
+     * Finds the best Minecraft configurations (version + loader) that satisfy all mods
      * @param mods List of mods with their releases
-     * @returns The best configuration and compatible mod releases
+     * @param nbSolution Maximum number of solutions to return
+     * @returns Array of compatible solutions
      */
-    private resolveBestMcConfig(mods: ModAndReleases[]): { mcConfig: MCConfig, mods: ModAndRelease[] } {
+    private resolveBestMcConfig(mods: ModAndReleases[], nbSolution: number): Solution[] {
         // Get flat list of all mod releases
         const flatReleases = this.getFlatReleases(mods);
 
@@ -194,8 +202,14 @@ export class ModpackCreator {
             return this.compareVersions(b.mcVersion, a.mcVersion);
         });
 
-        // Find the first config that has a compatible release for each mod
+        // Collect solutions up to nbSolution
+        const solutions: Solution[] = [];
+
+        // Find configs that have compatible releases for each mod
         for (const config of configCandidates) {
+            // Skip if we already have enough solutions
+            if (solutions.length >= nbSolution) break;
+
             const matchingModReleases: ModAndRelease[] = [];
             const matchedModNames = new Set<string>();
 
@@ -214,17 +228,16 @@ export class ModpackCreator {
                 }
             }
 
-            // If we found a match for every mod, return this config
+            // If we found a match for every mod, add this solution
             if (matchedModNames.size === mods.length) {
-                return {
+                solutions.push({
                     mcConfig: config,
                     mods: matchingModReleases
-                };
+                });
             }
         }
 
-        // No compatible configuration found
-        throw new Error("No compatible Minecraft configuration found for all mods");
+        return solutions;
     }
 
     private async resolveMods(): Promise<ModAndReleases[]> {

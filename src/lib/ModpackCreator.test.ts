@@ -261,7 +261,7 @@ describe('ModpackCreator', () => {
         
         it('should find a compatible configuration for a single mod', async () => {
             modpackCreator.addModFromID('ice-and-fire-dragons');
-            const result = await modpackCreator.work();
+            const result = (await modpackCreator.work(1))[0];
             expect(result).toHaveProperty('mcConfig');
             expect(result).toHaveProperty('mods');
             expect(result.mcConfig).toEqual({
@@ -276,7 +276,7 @@ describe('ModpackCreator', () => {
         it('should find a compatible configuration for multiple mods', async () => {
             modpackCreator.addModFromID('jei');
             modpackCreator.addModFromID('ice-and-fire-dragons');
-            const result = await modpackCreator.work();
+            const result = (await modpackCreator.work(1))[0];
             expect(result).toHaveProperty('mcConfig');
             expect(result).toHaveProperty('mods');
             expect(result.mcConfig).toEqual({
@@ -292,7 +292,7 @@ describe('ModpackCreator', () => {
         it('should respect loader constraints', async () => {
             modpackCreator.setLoaders([ModLoader.FORGE]);
             modpackCreator.addModFromID('ice-and-fire-dragons');
-            const result = await modpackCreator.work();
+            const result = (await modpackCreator.work(1))[0];
             expect(result.mcConfig.loader).toBe(ModLoader.FORGE);
             expect(result.mcConfig.mcVersion).toBe('1.17.1');
             expect(result.mods[0].release.loaders).toContain(ModLoader.FORGE);
@@ -302,7 +302,7 @@ describe('ModpackCreator', () => {
             modpackCreator.setExactVersion('1.16.5');
             modpackCreator.addModFromID('ice-and-fire-dragons');
             modpackCreator.addModFromID('jei');
-            const result = await modpackCreator.work();
+            const result = (await modpackCreator.work(1))[0];
             expect(result.mcConfig.mcVersion).toBe('1.16.5');
             for (const mod of result.mods) {
                 expect(mod.release.mcVersions).toContain('1.16.5');
@@ -312,7 +312,7 @@ describe('ModpackCreator', () => {
         it('should respect minimal version constraints', async () => {
             modpackCreator.chooseMinimalVersion('1.16.0');
             modpackCreator.addModFromID('ice-and-fire-dragons');
-            const result = await modpackCreator.work();
+            const result = (await modpackCreator.work(1))[0];
             expect(['1.16.5', '1.17.1', '1.18.1']).toContain(result.mcConfig.mcVersion);
         });
         
@@ -320,12 +320,13 @@ describe('ModpackCreator', () => {
             modpackCreator.setExactVersion('1.12.2');
             modpackCreator.setLoaders([ModLoader.FABRIC]);
             modpackCreator.addModFromID('ice-and-fire-dragons');
-            await expect(modpackCreator.work()).rejects.toThrow('No compatible Minecraft configuration found for all mods');
+            const result = await modpackCreator.work(1);
+            expect(result).toHaveLength(0);
         });
         
         it('should handle mod lookups by hash', async () => {
             modpackCreator.addModFromHash('123abc');
-            const result = await modpackCreator.work();
+            const result = (await modpackCreator.work(1))[0];
             expect(result.mods).toHaveLength(1);
             expect(result.mods[0].name).toBe('Just Enough Items');
         });
@@ -345,7 +346,7 @@ describe('ModpackCreator', () => {
             (modpackCreator as any).repositories = [mockRepository, secondMockRepo];
             modpackCreator.addModFromID('ice-and-fire-dragons');
             modpackCreator.addModFromID('second-repo-mod');
-            const result = await modpackCreator.work();
+            const result = (await modpackCreator.work(1))[0];
             expect(result.mods).toHaveLength(2);
             const modNames = result.mods.map(mod => mod.name);
             expect(modNames).toContain('Ice and Fire: Dragons');
@@ -376,8 +377,8 @@ describe('ModpackCreator', () => {
             }
 
             expect(hits).toBe(0);
-            await modpackCreator.work();
-            await modpackCreator.work();
+            await modpackCreator.work(1);
+            await modpackCreator.work(1);
             expect(hits).toBe(1);
         });
     });
