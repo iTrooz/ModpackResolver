@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { ModpackCreator, ModLoader, ModRepository, type ModAndReleases, type ModReleaseMetadata } from './ModpackCreator';
 import type { IRepository } from './IRepository';
 
