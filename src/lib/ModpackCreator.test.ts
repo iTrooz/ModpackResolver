@@ -1,6 +1,31 @@
-import { describe, it, expect } from 'vitest';
-import { ModpackCreator, ModLoader, ModRepository } from './ModpackCreator';
-import type { ModReleaseMetadata } from './ModpackCreator';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { ModpackCreator, ModLoader, ModRepository, type ModAndReleases, type ModReleaseMetadata } from './ModpackCreator';
+import type { IRepository } from './IRepository';
+
+// Mock implementation of IRepository
+class MockRepository implements IRepository {
+    private mods: Record<string, ModAndReleases> = {};
+    private hashes: Record<string, string> = {};
+    
+    setMod(modId: string, mod: ModAndReleases) {
+        this.mods[modId] = mod;
+    }
+    
+    setHash(hash: string, modId: string) {
+        this.hashes[hash] = modId;
+    }
+    
+    async getModIdFromHash(hash: string): Promise<string | null> {
+        return this.hashes[hash] || null;
+    }
+    
+    async getModReleases(modId: string): Promise<ModAndReleases> {
+        if (!this.mods[modId]) {
+            throw new Error(`Mod with ID ${modId} not found`);
+        }
+        return this.mods[modId];
+    }
+}
 
 describe('ModpackCreator', () => {
     describe('compareVersions', () => {
@@ -184,6 +209,256 @@ describe('ModpackCreator', () => {
                     loaders: [ModLoader.FABRIC]
                 })).toBe(false);
             });
+        });
+    });
+    
+    describe('work', () => {
+        let modpackCreator: ModpackCreator;
+        let mockRepository: MockRepository;
+        
+        // Set up mock repository with test data
+        beforeEach(() => {
+            // Create mock repository
+            mockRepository = new MockRepository();
+            
+            // Sample mod data for testing
+            const jeiMod: ModAndReleases = {
+                name: 'Just Enough Items',
+                releases: [
+                    {
+                        mcVersions: ['1.17.1', '1.18.1'],
+                        modVersion: '9.0.0',
+                        repository: ModRepository.MODRINTH,
+                        loaders: [ModLoader.FORGE, ModLoader.FABRIC]
+                    },
+                    {
+                        mcVersions: ['1.16.5'],
+                        modVersion: '8.0.0',
+                        repository: ModRepository.MODRINTH,
+                        loaders: [ModLoader.FORGE, ModLoader.FABRIC]
+                    }
+                ]
+            };
+            
+            const dragonsModFabric: ModAndReleases = {
+                name: 'Ice and Fire: Dragons',
+                releases: [
+                    {
+                        mcVersions: ['1.16.5', '1.17.1', '1.18.1'],
+                        modVersion: '2.0.0',
+                        repository: ModRepository.MODRINTH,
+                        loaders: [ModLoader.FABRIC]
+                    }
+                ]
+            };
+            
+            const dragonsModForge: ModAndReleases = {
+                name: 'Ice and Fire: Dragons',
+                releases: [
+                    {
+                        mcVersions: ['1.16.5', '1.17.1'],
+                        modVersion: '2.0.0',
+                        repository: ModRepository.MODRINTH,
+                        loaders: [ModLoader.FORGE]
+                    },
+                    {
+                        mcVersions: ['1.12.2'],
+                        modVersion: '1.0.0',
+                        repository: ModRepository.MODRINTH,
+                        loaders: [ModLoader.FORGE]
+                    }
+                ]
+            };
+            
+            // Register mods in the mock repository
+            mockRepository.setMod('jei', jeiMod);
+            mockRepository.setMod('ice-and-fire-dragons-forge', dragonsModForge);
+            mockRepository.setMod('ice-and-fire-dragons', dragonsModFabric);
+            
+            // Set up some hashes
+            mockRepository.setHash('123abc', 'jei');
+            mockRepository.setHash('456def', 'ice-and-fire-dragons-forge');
+            
+            // Create ModpackCreator and inject mock repository
+            modpackCreator = new ModpackCreator();
+            // Need to inject the mock repository by accessing private field
+            (modpackCreator as any).repositories = [mockRepository];
+        });
+        
+        it('should find a compatible configuration for a single mod', async () => {
+            // Configure ModpackCreator
+            modpackCreator.addModFromID('ice-and-fire-dragons');
+            
+            // Run the work method
+            const result = await modpackCreator.work();
+            
+            // Check the result has the expected structure
+            expect(result).toHaveProperty('mcConfig');
+            expect(result).toHaveProperty('mods');
+            
+            // Check that the best config is the latest version
+            expect(result.mcConfig).toEqual({
+                mcVersion: '1.18.1',
+                loader: ModLoader.FABRIC
+            });
+            
+            // Check that mods are correctly included
+            expect(result.mods).toHaveLength(1);
+            expect(result.mods[0].name).toBe('Ice and Fire: Dragons');
+            expect(result.mods[0].release.modVersion).toBe('2.0.0');
+        });
+        
+        it('should find a compatible configuration for multiple mods', async () => {
+            // Configure ModpackCreator with multiple mods
+            modpackCreator.addModFromID('jei');
+            modpackCreator.addModFromID('ice-and-fire-dragons');
+            
+            // Run the work method
+            const result = await modpackCreator.work();
+            
+            // Check the result has the expected structure
+            expect(result).toHaveProperty('mcConfig');
+            expect(result).toHaveProperty('mods');
+            
+            // Check that the best config is selected from compatible versions
+            expect(result.mcConfig).toEqual({
+                mcVersion: '1.18.1',  // Latest compatible version for both mods
+                loader: ModLoader.FABRIC  // Common loader for both mods
+            });
+            
+            // Check that both mods are included
+            expect(result.mods).toHaveLength(2);
+            
+            // Names should include both mods
+            const modNames = result.mods.map(mod => mod.name);
+            expect(modNames).toContain('Ice and Fire: Dragons');
+            expect(modNames).toContain('Just Enough Items');
+        });
+        
+        it('should respect loader constraints', async () => {
+            // Configure ModpackCreator with specific loader
+            modpackCreator.setLoaders([ModLoader.FORGE]);
+            modpackCreator.addModFromID('ice-and-fire-dragons-forge');
+            
+            // Run the work method
+            const result = await modpackCreator.work();
+            
+            // Check loader constraint is respected
+            expect(result.mcConfig.loader).toBe(ModLoader.FORGE);
+            
+            // Should choose the latest version compatible with FORGE
+            expect(result.mcConfig.mcVersion).toBe('1.17.1');
+            
+            // Mod should be the one supporting Forge
+            expect(result.mods[0].release.loaders).toContain(ModLoader.FORGE);
+        });
+        
+        it('should respect exact version constraints', async () => {
+            // Configure ModpackCreator with exact version
+            modpackCreator.setExactVersion('1.16.5');
+            modpackCreator.addModFromID('ice-and-fire-dragons');
+            modpackCreator.addModFromID('jei');
+            
+            // Run the work method
+            const result = await modpackCreator.work();
+            
+            // Check exact version constraint is respected
+            expect(result.mcConfig.mcVersion).toBe('1.16.5');
+            
+            // Check mods are compatible with this version
+            for (const mod of result.mods) {
+                expect(mod.release.mcVersions).toContain('1.16.5');
+            }
+        });
+        
+        it('should respect minimal version constraints', async () => {
+            // Configure ModpackCreator with minimal version
+            modpackCreator.chooseMinimalVersion('1.16.0');
+            modpackCreator.addModFromID('ice-and-fire-dragons-forge');
+            
+            // Run the work method
+            const result = await modpackCreator.work();
+            
+            // Should select a version >= minimal version
+            expect(['1.16.5', '1.17.1']).toContain(result.mcConfig.mcVersion);
+            
+            // Should not select versions less than minimal version
+            expect(result.mcConfig.mcVersion).not.toBe('1.12.2');
+        });
+        
+        it('should throw an error when no compatible configuration exists', async () => {
+            // Set up a scenario where no compatible configuration exists
+            modpackCreator.setExactVersion('1.12.2');  // Only the forge version supports 1.12.2
+            modpackCreator.setLoaders([ModLoader.FABRIC]);  // But we want Fabric
+            modpackCreator.addModFromID('ice-and-fire-dragons-forge');
+            
+            // Expect work() to throw an error
+            await expect(modpackCreator.work()).rejects.toThrow('No compatible Minecraft configuration found for all mods');
+        });
+        
+        it('should handle mod lookups by hash', async () => {
+            // Use hash to identify mod
+            modpackCreator.addModFromHash('123abc'); // JEI
+            
+            // Run the work method
+            const result = await modpackCreator.work();
+            
+            // Check the mod was found by hash
+            expect(result.mods).toHaveLength(1);
+            expect(result.mods[0].name).toBe('Just Enough Items');
+        });
+        
+        it('should throw error when mod is not found', async () => {
+            // Try to look up a non-existent mod
+            modpackCreator.addModFromID('non-existent-mod');
+            
+            // Expect work() to throw an error
+            await expect(modpackCreator.work()).rejects.toThrow('Mod with ID non-existent-mod not found');
+        });
+        
+        it('should throw error when mod lookup by name is attempted', async () => {
+            // This feature is not implemented yet
+            modpackCreator.addModFromName('Just Enough Items');
+            
+            // Expect work() to throw an error
+            await expect(modpackCreator.work()).rejects.toThrow('Mod lookup by name is not implemented yet');
+        });
+        
+        it('should handle multiple mod repositories', async () => {
+            // Create a second mock repository
+            const secondMockRepo = new MockRepository();
+            
+            // Add a mod only to the second repository
+            const secondRepoMod: ModAndReleases = {
+                name: 'Second Repo Mod',
+                releases: [{
+                    mcVersions: ['1.17.1'],
+                    modVersion: '1.0.0',
+                    repository: ModRepository.CUSTOM,
+                    loaders: [ModLoader.FABRIC]
+                }]
+            };
+            secondMockRepo.setMod('second-repo-mod', secondRepoMod);
+            
+            // Replace repositories with both mock repositories
+            (modpackCreator as any).repositories = [mockRepository, secondMockRepo];
+            
+            // Add mods from both repositories
+            modpackCreator.addModFromID('ice-and-fire-dragons'); // From first repo
+            modpackCreator.addModFromID('second-repo-mod'); // From second repo
+            
+            // Run the work method
+            const result = await modpackCreator.work();
+            
+            // Check that mods from both repositories were found
+            expect(result.mods).toHaveLength(2);
+            const modNames = result.mods.map(mod => mod.name);
+            expect(modNames).toContain('Ice and Fire: Dragons');
+            expect(modNames).toContain('Second Repo Mod');
+            
+            // Should find a compatible version for both mods
+            expect(result.mcConfig.mcVersion).toBe('1.17.1');
+            expect(result.mcConfig.loader).toBe(ModLoader.FABRIC);
         });
     });
 });
