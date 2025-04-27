@@ -10,6 +10,5 @@ export type {
     ModAndReleases,
     UnresolvedMod,
     ModReleaseMetadata as ModRelease,
-    MCVersion,
-    ResolvedMod
+    MCVersion
 } from './ModpackCreator';
