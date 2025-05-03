@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { ModpackCreator, ModLoader } from 'lib/lib/ModpackCreator';
+	import type { Solution } from 'mclib';
+	import { ModpackCreator, ModLoader } from 'mclib';
 	import * as m from '$msg';
-
-	import type { Solution } from 'lib/lib/ModpackCreator';
 
 	let search_name = $state('');
 	let results: Solution | null = $state(null);
