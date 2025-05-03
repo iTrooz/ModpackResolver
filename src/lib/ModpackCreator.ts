@@ -42,6 +42,16 @@ export type ModReleaseMetadata = {
     loaders: ModLoader[];
 };
 
+/** Represents metadata for a mod search result. */
+export type ModSearchMetadata = {
+    /** The name of the mod */
+    name: string;
+    /** The URL of the mod's image */
+    imageURL: string;
+    /** The total number of downloads for the mod */
+    downloadCount: number;
+};
+
 /** Unresolved mod that needs to be processed */
 export type UnresolvedMod = {
     /** Type of source identifier */

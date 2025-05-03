@@ -1,5 +1,5 @@
 import type { IRepository } from "./IRepository";
-import type { ModAndReleases, ModReleaseMetadata, ModRepository, ModLoader } from "./ModpackCreator";
+import type { ModAndReleases, ModReleaseMetadata, ModRepository, ModLoader, ModSearchMetadata } from "./ModpackCreator";
 
 /**
  * Implementation of IRepository for the Modrinth repository.
@@ -45,5 +45,23 @@ export class ModrinthRepository implements IRepository {
             name: projectData.title || projectData.slug || modId,
             releases,
         };
+    }
+
+    /**
+     * Search for mods by a query string using the Modrinth API.
+     * @param query The search query.
+     * @returns A promise resolving to an array of ModSearchMetadata.
+     */
+    async searchMods(query: string): Promise<ModSearchMetadata[]> {
+        // Modrinth API: https://api.modrinth.com/v2/search
+        const resp = await fetch(`https://api.modrinth.com/v2/search?query=${encodeURIComponent(query)}`);
+        if (!resp.ok) throw new Error("Failed to fetch search results from Modrinth");
+        const data = await resp.json();
+
+        return data.hits.map((hit: any) => ({
+            name: hit.title,
+            imageURL: hit.icon_url || "",
+            downloadCount: hit.downloads || 0
+        }));
     }
 }
