@@ -7,11 +7,9 @@ on:
   pull_request:
 
 jobs:
-  ci:
-    name: Build and Deploy
+  build:
+    name: Build
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,6 +30,14 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: 'web/build/'
-
+  
+  upload_pages:
+    name: Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      id-token: write
+      pages: write
+    steps:
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
