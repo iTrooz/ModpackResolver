@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { ModpackCreator, ModLoader } from '$lib';
-	//import * as m from '$msg';
-	import { m } from '$lib/paraglide/messages.js';
+	import * as m from '$msg';
 
 	import type { Solution } from '$lib/ModpackCreator';
 
