@@ -5,7 +5,7 @@
     "commander": "^10.0.0"
   },
   "scripts": {
-    "build": "bun build src/index.ts --outdir dist --minify --target node",
-    "start": "bun src/index.ts"
+    "build": "(cd ../mclib && bun run build) && bun build src/index.ts --outdir dist --minify --target node",
+    "start": "(cd ../mclib && bun run build) && bun src/index.ts"
   }
 }
