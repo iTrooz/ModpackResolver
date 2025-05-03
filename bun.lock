@@ -9,6 +9,7 @@
       "version": "0.0.1",
       "dependencies": {
         "commander": "^10.0.0",
+        "mclib": "workspace:*",
       },
     },
     "mclib": {
