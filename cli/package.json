@@ -1,0 +1,12 @@
+{
+  "name": "cli",
+  "version": "0.0.1",
+  "dependencies": {
+    "commander": "^10.0.0",
+    "lib": "workspace:*"
+  },
+  "scripts": {
+    "build": "bun build src/index.ts --outdir dist --minify --target node",
+    "start": "bun src/index.ts"
+  }
+}

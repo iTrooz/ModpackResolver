@@ -2,7 +2,7 @@
 	import { ModpackCreator, ModLoader } from '$lib';
 	import * as m from '$msg';
 
-	import type { Solution } from '$lib/ModpackCreator';
+	import type { Solution } from 'lib/lib/ModpackCreator';
 
 	let search_name = $state('');
 	let results: Solution | null = $state(null);
