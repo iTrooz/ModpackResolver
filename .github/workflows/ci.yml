@@ -19,8 +19,8 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      - name: build CLI
-        run: cd cli && bun run build
+      # - name: build CLI
+      #   run: cd cli && bun run build
       
       - name: Build website
         run: cd web && bun run build
