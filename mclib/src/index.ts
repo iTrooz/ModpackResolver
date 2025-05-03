@@ -3,7 +3,8 @@ export {
     ModpackCreator, 
     ModRepository, 
     ModSourceType,
-    ModLoader
+    ModLoader,
+    Solution
 } from './ModpackCreator';
 
 export type {

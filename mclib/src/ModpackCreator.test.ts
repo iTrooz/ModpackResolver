@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { ModpackCreator, ModLoader, ModRepository, type ModAndReleases, type ModReleaseMetadata } from './ModpackCreator';
+import { ModpackCreator, ModLoader, ModRepository, type ModAndReleases, type ModReleaseMetadata, ModSearchMetadata } from './ModpackCreator';
 import type { IRepository } from './IRepository';
 
 class MockRepository implements IRepository {
@@ -23,6 +23,10 @@ class MockRepository implements IRepository {
             throw new Error(`Mod with ID ${modId} not found`);
         }
         return this.mods[modId];
+    }
+
+    async searchMods(query: string): Promise<ModSearchMetadata[]> {
+        throw new Error('Method not implemented.');
     }
 }
 
