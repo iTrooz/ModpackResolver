@@ -1,6 +1,4 @@
-# Updated from SvelteKit docs. See https://kit.svelte.dev/docs/adapter-static#github-pages for more information
-
-name: Deploy to GitHub Pages
+name: CI
 
 on:
   push:
