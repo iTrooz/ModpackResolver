@@ -1,4 +1,11 @@
 {
 	"$schema": "https://inlang.com/schema/inlang-message-format",
-	"hello_world": "Hello, {name} from en!"
+	"search_mod_by_name": "Search for a mod by its name",
+	"add": "Add",
+	"remove": "Remove",
+	"run_modpack_creator": "Run Modpack Creator",
+	"processing_modpack_creator": "Processing...",
+	"error": "Error",
+	"result": "Results",
+	"show_raw_data": "Show Raw Data"
 }
