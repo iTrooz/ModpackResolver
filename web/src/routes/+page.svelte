@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ModpackCreator, ModLoader } from '$lib';
+	import { ModpackCreator, ModLoader } from 'lib/lib/ModpackCreator';
 	import * as m from '$msg';
 
 	import type { Solution } from 'lib/lib/ModpackCreator';
