@@ -1,13 +1,16 @@
 <script lang="ts">
-	import type { Solution } from 'mclib';
+	import type { Solution, ModSearchMetadata } from 'mclib';
 	import { ModpackCreator, ModLoader } from 'mclib';
+	import { ModInput } from '$cmpts';
 	import * as m from '$msg';
 
-	let search_name = $state('');
+	let search_name_input = $state('');
+	let search_results: ModSearchMetadata[] = $state([]);
+	let is_loading_search = $state(false);
 	let results: Solution | null = $state(null);
 	let show_raw_data = $state(false);
 
-	let isLoading = $state(false);
+	let is_loading_mccreator = $state(false);
 	let error: string | null = $state(null);
 
 	async function runModpackCreator() {
@@ -15,7 +18,7 @@
 			// Reset state
 			results = null;
 			error = null;
-			isLoading = true;
+			is_loading_mccreator = true;
 
 			// Create logic instance
 			let mc = new ModpackCreator();
@@ -33,20 +36,30 @@
 			error = err.message || 'Unknown error';
 			console.error(err);
 		} finally {
-			isLoading = false;
+			is_loading_mccreator = false;
 		}
 	}
 </script>
 
-<h1>Modpack Creator</h1>
+<h1>{m.modpack_creator_name()}</h1>
 
-<div>
-	<input type="text" placeholder={m.search_mod_by_name()} bind:value={search_name} />
-	<button onclick={() => {}}>󰐕{m.add()}</button>
-</div>
+<ModInput bind:search_name_input bind:search_results bind:is_loading_search />
 
-<button onclick={runModpackCreator} disabled={isLoading}>
-	{#if isLoading}
+{#if is_loading_search}
+	<p>{m.loading_mod_search()}</p>
+{:else if search_results}
+	<div>
+		{#each search_results as result (result.name)}
+			<div>
+				<h2>{result.name}</h2>
+				<p>{result.imageURL}</p>
+			</div>
+		{/each}
+	</div>
+{/if}
+
+<button onclick={runModpackCreator} disabled={is_loading_mccreator}>
+	{#if is_loading_mccreator}
 		{m.processing_modpack_creator()}
 	{:else}
 		{m.run_modpack_creator()}
@@ -55,8 +68,8 @@
 
 <section>
 	{#if error}
-		<p>{m.error()}: {error}</p>
-	{:else if isLoading}
+		<p>{m.error_while_calculating()}: {error}</p>
+	{:else if is_loading_mccreator}
 		<p>{m.processing_modpack_creator()}</p>
 	{:else if results}
 		<h2>{m.result()}:</h2>

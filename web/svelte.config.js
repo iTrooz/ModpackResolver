@@ -14,7 +14,8 @@ const config = {
 		adapter: adapter(),
 		alias: {
 			$routes: 'src/routes',
-			$msg: 'src/lib/paraglide/messages.js'
+			$msg: 'src/lib/paraglide/messages.js',
+			$cmpts: 'src/components.ts'
 		}
 	}
 };
