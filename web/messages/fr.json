@@ -1,11 +1,13 @@
 {
 	"$schema": "https://inlang.com/schema/inlang-message-format",
+	"modpack_creator_name": "Modpack Creator",
 	"search_mod_by_name": "Recherchez un mod par son nom",
-	"add": "Ajouter",
-	"remove": "Supprimer",
+	"search_for_mods": "Rechercher",
+	"loading_mod_search": "Veuillez patienter, nous recherchons votre mod",
+	"add_mod": "Ajouter",
 	"run_modpack_creator": "Exécuter le créateur de modpack",
 	"processing_modpack_creator": "Calcul...",
-	"error": "Erreur",
+	"error_while_calculating": "Erreur pendant processus",
 	"result": "Résultats",
 	"show_raw_data": "Afficher les données brutes"
 }

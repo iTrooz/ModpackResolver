@@ -1,24 +1,24 @@
 @font-face {
-    font-family: "Minecraft";
-    font-style: normal;
-    font-weight: normal;
-    src: url("MinecraftNerdFont-Regular.otf");
+	font-family: 'Minecraft';
+	font-style: normal;
+	font-weight: normal;
+	src: url('MinecraftNerdFont-Regular.otf');
 }
 @font-face {
-    font-family: "Minecraft";
-    font-style: italic;
-    font-weight: normal;
-    src: url("MinecraftNerdFont-Italic.otf");
+	font-family: 'Minecraft';
+	font-style: italic;
+	font-weight: normal;
+	src: url('MinecraftNerdFont-Italic.otf');
 }
 @font-face {
-    font-family: "Minecraft";
-    font-style: normal;
-    font-weight: bold;
-    src: url("MinecraftNerdFont-Bold.otf");
+	font-family: 'Minecraft';
+	font-style: normal;
+	font-weight: bold;
+	src: url('MinecraftNerdFont-Bold.otf');
 }
 @font-face {
-    font-family: "Minecraft";
-    font-style: italic;
-    font-weight: bold;
-    src: url("MinecraftNerdFont-BoldItalic.otf");
+	font-family: 'Minecraft';
+	font-style: italic;
+	font-weight: bold;
+	src: url('MinecraftNerdFont-BoldItalic.otf');
 }
