@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Solution, ModSearchMetadata } from 'mclib';
 	import { ModpackCreator, ModLoader } from 'mclib';
-	import { ModSearch } from '$cmpts';
+	import { ModSearch, ModsList } from '$cmpts';
 	import * as m from '$msg';
 
 	let search_name_input = $state('');
@@ -10,12 +10,19 @@
 
 	let mod_list_added: ModSearchMetadata[] = $state([]);
 
-	function add_mod_to_list(mod_name: ModSearchMetadata): void {
-		if (!mod_list_added.includes(mod_name)) {
+	function add_mod_to_list(mod: ModSearchMetadata): void {
+		if (!mod_list_added.includes(mod)) {
 			// add mod to list of mods to use
-			mod_list_added.push(mod_name);
+			mod_list_added.push(mod);
 			//empty search results list
 			search_results = [];
+		}
+	}
+
+	function remove_mod_from_list(mod: ModSearchMetadata): void {
+		const index_mod = mod_list_added.indexOf(mod);
+		if (index_mod > -1) {
+			mod_list_added.splice(index_mod, 1);
 		}
 	}
 
@@ -61,15 +68,8 @@
 
 <ModSearch bind:search_name_input bind:search_results bind:is_loading_search {add_mod_to_list} />
 
-<ul>
-	{#each mod_list_added as mod (mod.name)}
-		<li>
-			<img src={mod.imageURL} alt={mod.name + ' pic'} />
-			<p>{mod.name}</p>
-			<sub>{mod.downloadCount}</sub>
-		</li>
-	{/each}
-</ul>
+<ModsList bind:mod_list_added {remove_mod_from_list} />
+
 <button onclick={runModpackCreator} disabled={is_loading_mccreator}>
 	{#if is_loading_mccreator}
 		{m.processing_modpack_creator()}

@@ -6,10 +6,10 @@
 	import { slide } from 'svelte/transition';
 
 	let {
-		search_name_input = $bindable(''),
-		search_results = $bindable([]),
-		is_loading_search = $bindable(false),
-		add_mod_to_list = () => {}
+		search_name_input = $bindable(),
+		search_results = $bindable(),
+		is_loading_search = $bindable(),
+		add_mod_to_list
 	}: {
 		search_name_input: string;
 		search_results: ModSearchMetadata[];
@@ -65,7 +65,6 @@
 		& input[type='text'] {
 			flex: 1;
 			background: var(--grey-dark-1);
-			border: none;
 			border: solid 2px var(--green);
 			outline: none;
 			color: var(--grey-light-2);

@@ -6,6 +6,7 @@
 	"loading_mod_search": "Veuillez patienter, nous recherchons votre mod",
 	"downloads_count": "téléchargements",
 	"add_mod": "Ajouter",
+	"remove_mod": "Enlever",
 	"run_modpack_creator": "Exécuter le créateur de modpack",
 	"processing_modpack_creator": "Calcul...",
 	"error_while_calculating": "Erreur pendant processus",
