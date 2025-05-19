@@ -3,8 +3,8 @@
 	import type { ModSearchMetadata } from 'mclib';
 
 	let {
-		search_results = $bindable([]),
-		add_mod_to_list = () => {}
+		search_results = $bindable(),
+		add_mod_to_list
 	}: {
 		search_results: ModSearchMetadata[];
 		add_mod_to_list: (mod_name: ModSearchMetadata) => void;
