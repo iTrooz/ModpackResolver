@@ -1,1 +1,2 @@
-export { default as ModInput } from './components/ModInput.svelte';
+export { default as ModSearch } from './components/ModSearch.svelte';
+export { default as ModSearchList } from './components/ModSearchList.svelte';

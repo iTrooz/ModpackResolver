@@ -1,13 +1,25 @@
 <script lang="ts">
 	import type { Solution, ModSearchMetadata } from 'mclib';
 	import { ModpackCreator, ModLoader } from 'mclib';
-	import { ModInput } from '$cmpts';
+	import { ModSearch } from '$cmpts';
 	import * as m from '$msg';
 
 	let search_name_input = $state('');
-	let search_results: ModSearchMetadata[] = $state([]);
 	let is_loading_search = $state(false);
-	let results: Solution | null = $state(null);
+	let search_results: ModSearchMetadata[] = $state([]);
+
+	let mod_list_added: ModSearchMetadata[] = $state([]);
+
+	function add_mod_to_list(mod_name: ModSearchMetadata): void {
+		if (!mod_list_added.includes(mod_name)) {
+			// add mod to list of mods to use
+			mod_list_added.push(mod_name);
+			//empty search results list
+			search_results = [];
+		}
+	}
+
+	let mc_results: Solution | null = $state(null);
 	let show_raw_data = $state(false);
 
 	let is_loading_mccreator = $state(false);
@@ -16,7 +28,7 @@
 	async function runModpackCreator() {
 		try {
 			// Reset state
-			results = null;
+			mc_results = null;
 			error = null;
 			is_loading_mccreator = true;
 
@@ -31,9 +43,13 @@
 
 			// Let the logic run with the constraints
 			let solutions = await mc.work(1);
-			results = solutions[0];
-		} catch (err: any) {
-			error = err.message || 'Unknown error';
+			mc_results = solutions[0];
+		} catch (err) {
+			if (err instanceof Error) {
+				error = err.message;
+			} else {
+				error = 'Unknown error';
+			}
 			console.error(err);
 		} finally {
 			is_loading_mccreator = false;
@@ -43,21 +59,17 @@
 
 <h1>{m.modpack_creator_name()}</h1>
 
-<ModInput bind:search_name_input bind:search_results bind:is_loading_search />
+<ModSearch bind:search_name_input bind:search_results bind:is_loading_search {add_mod_to_list} />
 
-{#if is_loading_search}
-	<p>{m.loading_mod_search()}</p>
-{:else if search_results}
-	<div>
-		{#each search_results as result (result.name)}
-			<div>
-				<h2>{result.name}</h2>
-				<p>{result.imageURL}</p>
-			</div>
-		{/each}
-	</div>
-{/if}
-
+<ul>
+	{#each mod_list_added as mod (mod.name)}
+		<li>
+			<img src={mod.imageURL} alt={mod.name + ' pic'} />
+			<p>{mod.name}</p>
+			<sub>{mod.downloadCount}</sub>
+		</li>
+	{/each}
+</ul>
 <button onclick={runModpackCreator} disabled={is_loading_mccreator}>
 	{#if is_loading_mccreator}
 		{m.processing_modpack_creator()}
@@ -71,15 +83,15 @@
 		<p>{m.error_while_calculating()}: {error}</p>
 	{:else if is_loading_mccreator}
 		<p>{m.processing_modpack_creator()}</p>
-	{:else if results}
+	{:else if mc_results}
 		<h2>{m.result()}:</h2>
 		<h3 class="font-bold">Best Minecraft Configuration:</h3>
-		<p>Version: {results.mcConfig.mcVersion}</p>
-		<p>Loader: {results.mcConfig.loader}</p>
+		<p>Version: {mc_results.mcConfig.mcVersion}</p>
+		<p>Loader: {mc_results.mcConfig.loader}</p>
 
 		<h3 class="mt-4 font-bold">Compatible Mods:</h3>
 		<ul class="ml-6 list-disc">
-			{#each results.mods as mod (mod.release)}
+			{#each mc_results.mods as mod (mod.release)}
 				<li>
 					<strong>{mod.name}</strong>: {mod.release.modVersion}
 					<ul class="list-circle ml-4 text-sm">
@@ -94,7 +106,7 @@
 		<label for="show_raw_data">{m.show_raw_data()}</label>
 
 		{#if show_raw_data}
-			<pre>{JSON.stringify(results, null, 2)}</pre>
+			<pre>{JSON.stringify(mc_results, null, 2)}</pre>
 		{/if}
 	{/if}
 </section>
