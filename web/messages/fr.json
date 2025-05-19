@@ -4,6 +4,7 @@
 	"search_mod_by_name": "Recherchez un mod par son nom",
 	"search_for_mods": "Rechercher",
 	"loading_mod_search": "Veuillez patienter, nous recherchons votre mod",
+	"downloads_count": "téléchargements",
 	"add_mod": "Ajouter",
 	"run_modpack_creator": "Exécuter le créateur de modpack",
 	"processing_modpack_creator": "Calcul...",
