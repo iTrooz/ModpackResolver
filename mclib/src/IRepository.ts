@@ -26,7 +26,7 @@ export interface IRepository {
     searchMods(query: string): Promise<ModSearchMetadata[]>;
 
     /**
-     * Returns the repository name (ModRepository enum value)
+     * Returns the repository name (ModRepositoryName enum value)
      */
     getRepositoryName(): ModRepositoryName;
 }

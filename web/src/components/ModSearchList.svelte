@@ -1,12 +1,12 @@
 <script lang="ts">
 	import * as m from '$msg';
-	import type { ModRepository, ModSearchMetadata } from 'mclib';
+	import type { ModRepositoryName, ModSearchMetadata } from 'mclib';
 
 	let {
 		search_results = $bindable(),
 		add_mod_to_list
 	}: {
-		search_results: [ModRepository, ModSearchMetadata][];
+		search_results: [ModRepositoryName, ModSearchMetadata][];
 		add_mod_to_list: (mod_name: ModSearchMetadata) => void;
 	} = $props();
 </script>
