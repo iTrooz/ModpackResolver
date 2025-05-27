@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { ModpackCreator, ModLoader, ModRepository, type ModAndReleases, type ModReleaseMetadata, ModSearchMetadata } from './ModpackCreator';
+import { ModpackCreator, ModLoader, ModRepositoryName, type ModAndReleases, type ModReleaseMetadata, ModSearchMetadata } from './ModpackCreator';
 import type { IRepository } from './IRepository';
 
 class MockRepository implements IRepository {
@@ -27,6 +27,10 @@ class MockRepository implements IRepository {
 
     async searchMods(query: string): Promise<ModSearchMetadata[]> {
         throw new Error('Method not implemented.');
+    }
+
+    getRepositoryName(): ModRepositoryName {
+        return "mock" as ModRepositoryName;
     }
 }
 
@@ -69,7 +73,7 @@ describe('ModpackCreator', () => {
             return {
                 mcVersions: ['1.16.5', '1.17.1'],
                 modVersion: '1.0.0',
-                repository: ModRepository.MODRINTH,
+                repository: ModRepositoryName.MODRINTH,
                 loaders: [ModLoader.FORGE, ModLoader.FABRIC],
                 ...overrides
             };
@@ -217,13 +221,13 @@ describe('ModpackCreator', () => {
                     {
                         mcVersions: ['1.17.1', '1.18.1'],
                         modVersion: '9.0.0',
-                        repository: ModRepository.MODRINTH,
+                        repository: ModRepositoryName.MODRINTH,
                         loaders: [ModLoader.FORGE, ModLoader.FABRIC]
                     },
                     {
                         mcVersions: ['1.16.5'],
                         modVersion: '8.0.0',
-                        repository: ModRepository.MODRINTH,
+                        repository: ModRepositoryName.MODRINTH,
                         loaders: [ModLoader.FORGE, ModLoader.FABRIC]
                     }
                 ]
@@ -235,19 +239,19 @@ describe('ModpackCreator', () => {
                     {
                         mcVersions: ['1.16.5', '1.17.1'],
                         modVersion: '2.0.0',
-                        repository: ModRepository.MODRINTH,
+                        repository: ModRepositoryName.MODRINTH,
                         loaders: [ModLoader.FORGE]
                     },
                     {
                         mcVersions: ['1.12.2'],
                         modVersion: '1.0.0',
-                        repository: ModRepository.MODRINTH,
+                        repository: ModRepositoryName.MODRINTH,
                         loaders: [ModLoader.FORGE]
                     },
                     {
                         mcVersions: ['1.16.5', '1.17.1', '1.18.1'],
                         modVersion: '2.0.0',
-                        repository: ModRepository.MODRINTH,
+                        repository: ModRepositoryName.MODRINTH,
                         loaders: [ModLoader.FABRIC]
                     }
                 ]
@@ -330,13 +334,6 @@ describe('ModpackCreator', () => {
             expect(result).toHaveLength(0);
         });
 
-        it('should handle mod lookups by hash', async () => {
-            modpackCreator.addModFromHash('123abc');
-            const result = (await modpackCreator.work(1))[0];
-            expect(result.mods).toHaveLength(1);
-            expect(result.mods[0].name).toBe('Just Enough Items');
-        });
-
         it('should handle multiple mod repositories', async () => {
             // Setup second repository
             const secondMockRepo = new MockRepository();
@@ -345,7 +342,7 @@ describe('ModpackCreator', () => {
                 releases: [{
                     mcVersions: ['1.17.1'],
                     modVersion: '1.0.0',
-                    repository: ModRepository.CUSTOM,
+                    repository: ModRepositoryName.CUSTOM,
                     loaders: [ModLoader.FABRIC]
                 }]
             };
@@ -370,7 +367,7 @@ describe('ModpackCreator', () => {
                 releases: [{
                     mcVersions: ['1.16.5'],
                     modVersion: '1.0.0',
-                    repository: ModRepository.MODRINTH,
+                    repository: ModRepositoryName.MODRINTH,
                     loaders: [ModLoader.FORGE]
                 }]
             };

@@ -1,4 +1,4 @@
-import type { ModAndReleases, ModSearchMetadata } from "./ModpackCreator";
+import type { ModAndReleases, ModSearchMetadata, ModRepositoryName } from "./ModpackCreator";
 
 /**
  * Interface for a mod repository
@@ -24,4 +24,9 @@ export interface IRepository {
      * @returns A promise resolving to an array of mods matching the query.
      */
     searchMods(query: string): Promise<ModSearchMetadata[]>;
+
+    /**
+     * Returns the repository name (ModRepositoryName enum value)
+     */
+    getRepositoryName(): ModRepositoryName;
 }

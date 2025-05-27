@@ -1,9 +1,10 @@
 <script lang="ts">
 	import * as m from '$msg';
-	import { ModrinthRepository } from 'mclib';
-	import type { ModSearchMetadata } from 'mclib';
+	import { ModrinthRepository, ModSearchService } from 'mclib';
+	import type { ModSearchMetadata, ModRepositoryName } from 'mclib';
 	import { ModSearchList } from '$cmpts';
 	import { slide } from 'svelte/transition';
+	import { repositories } from '../config/repositories';
 
 	let {
 		search_name_input = $bindable(),
@@ -12,7 +13,7 @@
 		add_mod_to_list
 	}: {
 		search_name_input: string;
-		search_results: ModSearchMetadata[];
+		search_results: [ModRepositoryName, ModSearchMetadata][];
 		is_loading_search: boolean;
 		add_mod_to_list: (mod_name: ModSearchMetadata) => void;
 	} = $props();
@@ -21,8 +22,9 @@
 		try {
 			// set loading mode
 			is_loading_search = true;
-			let modrinth_repo = new ModrinthRepository();
-			search_results = await modrinth_repo.searchMods(search_name_input);
+			let mod_search_service = new ModSearchService();
+			const results = await mod_search_service.searchMods(search_name_input, repositories);
+			search_results = results;
 		} catch (err) {
 			console.log(err);
 		} finally {
