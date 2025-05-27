@@ -18,6 +18,13 @@
 		add_mod_to_list: (mod_name: ModSearchMetadata) => void;
 	} = $props();
 
+	let timeout: NodeJS.Timeout;
+
+	function handle_automatic_search() {
+		if (timeout) clearTimeout(timeout);
+		timeout = setTimeout(search_for_mods, 500);
+	}
+
 	async function search_for_mods() {
 		try {
 			// set loading mode
@@ -39,11 +46,16 @@
 			e.preventDefault();
 		}}
 	>
-		<input type="text" placeholder={m.search_mod_by_name()} bind:value={search_name_input} />
+		<input
+			type="text"
+			placeholder={m.search_mod_by_name()}
+			bind:value={search_name_input}
+			oninput={handle_automatic_search}
+		/>
 		<input type="submit" value={m.search_for_mods()} onclick={search_for_mods} />
 	</form>
 
-	{#if search_results.length > 0}
+	{#if search_results.length > 0 && search_name_input.length > 0}
 		<div transition:slide={{ axis: 'y', duration: 200 }}>
 			<ModSearchList bind:search_results {add_mod_to_list} />
 		</div>

@@ -24,6 +24,16 @@ export default ts.config(
 		}
 	},
 	{
+		overrides: [
+			{
+				files: ['*.ts'],
+				rules: {
+					'no-undef': 'off' // to prevent the error on use of NodeJS.[...]
+				}
+			}
+		]
+	},
+	{
 		files: ['**/*.svelte', '**/*.svelte.ts', '**/*.svelte.js'],
 		ignores: ['eslint.config.js', 'svelte.config.js'],
 
