@@ -16,3 +16,5 @@ export type {
   ModReleaseMetadata as ModRelease,
   MCVersion,
 } from "./ModpackCreator";
+
+export { ModSearchService } from "./ModSearchService";

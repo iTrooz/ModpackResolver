@@ -28,6 +28,10 @@ class MockRepository implements IRepository {
     async searchMods(query: string): Promise<ModSearchMetadata[]> {
         throw new Error('Method not implemented.');
     }
+
+    getRepositoryName(): ModRepository {
+        return "mock" as ModRepository;
+    }
 }
 
 describe('ModpackCreator', () => {

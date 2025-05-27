@@ -1,5 +1,5 @@
 import type { IRepository } from "./IRepository";
-import type { ModAndReleases, ModReleaseMetadata, ModRepository, ModLoader, ModSearchMetadata } from "./ModpackCreator";
+import { ModAndReleases, ModReleaseMetadata, ModRepository, ModLoader, ModSearchMetadata } from "./ModpackCreator";
 
 /**
  * Implementation of IRepository for the Modrinth repository.
@@ -63,5 +63,9 @@ export class ModrinthRepository implements IRepository {
             imageURL: hit.icon_url || "",
             downloadCount: hit.downloads || 0
         }));
+    }
+
+    getRepositoryName(): ModRepository {
+        return ModRepository.MODRINTH;
     }
 }
