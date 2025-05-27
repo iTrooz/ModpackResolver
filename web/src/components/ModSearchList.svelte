@@ -1,30 +1,31 @@
 <script lang="ts">
 	import * as m from '$msg';
-	import type { ModSearchMetadata } from 'mclib';
+	import type { ModRepository, ModSearchMetadata } from 'mclib';
 
 	let {
 		search_results = $bindable(),
 		add_mod_to_list
 	}: {
-		search_results: ModSearchMetadata[];
+		search_results: [ModRepository, ModSearchMetadata][];
 		add_mod_to_list: (mod_name: ModSearchMetadata) => void;
 	} = $props();
 </script>
 
 <ul id="mod_search_list">
-	{#each search_results.slice(0, 10) as result (result.name)}
+	{#each search_results.slice(0, 10) as [repository, mod] (mod.name)}
 		<li>
 			<button
 				class="result_line"
 				onclick={() => {
-					add_mod_to_list(result);
+					add_mod_to_list(mod);
 				}}
 			>
 				<div class="name">
-					<img src={result.imageURL} alt="{result.name} pic" />
-					<p>{result.name}</p>
+					<img src={mod.imageURL} alt="{mod.name} pic" />
+					<p>{mod.name}</p>
 				</div>
-				<sub>{result.downloadCount + ' ' + m.downloads_count()}</sub>
+				<sub>{mod.downloadCount + ' ' + m.downloads_count()}</sub>
+				<sub>{repository}</sub>
 			</button>
 		</li>
 	{/each}

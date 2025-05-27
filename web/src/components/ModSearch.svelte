@@ -1,7 +1,7 @@
 <script lang="ts">
 	import * as m from '$msg';
 	import { ModrinthRepository, ModSearchService } from 'mclib';
-	import type { ModSearchMetadata } from 'mclib';
+	import type { ModSearchMetadata, ModRepository } from 'mclib';
 	import { ModSearchList } from '$cmpts';
 	import { slide } from 'svelte/transition';
 
@@ -12,7 +12,7 @@
 		add_mod_to_list
 	}: {
 		search_name_input: string;
-		search_results: ModSearchMetadata[];
+		search_results: [ModRepository, ModSearchMetadata][];
 		is_loading_search: boolean;
 		add_mod_to_list: (mod_name: ModSearchMetadata) => void;
 	} = $props();
@@ -24,7 +24,7 @@
 			let modrinth_repo = new ModrinthRepository();
 			let mod_search_service = new ModSearchService();
 			const results = await mod_search_service.searchMods(search_name_input, [modrinth_repo]);
-			search_results = results.map(([_, mod]) => mod);
+			search_results = results;
 		} catch (err) {
 			console.log(err);
 		} finally {
