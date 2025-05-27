@@ -46,7 +46,9 @@
 			mc.setLoaders([ModLoader.FORGE]);
 
 			// Add mods to the modpack
-			mc.addModFromID('ice-and-fire-dragons');
+			for (const mod of mod_list_added) {
+				mc.addModFromID(mod.id);
+			}
 
 			// Let the logic run with the constraints
 			let solutions = await mc.work(1);
