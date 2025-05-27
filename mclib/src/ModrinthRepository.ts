@@ -59,6 +59,7 @@ export class ModrinthRepository implements IRepository {
         const data = await resp.json();
 
         return data.hits.map((hit: any) => ({
+            id: hit.slug,
             name: hit.title,
             imageURL: hit.icon_url || "",
             downloadCount: hit.downloads || 0

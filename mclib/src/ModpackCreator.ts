@@ -43,11 +43,9 @@ export type ModReleaseMetadata = {
 
 /** Represents metadata for a mod search result. */
 export type ModSearchMetadata = {
-    /** The name of the mod */
+    id: string;
     name: string;
-    /** The URL of the mod's image */
     imageURL: string;
-    /** The total number of downloads for the mod */
     downloadCount: number;
 };
 
