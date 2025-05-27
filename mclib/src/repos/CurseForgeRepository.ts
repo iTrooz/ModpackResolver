@@ -7,7 +7,7 @@ import { ModAndReleases, ModReleaseMetadata, ModRepositoryName, ModLoader, ModSe
 export class CurseForgeRepository implements IRepository {
     static BASE_URL = "https://api.curse.tools/v1/cf";
 
-    async getModIdFromHash(hash: string): Promise<string | null> {
+    async getModIdFromHash(_hash: string): Promise<string | null> {
         // CurseForge does not support hash lookup via public API
         return null;
     }
@@ -22,8 +22,8 @@ export class CurseForgeRepository implements IRepository {
         const filesData = (await filesResp.json()).data;
         
         const releases: ModReleaseMetadata[] = filesData.map((file: any) => {
-            let mcVersions: string[] = [];
-            let loaders: ModLoader[] = [];
+            const mcVersions: string[] = [];
+            const loaders: ModLoader[] = [];
             for (const d of file.gameVersions || []) {
                 const lower = d.toLowerCase();
                 if (/^[a-z]+$/.test(lower)) {

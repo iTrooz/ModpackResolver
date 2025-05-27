@@ -1,6 +1,4 @@
 import type { IRepository } from "./repos/IRepository";
-import { ModrinthRepository } from "./repos/ModrinthRepository";
-
 
 export enum ModRepositoryName {
     MODRINTH = "modrinth",

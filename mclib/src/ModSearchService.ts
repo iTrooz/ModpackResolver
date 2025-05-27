@@ -19,7 +19,7 @@ export class ModSearchService {
                 for (const mod of results) {
                     allResults.push([repoType, mod]);
                 }
-            } catch (e) {
+            } catch (_) {
                 // Ignore errors for individual repositories
             }
         }

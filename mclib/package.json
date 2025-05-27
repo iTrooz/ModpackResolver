@@ -8,6 +8,10 @@
     "build": "tsc"
   },
   "devDependencies": {
-    "@types/node": "^22.15.3"
+    "@eslint/js": "^9.27.0",
+    "@types/node": "^22.15.3",
+    "eslint": "^9.27.0",
+    "globals": "^16.2.0",
+    "typescript-eslint": "^8.32.1"
   }
 }
