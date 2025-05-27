@@ -13,7 +13,6 @@ export class CurseForgeRepository implements IRepository {
     }
 
     async getModReleases(modId: string): Promise<ModAndReleases> {
-        // Use BASE_URL for all endpoints
         const modResp = await fetch(`${CurseForgeRepository.BASE_URL}/mods/${modId}`);
         if (!modResp.ok) throw new Error("Mod not found on CurseForge");
         const modData = (await modResp.json()).data;
