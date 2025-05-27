@@ -20,14 +20,26 @@ export class CurseForgeRepository implements IRepository {
         const filesResp = await fetch(`${CurseForgeRepository.BASE_URL}/mods/${modId}/files`);
         if (!filesResp.ok) throw new Error("Could not fetch files from CurseForge");
         const filesData = (await filesResp.json()).data;
+        
+        const releases: ModReleaseMetadata[] = filesData.map((file: any) => {
+            let mcVersions: string[] = [];
+            let loaders: ModLoader[] = [];
+            for (const d of file.gameVersions || []) {
+                const lower = d.toLowerCase();
+                if (/^[a-z]+$/.test(lower)) {
+                    loaders.push(lower as ModLoader);
+                } else {
+                    mcVersions.push(lower);
+                }
+            }
 
-        const releases: ModReleaseMetadata[] = filesData.map((file: any) => ({
-            mcVersions: file.gameVersions || [],
-            modVersion: file.displayName,
-            repository: ModRepositoryName.CURSEFORGE,
-            loaders: (file.gameVersions || []).map((v: string) => v.toLowerCase() as ModLoader
-            ) as ModLoader[],
-        }));
+            return ({
+                mcVersions: mcVersions,
+                modVersion: file.displayName,
+                repository: ModRepositoryName.CURSEFORGE,
+                loaders: loaders,
+            })
+        });
 
         return {
             name: modData.name,
