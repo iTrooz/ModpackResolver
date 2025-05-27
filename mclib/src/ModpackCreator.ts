@@ -10,7 +10,6 @@ export enum ModRepositoryName {
 }
 
 export enum ModSourceType {
-    HASH = "hash",
     ID = "id"
 }
 
@@ -110,17 +109,6 @@ export class ModpackCreator {
 
     setLoaders(loaders: ModLoader[]): ModpackCreator {
         this.loaders = [...loaders];
-        return this;
-    }
-
-    /**
-     * Add a mod to the modpack using its file hash
-     */
-    addModFromHash(hash: string): ModpackCreator {
-        this.unresolvedMods.push({
-            source: ModSourceType.HASH,
-            data: hash
-        });
         return this;
     }
 
@@ -318,16 +306,6 @@ export class ModpackCreator {
      */
     private async resolveMod(unresolvedMod: UnresolvedMod): Promise<ModAndReleases> {
         switch (unresolvedMod.source) {
-            case ModSourceType.HASH:
-                for (const repo of this.repositories) {
-                    // Try to get mod ID from hash
-                    const modId = await repo.getModIdFromHash(unresolvedMod.data);
-                    if (modId) {
-                        // If found, get all releases for this mod
-                        return await repo.getModReleases(modId);
-                    }
-                }
-                throw new Error(`Mod with hash ${unresolvedMod.data} not found in any repository`);
             case ModSourceType.ID:
                 for (const repo of this.repositories) {
                     // Try to get releases for this mod ID
@@ -339,6 +317,8 @@ export class ModpackCreator {
                     }
                 }
                 throw new Error(`Mod with ID ${unresolvedMod.data} not found in any repository`);
+            default:
+                throw new Error(`Unsupported mod source type: ${unresolvedMod.source}`);
         }
     }
 }

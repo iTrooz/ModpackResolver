@@ -334,13 +334,6 @@ describe('ModpackCreator', () => {
             expect(result).toHaveLength(0);
         });
 
-        it('should handle mod lookups by hash', async () => {
-            modpackCreator.addModFromHash('123abc');
-            const result = (await modpackCreator.work(1))[0];
-            expect(result.mods).toHaveLength(1);
-            expect(result.mods[0].name).toBe('Just Enough Items');
-        });
-
         it('should handle multiple mod repositories', async () => {
             // Setup second repository
             const secondMockRepo = new MockRepository();
