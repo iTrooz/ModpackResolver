@@ -1,5 +1,5 @@
-import type { IRepository } from "./IRepository";
-import { ModrinthRepository } from "./ModrinthRepository";
+import type { IRepository } from "./repos/IRepository";
+import { ModrinthRepository } from "./repos/ModrinthRepository";
 
 
 export enum ModRepositoryName {
@@ -90,9 +90,10 @@ export class ModpackCreator {
     private loaders: ModLoader[] = [];
     private unresolvedMods: UnresolvedMod[] = [];
     private cache: Map<UnresolvedMod, ModAndReleases> = new Map();
-    private repositories: IRepository[] = [new ModrinthRepository()];
+    private repositories: IRepository[];
 
-    constructor() {
+    constructor(repositories: IRepository[] = []) {
+        this.repositories = repositories;
     }
 
     setExactVersion(version: string): ModpackCreator {

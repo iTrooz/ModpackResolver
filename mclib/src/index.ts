@@ -8,7 +8,8 @@ export {
   ModSearchMetadata,
 } from "./ModpackCreator";
 
-export { ModrinthRepository } from "./ModrinthRepository";
+export { ModrinthRepository } from "./repos/ModrinthRepository";
+export { CurseForgeRepository as CurseForgeRepository } from "./repos/CurseForgeRepository";
 
 export type {
   ModAndReleases,
