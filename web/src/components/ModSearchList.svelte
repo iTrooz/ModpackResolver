@@ -6,7 +6,7 @@
 		search_results = $bindable(),
 		add_mod_to_list
 	}: {
-		search_results: [ModRepositoryName, ModSearchMetadata][];
+		search_results: [ModRepositoryName, ModSearchMetadata][]; // list of (repository, mod search metadata)
 		add_mod_to_list: (mod_name: ModSearchMetadata) => void;
 	} = $props();
 </script>
