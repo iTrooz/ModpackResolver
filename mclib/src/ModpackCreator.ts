@@ -23,7 +23,7 @@ export enum ModLoader {
 /** Represents a Minecraft version */
 export type MCVersion = string;
 
-/** Represents a Minecraft configuration with version and loader */
+/** Represents a Minecraft configuration with mc version and loader */
 export type MCConfig = {
     mcVersion: MCVersion;
     loader: ModLoader;
@@ -44,7 +44,7 @@ export type ModReleaseMetadata = {
 /** Represents metadata for a mod search result. */
 export type ModSearchMetadata = {
     id: string;
-    name: string;
+    name: string; // user-facing name
     imageURL: string;
     downloadCount: number;
 };

@@ -1,16 +1,9 @@
 import type { IRepository } from "./IRepository";
 import type { ModRepositoryName, ModSearchMetadata } from "./ModpackCreator";
 
-/**
- * Service for searching mods across multiple repositories.
- */
 export class ModSearchService {
     /**
-     * Search for mods in the given repositories, rank by download count, and return results.
-     * @param query The search query string
-     * @param repositories List of repositories to search
-     * @param maxResults Maximum number of results to return (optional)
-     * @returns Array of [ModRepository, ModSearchMetadata] tuples, ranked by download count
+     * Searches mods across multiple repositories, and return aggregated results, ranked by download count.
      */
     async searchMods(
         query: string,
