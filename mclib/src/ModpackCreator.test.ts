@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { ModpackCreator, ModLoader, ModRepositoryName, type ModAndReleases, type ModReleaseMetadata, ModSearchMetadata } from './ModpackCreator';
-import type { IRepository } from './IRepository';
+import type { IRepository } from './repos/IRepository';
 
 class MockRepository implements IRepository {
     private mods: Record<string, ModAndReleases> = {};

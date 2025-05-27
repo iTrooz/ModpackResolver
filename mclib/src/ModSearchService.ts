@@ -1,4 +1,4 @@
-import type { IRepository } from "./IRepository";
+import type { IRepository } from "./repos/IRepository";
 import type { ModRepositoryName, ModSearchMetadata } from "./ModpackCreator";
 
 export class ModSearchService {
@@ -8,14 +8,14 @@ export class ModSearchService {
     async searchMods(
         query: string,
         repositories: IRepository[],
-        maxResults?: number
+        maxResults: number = 10,
     ): Promise<Array<[ModRepositoryName, ModSearchMetadata]>> {
         const allResults: Array<[ModRepositoryName, ModSearchMetadata]> = [];
 
         for (const repo of repositories) {
             try {
                 const repoType = repo.getRepositoryName();
-                const results = await repo.searchMods(query);
+                const results = await repo.searchMods(query, maxResults);
                 for (const mod of results) {
                     allResults.push([repoType, mod]);
                 }

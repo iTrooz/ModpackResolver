@@ -1,5 +1,5 @@
 import type { IRepository } from "./IRepository";
-import { ModAndReleases, ModReleaseMetadata, ModRepositoryName, ModLoader, ModSearchMetadata } from "./ModpackCreator";
+import { ModAndReleases, ModReleaseMetadata, ModRepositoryName, ModLoader, ModSearchMetadata } from "../ModpackCreator";
 
 export class ModrinthRepository implements IRepository {
 
@@ -33,8 +33,8 @@ export class ModrinthRepository implements IRepository {
         };
     }
 
-    async searchMods(query: string): Promise<ModSearchMetadata[]> {
-        const resp = await fetch(`https://api.modrinth.com/v2/search?query=${encodeURIComponent(query)}`);
+    async searchMods(query: string, maxResults: number): Promise<ModSearchMetadata[]> {
+        const resp = await fetch(`https://api.modrinth.com/v2/search?query=${encodeURIComponent(query)}&limit=${maxResults}`);
         if (!resp.ok) throw new Error("Failed to fetch search results from Modrinth");
         const data = await resp.json();
 

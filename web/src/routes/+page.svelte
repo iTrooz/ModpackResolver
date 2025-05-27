@@ -3,6 +3,7 @@
 	import { ModpackCreator, ModLoader } from 'mclib';
 	import { ModSearch, ModsList } from '$cmpts';
 	import * as m from '$msg';
+	import { repositories } from '../config/repositories';
 
 	let search_name_input = $state('');
 	let is_loading_search = $state(false);
@@ -40,7 +41,7 @@
 			is_loading_mccreator = true;
 
 			// Create logic instance
-			let mc = new ModpackCreator();
+			let mc = new ModpackCreator(repositories);
 
 			// Configure MC version and loader
 			mc.setLoaders([ModLoader.FORGE]);
