@@ -14,7 +14,7 @@
 
 {#if mod_list_added.length > 0}
 	<ul id="mods_list" transition:slide={{ axis: 'y', duration: 200 }}>
-		{#each mod_list_added as mod (mod.name)}
+		{#each mod_list_added as mod (mod.id)}
 			<li transition:slide={{ axis: 'y', duration: 200 }}>
 				<div class="infos">
 					<img src={mod.imageURL} alt={mod.name + ' picture'} />

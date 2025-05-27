@@ -7,12 +7,12 @@
 		add_mod_to_list
 	}: {
 		search_results: [ModRepositoryName, ModSearchMetadata][]; // list of (repository, mod search metadata)
-		add_mod_to_list: (mod_name: ModSearchMetadata) => void;
+		add_mod_to_list: (mod: ModSearchMetadata) => void;
 	} = $props();
 </script>
 
 <ul id="mod_search_list">
-	{#each search_results.slice(0, 10) as [repository, mod] (mod.name)}
+	{#each search_results.slice(0, 10) as [repository, mod] (mod.id)}
 		<li>
 			<button
 				class="result_line"

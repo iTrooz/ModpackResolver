@@ -15,17 +15,21 @@
 		search_name_input: string;
 		search_results: [ModRepositoryName, ModSearchMetadata][];
 		is_loading_search: boolean;
-		add_mod_to_list: (mod_name: ModSearchMetadata) => void;
+		add_mod_to_list: (mod: ModSearchMetadata) => void;
 	} = $props();
 
 	let timeout: NodeJS.Timeout;
+	let automatic_searching: boolean = $state(false);
 
-	function handle_automatic_search() {
+	function handle_automatic_search_input() {
 		if (timeout) clearTimeout(timeout);
 		timeout = setTimeout(search_for_mods, 500);
+		automatic_searching = true;
+		if (search_name_input.length == 0) search_results = [];
 	}
 
 	async function search_for_mods() {
+		if (search_name_input.length == 0) return;
 		try {
 			// set loading mode
 			is_loading_search = true;
@@ -35,6 +39,7 @@
 			console.log(err);
 		} finally {
 			is_loading_search = false;
+			automatic_searching = false;
 		}
 	}
 </script>
@@ -50,9 +55,14 @@
 			type="text"
 			placeholder={m.search_mod_by_name()}
 			bind:value={search_name_input}
-			oninput={handle_automatic_search}
+			oninput={handle_automatic_search_input}
 		/>
-		<input type="submit" value={m.search_for_mods()} onclick={search_for_mods} />
+		<input
+			type="submit"
+			value={m.search_for_mods()}
+			onclick={search_for_mods}
+			disabled={automatic_searching}
+		/>
 	</form>
 
 	{#if search_results.length > 0 && search_name_input.length > 0}

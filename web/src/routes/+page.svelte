@@ -47,7 +47,7 @@
 			let mc = new ModpackCreator(repositories);
 
 			// Configure MC version and loader
-			mc.setLoaders([ModLoader.FABRIC]);
+			mc.setLoaders([ModLoader.FABRIC, ModLoader.FORGE, ModLoader.NEOFORGE]);
 
 			// Add mods to the modpack
 			for (const mod of mod_list_added) {
