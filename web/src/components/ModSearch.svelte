@@ -4,6 +4,7 @@
 	import type { ModSearchMetadata, ModRepository } from 'mclib';
 	import { ModSearchList } from '$cmpts';
 	import { slide } from 'svelte/transition';
+	import { repositories } from '../config/repositories';
 
 	let {
 		search_name_input = $bindable(),
@@ -21,9 +22,8 @@
 		try {
 			// set loading mode
 			is_loading_search = true;
-			let modrinth_repo = new ModrinthRepository();
 			let mod_search_service = new ModSearchService();
-			const results = await mod_search_service.searchMods(search_name_input, [modrinth_repo]);
+			const results = await mod_search_service.searchMods(search_name_input, repositories);
 			search_results = results;
 		} catch (err) {
 			console.log(err);
