@@ -1,5 +1,5 @@
 import type { IRepository } from "./IRepository";
-import { ModAndReleases, ModReleaseMetadata, ModRepository, ModLoader, ModSearchMetadata } from "./ModpackCreator";
+import { ModAndReleases, ModReleaseMetadata, ModRepositoryName, ModLoader, ModSearchMetadata } from "./ModpackCreator";
 
 /**
  * Implementation of IRepository for the Modrinth repository.
@@ -37,7 +37,7 @@ export class ModrinthRepository implements IRepository {
         const releases: ModReleaseMetadata[] = versionsData.map((v: any) => ({
             mcVersions: v.game_versions,
             modVersion: v.version_number,
-            repository: "modrinth" as ModRepository,
+            repository: "modrinth" as ModRepositoryName,
             loaders: (v.loaders || []).map((l: string) => l as ModLoader),
         }));
 
@@ -65,7 +65,7 @@ export class ModrinthRepository implements IRepository {
         }));
     }
 
-    getRepositoryName(): ModRepository {
-        return ModRepository.MODRINTH;
+    getRepositoryName(): ModRepositoryName {
+        return ModRepositoryName.MODRINTH;
     }
 }

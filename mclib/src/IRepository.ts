@@ -1,4 +1,4 @@
-import type { ModAndReleases, ModSearchMetadata, ModRepository } from "./ModpackCreator";
+import type { ModAndReleases, ModSearchMetadata, ModRepositoryName } from "./ModpackCreator";
 
 /**
  * Interface for a mod repository
@@ -28,5 +28,5 @@ export interface IRepository {
     /**
      * Returns the repository name (ModRepository enum value)
      */
-    getRepositoryName(): ModRepository;
+    getRepositoryName(): ModRepositoryName;
 }

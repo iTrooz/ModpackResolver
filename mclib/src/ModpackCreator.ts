@@ -2,7 +2,7 @@ import type { IRepository } from "./IRepository";
 import { ModrinthRepository } from "./ModrinthRepository";
 
 
-export enum ModRepository {
+export enum ModRepositoryName {
     MODRINTH = "modrinth",
     CURSEFORGE = "curseforge",
     FTB = "ftb",
@@ -37,7 +37,7 @@ export type ModReleaseMetadata = {
     /** Mod version */
     modVersion: string;
     /** Repository where the release is available */
-    repository: ModRepository;
+    repository: ModRepositoryName;
     /** Compatible mod loaders */
     loaders: ModLoader[];
 };

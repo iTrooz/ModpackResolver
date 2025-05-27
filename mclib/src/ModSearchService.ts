@@ -1,5 +1,5 @@
 import type { IRepository } from "./IRepository";
-import type { ModRepository, ModSearchMetadata } from "./ModpackCreator";
+import type { ModRepositoryName, ModSearchMetadata } from "./ModpackCreator";
 
 /**
  * Service for searching mods across multiple repositories.
@@ -16,8 +16,8 @@ export class ModSearchService {
         query: string,
         repositories: IRepository[],
         maxResults?: number
-    ): Promise<Array<[ModRepository, ModSearchMetadata]>> {
-        const allResults: Array<[ModRepository, ModSearchMetadata]> = [];
+    ): Promise<Array<[ModRepositoryName, ModSearchMetadata]>> {
+        const allResults: Array<[ModRepositoryName, ModSearchMetadata]> = [];
 
         for (const repo of repositories) {
             try {
