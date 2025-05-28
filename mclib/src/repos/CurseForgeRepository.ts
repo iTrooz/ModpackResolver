@@ -63,7 +63,8 @@ export class CurseForgeRepository implements IRepository {
         return data.map((mod: any) => ({
             id: mod.id.toString(),
             name: mod.name,
-            imageURL: mod.logo?.url || "",
+            homepageURL: mod.links.websiteUrl,
+            imageURL: mod.logo.url,
             downloadCount: mod.downloadCount || 0
         }));
     }

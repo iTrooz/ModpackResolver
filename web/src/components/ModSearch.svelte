@@ -23,8 +23,7 @@
 			// set loading mode
 			is_loading_search = true;
 			let mod_search_service = new ModSearchService();
-			const results = await mod_search_service.searchMods(search_name_input, repositories);
-			search_results = results;
+			search_results = await mod_search_service.searchMods(search_name_input, repositories);
 		} catch (err) {
 			console.log(err);
 		} finally {
