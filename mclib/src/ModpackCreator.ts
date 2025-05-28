@@ -89,7 +89,6 @@ export class ModpackCreator {
     private minimalVersion: string | null = null;
     private loaders: ModLoader[] = [];
     private unresolvedMods: UnresolvedMod[] = [];
-    private cache: Map<UnresolvedMod, ModAndReleases> = new Map();
     private repositories: IRepository[];
 
     constructor(repositories: IRepository[] = []) {
@@ -196,14 +195,7 @@ export class ModpackCreator {
         const resolvedMods: ModAndReleases[] = [];
 
         for (const unresolvedMod of this.unresolvedMods) {
-            let resolvedMod = this.cache.get(unresolvedMod);
-
-            if (!resolvedMod) {
-                resolvedMod = await this.resolveMod(unresolvedMod);
-                this.cache.set(unresolvedMod, resolvedMod);
-            }
-
-            resolvedMods.push(resolvedMod);
+            resolvedMods.push(await this.resolveMod(unresolvedMod));
         }
 
         return resolvedMods;
