@@ -25,7 +25,7 @@ class MockRepository implements IRepository {
         return this.mods[modId];
     }
 
-    async searchMods(query: string): Promise<ModSearchMetadata[]> {
+    async searchMods(_query: string): Promise<ModSearchMetadata[]> {
         throw new Error('Method not implemented.');
     }
 
@@ -40,10 +40,6 @@ describe('ModpackCreator', () => {
 
         const compareVersions = (a: string, b: string): number => {
             return (modpackCreator as any).compareVersions(a, b);
-        };
-
-        const isGreaterOrEqual = (a: string, b: string): boolean => {
-            return compareVersions(a, b) >= 0;
         };
 
         it('compares simple versions correctly', () => {

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as m from '$msg';
-	import { ModrinthRepository, ModSearchService } from 'mclib';
+	import { ModSearchService } from 'mclib';
 	import type { ModSearchMetadata, ModRepositoryName } from 'mclib';
 	import { ModSearchList } from '$cmpts';
 	import { slide } from 'svelte/transition';
