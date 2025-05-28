@@ -35,6 +35,9 @@
 
 	async function runModpackCreator() {
 		try {
+			if (mod_list_added.length < 1) {
+				throw new Error(m.error_no_mod_added());
+			}
 			// Reset state
 			mc_results = null;
 			error = null;
@@ -73,7 +76,7 @@
 
 <ModsList bind:mod_list_added {remove_mod_from_list} />
 
-<button onclick={runModpackCreator} disabled={is_loading_mccreator}>
+<button onclick={runModpackCreator} disabled={is_loading_mccreator || mod_list_added.length < 1}>
 	{#if is_loading_mccreator}
 		{m.processing_modpack_creator()}
 	{:else}

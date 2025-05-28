@@ -8,6 +8,7 @@
 	"add_mod": "Add",
 	"remove_mod": "Remove",
 	"run_modpack_creator": "Run Modpack Creator",
+	"error_no_mod_added": "No mod was added, can't process if you haven't any mod",
 	"processing_modpack_creator": "Processing...",
 	"error_while_calculating": "Error while processing",
 	"result": "Results",
