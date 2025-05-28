@@ -23,7 +23,7 @@ export class ModrinthRepository implements IRepository {
         const releases: ModReleaseMetadata[] = versionsData.map((v: any) => ({
             mcVersions: v.game_versions,
             modVersion: v.version_number,
-            repository: "modrinth" as ModRepositoryName,
+            repository: ModRepositoryName.MODRINTH,
             loaders: (v.loaders || []).map((l: string) => l as ModLoader),
         }));
 
