@@ -43,6 +43,7 @@ export type ModReleaseMetadata = {
 export type ModSearchMetadata = {
     id: string;
     name: string; // user-facing name
+    homepageURL: string;
     imageURL: string;
     downloadCount: number;
 };
