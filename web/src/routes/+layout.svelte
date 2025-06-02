@@ -29,5 +29,6 @@
 		align-items: center;
 		gap: 1rem;
 		flex: 1;
+		margin: 2rem;
 	}
 </style>

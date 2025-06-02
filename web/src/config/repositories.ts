@@ -1,8 +1,4 @@
 import { ModrinthRepository } from 'mclib';
 import { CurseForgeRepository } from 'mclib';
-// Add other repositories here as you implement them
 
-export const repositories = [
-    new ModrinthRepository(),
-    new CurseForgeRepository(),
-];
+export const repositories = [new ModrinthRepository(), new CurseForgeRepository()];
