@@ -34,7 +34,7 @@ export class ModrinthRepository implements IRepository {
     }
 
     async searchMods(query: string, maxResults: number): Promise<ModSearchMetadata[]> {
-        const resp = await fetch(`https://api.modrinth.com/v2/search?facets=["project_type:mod"]&query=${encodeURIComponent(query)}&limit=${maxResults}`);
+        const resp = await fetch(`https://api.modrinth.com/v2/search?facets=[["project_type:mod"]]&query=${encodeURIComponent(query)}&limit=${maxResults}`);
         if (!resp.ok) throw new Error("Failed to fetch search results from Modrinth");
         const data = await resp.json();
 
