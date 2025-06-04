@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Solution, ModSearchMetadata } from 'mclib';
+	import type { Solution, ModSearchMetadata, ModRepositoryName } from 'mclib';
 	import { ModpackCreator, ModLoader } from 'mclib';
 	import { ModSearch, ModsList } from '$cmpts';
 	import * as m from '$msg';
@@ -7,7 +7,7 @@
 
 	let search_name_input = $state('');
 	let is_loading_search = $state(false);
-	let search_results: ModSearchMetadata[] = $state([]);
+	let search_results: [ModRepositoryName, ModSearchMetadata][] = $state([]);
 
 	let mod_list_added: ModSearchMetadata[] = $state([]);
 
@@ -47,7 +47,7 @@
 			let mc = new ModpackCreator(repositories);
 
 			// Configure MC version and loader
-			mc.setLoaders([ModLoader.FORGE]);
+			mc.setLoaders([ModLoader.FABRIC, ModLoader.FORGE, ModLoader.NEOFORGE]);
 
 			// Add mods to the modpack
 			for (const mod of mod_list_added) {

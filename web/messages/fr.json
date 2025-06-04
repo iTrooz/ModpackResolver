@@ -5,6 +5,7 @@
 	"search_for_mods": "Rechercher",
 	"loading_mod_search": "Veuillez patienter, nous recherchons votre mod",
 	"downloads_count": "téléchargements",
+	"open_mod_repo_link": "Voir sur {repo_name}",
 	"add_mod": "Ajouter",
 	"remove_mod": "Enlever",
 	"run_modpack_creator": "Exécuter le créateur de modpack",
