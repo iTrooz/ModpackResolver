@@ -28,7 +28,7 @@
 		})
 	);
 
-	let timeout: NodeJS.Timeout;
+	let timeout: ReturnType<typeof setTimeout>; // because I fucking can't use NodeJS.Timeout
 	let automatic_searching: boolean = $state(false);
 
 	function handle_automatic_search_input() {
