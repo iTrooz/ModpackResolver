@@ -19,3 +19,5 @@ export type {
 } from "./ModpackCreator";
 
 export { ModSearchService } from "./ModSearchService";
+
+export { MinecraftVersions } from "./MinecraftVersions";
