@@ -7,17 +7,23 @@ import { ModAndReleases, ModReleaseMetadata, ModRepositoryName, ModLoader, ModSe
 export class CurseForgeRepository implements IRepository {
     static BASE_URL = "https://api.curse.tools/v1/cf";
 
+    private fetchClient: typeof fetch;
+
+    constructor(fetchClient: typeof fetch) {
+        this.fetchClient = fetchClient;
+    }
+
     async getModIdFromHash(_hash: string): Promise<string | null> {
         // CurseForge does not support hash lookup via public API
         return null;
     }
 
     async getModReleases(modId: string): Promise<ModAndReleases> {
-        const modResp = await fetch(`${CurseForgeRepository.BASE_URL}/mods/${modId}`);
+        const modResp = await this.fetchClient(`${CurseForgeRepository.BASE_URL}/mods/${modId}`);
         if (!modResp.ok) throw new Error("Mod not found on CurseForge");
         const modData = (await modResp.json()).data;
 
-        const filesResp = await fetch(`${CurseForgeRepository.BASE_URL}/mods/${modId}/files`);
+        const filesResp = await this.fetchClient(`${CurseForgeRepository.BASE_URL}/mods/${modId}/files`);
         if (!filesResp.ok) throw new Error("Could not fetch files from CurseForge");
         const filesData = (await filesResp.json()).data;
         
@@ -48,7 +54,7 @@ export class CurseForgeRepository implements IRepository {
     }
 
     async searchMods(query: string, maxResults: number): Promise<ModSearchMetadata[]> {
-        const resp = await fetch(`${CurseForgeRepository.BASE_URL}/mods/search?` + new URLSearchParams({
+        const resp = await this.fetchClient(`${CurseForgeRepository.BASE_URL}/mods/search?` + new URLSearchParams({
             // params from PrismLancher
             gameId: "432", // Minecraft game ID
             classId: "6",
