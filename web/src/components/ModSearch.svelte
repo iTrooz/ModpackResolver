@@ -67,6 +67,7 @@
 			entries_list={repositories.map((repo) => {
 				return repo.getRepositoryName();
 			})}
+			name="mod-repo-names-selection"
 			onchange={search_for_mods}
 			reset
 		/>

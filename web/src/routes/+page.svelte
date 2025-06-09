@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Solution, ModSearchMetadata, ModRepositoryName } from 'mclib';
 	import { ModpackCreator, ModLoader } from 'mclib';
-	import { ModSearch, ModsList, FileDropZone } from '$cmpts';
+	import { ModSearch, ModsList, ToggleButtons, FileDropZone } from '$cmpts';
 	import * as m from '$msg';
 	import { repositories } from '../config';
 
@@ -10,6 +10,8 @@
 	let search_results: [ModRepositoryName, ModSearchMetadata][] = $state([]);
 
 	let mod_list_added: ModSearchMetadata[] = $state([]);
+
+	let loaders_selected: ModLoader[] = $state([]);
 
 	function add_mod_to_list(mod: ModSearchMetadata): void {
 		if (!mod_list_added.includes(mod)) {
@@ -47,7 +49,7 @@
 			let mc = new ModpackCreator(repositories);
 
 			// Configure MC version and loader
-			mc.setLoaders([ModLoader.FABRIC, ModLoader.FORGE, ModLoader.NEOFORGE]);
+			mc.setLoaders(loaders_selected.length > 0 ? loaders_selected : Object.values(ModLoader));
 
 			// Add mods to the modpack
 			for (const mod of mod_list_added) {
@@ -77,6 +79,13 @@
 <FileDropZone {add_mod_to_list} />
 
 <ModsList bind:mod_list_added {remove_mod_from_list} />
+
+<ToggleButtons
+	bind:selection={loaders_selected}
+	entries_list={Object.values(ModLoader)}
+	name="loaders-selection"
+	reset
+/>
 
 <button onclick={runModpackCreator} disabled={is_loading_mccreator || mod_list_added.length < 1}>
 	{#if is_loading_mccreator}
