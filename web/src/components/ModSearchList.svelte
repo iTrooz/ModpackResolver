@@ -75,7 +75,6 @@
 
 <style>
 	table#mod_search_list {
-		width: 100%;
 		border-spacing: 0 0.5rem;
 		padding: 0 0.5rem;
 		background: var(--grey-dark-1);

@@ -96,13 +96,8 @@
 
 <style>
 	section {
-		width: 42rem;
-		max-width: 42rem;
 		display: flex;
 		flex-direction: column;
-		justify-content: stretch;
-		width: -moz-available;
-		width: -webkit-fill-available;
 	}
 	form.search {
 		display: flex;
@@ -113,9 +108,8 @@
 			flex-direction: row;
 			gap: 0.5rem;
 			flex-wrap: wrap;
-			justify-content: center;
 			& input[type='text'] {
-				flex: 1;
+				flex: 7;
 				background: var(--grey-dark-1);
 				border: solid 2px var(--green);
 				outline: none;
@@ -126,6 +120,7 @@
 				}
 			}
 			& input[type='submit'] {
+				flex: 1;
 				background: var(--green);
 				border: none;
 				border: solid 2px var(--green);

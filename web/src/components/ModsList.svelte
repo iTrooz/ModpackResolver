@@ -41,8 +41,6 @@
 		padding: 0.5rem;
 		border: solid 2px var(--green);
 		background: var(--grey-dark-1);
-		width: 42rem;
-		max-width: 42rem;
 		& li {
 			display: flex;
 			flex-direction: row;

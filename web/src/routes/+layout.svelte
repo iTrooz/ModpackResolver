@@ -10,9 +10,11 @@
 	</div> -->
 </header>
 
-<main>
-	{@render children()}
-</main>
+<div class="main-container">
+	<main>
+		{@render children()}
+	</main>
+</div>
 
 <style>
 	header {
@@ -23,12 +25,21 @@
 		padding: 0.6rem 1rem;
 		align-items: center;
 	}
+	.main-container {
+		display: flex;
+		flex: 1;
+		width: 100%;
+		flex-direction: column;
+		align-items: center;
+	}
 	main {
 		display: flex;
 		flex-direction: column;
-		align-items: center;
+		align-items: stretch;
+		width: 100%;
+		height: 100%;
+		max-width: 42rem;
 		gap: 1rem;
-		flex: 1;
-		margin: 2rem;
+		padding: 2rem;
 	}
 </style>
