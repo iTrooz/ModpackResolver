@@ -6,8 +6,7 @@
       "target": "ES6",
       "moduleResolution": "bundler",
       "strict": true,
-      "lib": ["esnext", "DOM", "DOM.Iterable"],
-      "typeRoots": ["./src/types", "./node_modules/@types"]
+      "lib": ["esnext", "DOM", "DOM.Iterable"]
     },
     "include": ["src"]
   }
