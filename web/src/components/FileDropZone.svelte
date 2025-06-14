@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as m from '$msg';
-	import type { ModSearchMetadata, ModRepositoryName } from 'mclib';
+	import type { ModSearchMetadata } from 'mclib';
 	import { repositories } from '../config/repositories';
 
 	let {
