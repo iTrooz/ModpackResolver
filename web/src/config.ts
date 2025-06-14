@@ -1,6 +1,7 @@
 import { ModrinthRepository, CurseForgeRepository, MinecraftVersions } from 'mclib';
 declare const __APP_VERSION__: string;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const fetchClient = (url: any, init: RequestInit = {}) => {
     init['headers'] = {
         ...init['headers'],
