@@ -26,6 +26,13 @@ export interface IRepository {
     searchMods(query: string, maxResults: number): Promise<ModSearchMetadata[]>;
 
     /**
+     * Get mod information by file hash/fingerprint from mod file bytes.
+     * @param modData The complete mod file data as bytes.
+     * @returns A promise resolving to mod search metadata, or null if not found.
+     */
+    getByDataHash(modData: Uint8Array): Promise<ModSearchMetadata | null>;
+
+    /**
      * Returns the repository name (ModRepositoryName enum value)
      */
     getRepositoryName(): ModRepositoryName;

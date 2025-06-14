@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Solution, ModSearchMetadata, ModRepositoryName } from 'mclib';
 	import { ModpackCreator, ModLoader } from 'mclib';
-	import { ModSearch, ModsList } from '$cmpts';
+	import { ModSearch, ModsList, FileDropZone } from '$cmpts';
 	import * as m from '$msg';
 	import { repositories } from '../config/repositories';
 
@@ -73,6 +73,8 @@
 <h1>{m.modpack_creator_name()}</h1>
 
 <ModSearch bind:search_name_input bind:search_results bind:is_loading_search {add_mod_to_list} />
+
+<FileDropZone {add_mod_to_list} />
 
 <ModsList bind:mod_list_added {remove_mod_from_list} />
 

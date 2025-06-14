@@ -1,5 +1,6 @@
 import type { IRepository } from "./IRepository";
 import { ModAndReleases, ModReleaseMetadata, ModRepositoryName, ModLoader, ModSearchMetadata } from "../ModpackCreator";
+import { cf_fingerprint } from 'cf-fingerprint';
 
 /**
  * Implementation of IRepository for the CurseForge repository.
@@ -67,6 +68,45 @@ export class CurseForgeRepository implements IRepository {
             imageURL: mod.logo.url,
             downloadCount: mod.downloadCount || 0
         }));
+    }
+
+    async getByDataHash(modData: Uint8Array): Promise<ModSearchMetadata | null> {
+        // Calculate CurseForge fingerprint
+        const fingerprint: number = cf_fingerprint(modData);
+
+        // Use the CurseForge API to get file info by fingerprint
+        const resp = await fetch(`${CurseForgeRepository.BASE_URL}/fingerprints`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                fingerprints: [fingerprint]
+            })
+        });
+
+        if (!resp.ok) {
+            return null;
+        }
+        const data = (await resp.json()).data;
+        
+        if (!data.exactMatches || data.exactMatches.length === 0) return null;
+
+        const fileMatch = data.exactMatches[0];
+        const modId: number = fileMatch.file.modId;
+
+        // Get mod info using the mod ID
+        const modResp = await fetch(`${CurseForgeRepository.BASE_URL}/mods/${modId}`);
+        if (!modResp.ok) return null;
+        const modInfo = (await modResp.json()).data;
+
+        return {
+            id: modId.toString(),
+            name: modInfo.name,
+            homepageURL: modInfo.links.websiteUrl,
+            imageURL: modInfo.logo?.url || "",
+            downloadCount: modInfo.downloadCount || 0
+        };
     }
 
     getRepositoryName(): ModRepositoryName {

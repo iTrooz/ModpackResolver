@@ -13,5 +13,9 @@
 	"processing_modpack_creator": "Calcul...",
 	"error_while_calculating": "Erreur pendant processus",
 	"result": "Résultats",
-	"show_raw_data": "Afficher les données brutes"
+	"show_raw_data": "Afficher les données brutes",
+	"drag_drop_mods": "Glissez-déposez les fichiers .jar de mods ici",
+	"drag_drop_subtitle": "Nous essaierons de les identifier automatiquement",
+	"drop_mods_here": "Déposez les fichiers de mods ici pour les identifier",
+	"processing_mod_files": "Traitement des fichiers de mods..."
 }
