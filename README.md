@@ -9,3 +9,6 @@ Use it at https://itrooz.github.io/ModpackCreator
 # Development
 First, install dependencies with `bun i`
 To run the web app in development mode, go the right folder (`cd web`) and run using `bun run dev`
+
+# WIP
+Project is in dev state, not stable nor finished yet
