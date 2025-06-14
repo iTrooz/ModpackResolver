@@ -16,7 +16,7 @@
       "name": "mclib",
       "version": "0.0.1",
       "dependencies": {
-        "cf-fingerprint": "https://github.com/iTrooz/cf-fingerprint",
+        "cf-fingerprint": "https://github.com/arschedev/cf-fingerprint",
       },
       "devDependencies": {
         "@eslint/js": "^9.27.0",
@@ -286,7 +286,7 @@
 
     "callsites": ["callsites@3.1.0", "", {}, "sha512-P8BjAsXvZS+VIDUI11hHCQEv74YT67YUi5JJFNWIqL235sBmjX4+qx9Muvls5ivyNENctx46xQLQ3aTuE7ssaQ=="],
 
-    "cf-fingerprint": ["cf-fingerprint@github:iTrooz/cf-fingerprint#613cf02", {}, "iTrooz-cf-fingerprint-613cf02"],
+    "cf-fingerprint": ["cf-fingerprint@github:arschedev/cf-fingerprint#3642948", {}, "arschedev-cf-fingerprint-3642948"],
 
     "chai": ["chai@4.5.0", "", { "dependencies": { "assertion-error": "^1.1.0", "check-error": "^1.0.3", "deep-eql": "^4.1.3", "get-func-name": "^2.0.2", "loupe": "^2.3.6", "pathval": "^1.1.1", "type-detect": "^4.1.0" } }, "sha512-RITGBfijLkBddZvnn8jdqoTypxvqbOLYQkGGxXzeFjVHvudaPw0HNFD9x928/eUwYWd2dPCugVqspGALTZZQKw=="],
 
