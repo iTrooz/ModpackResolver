@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { ChangeEventHandler } from 'svelte/elements';
+	import * as m from '$msg';
 
 	function toggle_selection(key: string) {
 		if (!selection.includes(key)) {
@@ -51,7 +52,7 @@
 				}}
 				disabled={selection.length < 1}
 			/>
-			<label for="{composant_name}-reset">RESET</label>
+			<label for="{composant_name}-reset">{m.reset_toggle_group().toUpperCase()}</label>
 		</li>
 	{/if}
 </ul>
