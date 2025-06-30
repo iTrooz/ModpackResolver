@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type { Solution, ModSearchMetadata, ModRepositoryName } from 'mclib';
-	import { ModpackCreator, ModLoader } from 'mclib';
-	import { ModSearch, ModsList, FileDropZone } from '$cmpts';
+	import type { Solution, ModSearchMetadata, ModRepositoryName, MCVersion } from 'mclib';
+	import { ModpackCreator, ModLoader, MinecraftVersions } from 'mclib';
+	import { ModSearch, ModsList, ToggleButtons, MCVersionSelection, FileDropZone } from '$cmpts';
 	import * as m from '$msg';
 	import { repositories } from '../config';
 
@@ -27,6 +27,25 @@
 		}
 	}
 
+	let loaders_selected: ModLoader[] = $state([]);
+
+	let mc_version_range: { min: MCVersion; max: MCVersion } = $state({
+		min: '',
+		max: ''
+	});
+
+	let mc_version_list: MCVersion[] = $state([]);
+
+	$effect.pre(() => {
+		MinecraftVersions.getReleases().then((values) => {
+			mc_version_list = values;
+			mc_version_range = {
+				min: mc_version_list[0],
+				max: mc_version_list[mc_version_list.length - 1]
+			};
+		});
+	});
+
 	let mc_results: Solution | null = $state(null);
 	let show_raw_data = $state(false);
 
@@ -47,7 +66,7 @@
 			let mc = new ModpackCreator(repositories);
 
 			// Configure MC version and loader
-			mc.setLoaders([ModLoader.FABRIC, ModLoader.FORGE, ModLoader.NEOFORGE]);
+			mc.setLoaders(loaders_selected.length > 0 ? loaders_selected : Object.values(ModLoader));
 
 			// Add mods to the modpack
 			for (const mod of mod_list_added) {
@@ -77,6 +96,19 @@
 <FileDropZone {add_mod_to_list} />
 
 <ModsList bind:mod_list_added {remove_mod_from_list} />
+
+<ToggleButtons
+	bind:selection={loaders_selected}
+	entries_list={Object.values(ModLoader)}
+	name="loaders-selection"
+	reset
+/>
+
+<MCVersionSelection
+	mc_versions={mc_version_list}
+	bind:min_mc_version={mc_version_range.min}
+	bind:max_mc_version={mc_version_range.max}
+/>
 
 <button onclick={runModpackCreator} disabled={is_loading_mccreator || mod_list_added.length < 1}>
 	{#if is_loading_mccreator}

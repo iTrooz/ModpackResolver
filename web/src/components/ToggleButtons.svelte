@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { ChangeEventHandler } from 'svelte/elements';
+	import * as m from '$msg';
 
 	function toggle_selection(key: string) {
 		if (!selection.includes(key)) {
@@ -12,18 +13,16 @@
 		}
 	}
 
-	function reset_selection() {
-		selection = [];
-	}
-
 	let {
 		selection = $bindable(),
 		entries_list,
+		name: composant_name,
 		reset = false,
 		onchange
 	}: {
 		selection: string[];
 		entries_list: string[];
+		name: string;
 		reset?: boolean;
 		onchange?: ChangeEventHandler<HTMLInputElement>;
 	} = $props();
@@ -34,19 +33,26 @@
 		<li class="toggle_button {selection.includes(name) ? 'on' : 'off'}">
 			<input
 				type="checkbox"
-				id={name}
+				id={composant_name + '-' + name}
 				onclick={() => {
 					toggle_selection(name);
 				}}
 				{onchange}
 			/>
-			<label for={name}>{name.toUpperCase()}</label>
+			<label for={composant_name + '-' + name}>{name.toUpperCase()}</label>
 		</li>
 	{/each}
 	{#if reset}
 		<li class="toggle_button reset {selection.length < 1 ? 'disabled' : ''}">
-			<input type="checkbox" id="reset" onclick={reset_selection} disabled={selection.length < 1} />
-			<label for="reset">RESET</label>
+			<input
+				type="checkbox"
+				id="{composant_name}-reset"
+				onclick={() => {
+					selection = [];
+				}}
+				disabled={selection.length < 1}
+			/>
+			<label for="{composant_name}-reset">{m.reset_toggle_group().toUpperCase()}</label>
 		</li>
 	{/if}
 </ul>

@@ -43,7 +43,7 @@
 		}
 
 		isProcessing = true;
-		
+
 		try {
 			for (const file of Array.from(e.dataTransfer.files)) {
 				// Only process .jar files (mod files)
@@ -88,7 +88,7 @@
 	}
 </script>
 
-<div 
+<div
 	class="dropzone {isDragging ? 'dragging' : ''} {isProcessing ? 'processing' : ''}"
 	ondragenter={handleDragEnter}
 	ondragleave={handleDragLeave}
