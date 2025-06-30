@@ -1,7 +1,7 @@
 <script lang="ts">
 	import * as m from '$msg';
 	import type { ModSearchMetadata } from 'mclib';
-	import { repositories } from '../config/repositories';
+	import { repositories } from '../config';
 
 	let {
 		add_mod_to_list
