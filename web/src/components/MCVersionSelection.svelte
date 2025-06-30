@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { MCVersion } from 'mclib';
 
-	// import * as m from '$msg';
+	import * as m from '$msg';
 	let {
 		min_mc_version = $bindable(),
 		max_mc_version = $bindable(),
@@ -24,7 +24,13 @@
 			<option value={mc_version}></option>
 		{/each}
 	</datalist>
-	<input type="text" bind:value={min_mc_version} list="mc_version_selection_list" />
+	<input
+		type="text"
+		placeholder={m.min_mc_version()}
+		bind:value={min_mc_version}
+		list="mc_version_selection_list"
+		size="8"
+	/>
 	<div class="sliders">
 		<input
 			type="range"
@@ -69,7 +75,13 @@
 			max={mc_versions.length - 1}
 		/>
 	</div>
-	<input type="text" bind:value={max_mc_version} list="mc_version_selection_list" />
+	<input
+		type="text"
+		placeholder={m.max_mc_version()}
+		bind:value={max_mc_version}
+		list="mc_version_selection_list"
+		size="8"
+	/>
 </form>
 
 <style>
@@ -77,7 +89,8 @@
 		display: flex;
 		flex-direction: row;
 		justify-content: space-between;
-		align-items: baseline;
+		align-items: center;
+		gap: 1rem;
 		& .sliders {
 			flex: 1;
 			position: relative;
@@ -130,9 +143,11 @@
 
 				&::-webkit-slider-thumb:hover {
 					background: var(--grey-dark-1);
+					border-color: var(--green-light-1);
 				}
 				&::-moz-range-thumb:hover {
 					background: var(--grey-dark-1);
+					border-color: var(--green-light-1);
 				}
 
 				&::-webkit-slider-thumb:active {
@@ -159,6 +174,16 @@
 					background: var(--green-dark-1);
 					height: 50%;
 				}
+			}
+		}
+		& input[type='text'] {
+			background: var(--grey-dark-1);
+			outline: solid 2px var(--green);
+			border: none;
+			color: var(--grey-light-2);
+			padding: 0.4rem 0.6rem;
+			&:is(:active, :focus, :focus-visible, :hover) {
+				outline-color: var(--green-light-1);
 			}
 		}
 	}

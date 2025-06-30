@@ -79,6 +79,7 @@
 		padding: 0 0.5rem;
 		background: var(--grey-dark-1);
 		font-size: 0.9rem;
+		width: 100%;
 		& tbody tr {
 			&:is(:focus, :focus-visible, :active, :hover) td {
 				background: var(--grey);

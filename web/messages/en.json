@@ -7,6 +7,8 @@
 	"downloads_count": "downloads",
 	"open_mod_repo_link": "See on {repo_name}",
 	"reset_toggle_group": "Reset",
+	"min_mc_version": "Min version",
+	"max_mc_version": "Max version",
 	"add_mod": "Add",
 	"remove_mod": "Remove",
 	"run_modpack_creator": "Run Modpack Creator",
