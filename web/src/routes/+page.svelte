@@ -36,7 +36,7 @@
 
 	let mc_version_list: MCVersion[] = $state([]);
 
-	onMount(() => {
+	$effect.pre(() => {
 		MinecraftVersions.getReleases().then((values) => {
 			mc_version_list = values;
 			mc_version_range = {
