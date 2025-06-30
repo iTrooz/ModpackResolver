@@ -13,5 +13,9 @@
 	"processing_modpack_creator": "Processing...",
 	"error_while_calculating": "Error while processing",
 	"result": "Results",
-	"show_raw_data": "Show Raw Data"
+	"show_raw_data": "Show Raw Data",
+	"drag_drop_mods": "Drag & drop .jar mod files here",
+	"drag_drop_subtitle": "We'll try to identify them automatically",
+	"drop_mods_here": "Drop mod files here to identify them",
+	"processing_mod_files": "Processing mod files..."
 }

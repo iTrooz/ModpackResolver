@@ -53,6 +53,35 @@ export class ModrinthRepository implements IRepository {
         }));
     }
 
+    async getByDataHash(modData: Uint8Array): Promise<ModSearchMetadata | null> {
+        // Calculate SHA-1 hash of the mod data for Modrinth
+        const hash = await this.calculateSHA1(modData);
+        
+        // Get version info using the hash
+        const versionResp = await fetch(`https://api.modrinth.com/v2/version_file/${hash}`);
+        if (!versionResp.ok) return null;
+        const versionData = await versionResp.json();
+        
+        // Get project info using the project ID
+        const projectResp = await fetch(`https://api.modrinth.com/v2/project/${versionData.project_id}`);
+        if (!projectResp.ok) return null;
+        const projectData = await projectResp.json();
+        
+        return {
+            id: projectData.slug,
+            name: projectData.title,
+            homepageURL: "https://modrinth.com/mod/" + projectData.slug,
+            imageURL: projectData.icon_url || "",
+            downloadCount: projectData.downloads || 0
+        };
+    }
+
+    private async calculateSHA1(data: Uint8Array): Promise<string> {
+        const hashBuffer = await crypto.subtle.digest('SHA-1', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
     getRepositoryName(): ModRepositoryName {
         return ModRepositoryName.MODRINTH;
     }

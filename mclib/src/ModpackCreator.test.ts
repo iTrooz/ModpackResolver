@@ -5,6 +5,7 @@ import type { IRepository } from './repos/IRepository';
 class MockRepository implements IRepository {
     private mods: Record<string, ModAndReleases> = {};
     private hashes: Record<string, string> = {};
+    private dataHashes: Record<string, ModSearchMetadata> = {};
 
     setMod(modId: string, mod: ModAndReleases) {
         this.mods[modId] = mod;
@@ -12,6 +13,10 @@ class MockRepository implements IRepository {
 
     setHash(hash: string, modId: string) {
         this.hashes[hash] = modId;
+    }
+
+    setDataHash(dataKey: string, mod: ModSearchMetadata) {
+        this.dataHashes[dataKey] = mod;
     }
 
     async getModIdFromHash(hash: string): Promise<string | null> {
@@ -27,6 +32,12 @@ class MockRepository implements IRepository {
 
     async searchMods(_query: string): Promise<ModSearchMetadata[]> {
         throw new Error('Method not implemented.');
+    }
+
+    async getByDataHash(modData: Uint8Array): Promise<ModSearchMetadata | null> {
+        // For testing, we'll use a simple key based on the first few bytes
+        const key = Array.from(modData.slice(0, 8)).join('-');
+        return this.dataHashes[key] || null;
     }
 
     getRepositoryName(): ModRepositoryName {
