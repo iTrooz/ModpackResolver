@@ -1,6 +1,7 @@
 <script lang="ts">
 	let { children } = $props();
 	import { base } from '$app/paths';
+	import * as m from '$msg';
 </script>
 
 <header>
@@ -8,6 +9,7 @@
 	<!-- <div style="display: flex; gap: 1rem;">
 		<a href="/about" class="default-color">About</a>
 	</div> -->
+	<a href="https://github.com/iTrooz/ModpackCreator" title={m.github_link()}></a>
 </header>
 
 <div class="main-container">
@@ -24,6 +26,7 @@
 		justify-content: space-between;
 		padding: 0.6rem 1rem;
 		align-items: center;
+		font-size: 1.4rem;
 	}
 	.main-container {
 		display: flex;
