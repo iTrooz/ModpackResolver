@@ -4,7 +4,7 @@
 	import type { ModSearchMetadata } from 'mclib';
 	import { ModSearchList, ToggleButtons } from '$cmpts';
 	import { slide } from 'svelte/transition';
-	import { repositories } from '../config/repositories';
+	import { repositories } from '../config';
 
 	let {
 		search_name_input = $bindable(),

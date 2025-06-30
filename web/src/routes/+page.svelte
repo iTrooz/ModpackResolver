@@ -3,7 +3,7 @@
 	import { ModpackCreator, ModLoader } from 'mclib';
 	import { ModSearch, ModsList } from '$cmpts';
 	import * as m from '$msg';
-	import { repositories } from '../config/repositories';
+	import { repositories } from '../config';
 
 	let search_name_input = $state('');
 	let is_loading_search = $state(false);
