@@ -1,6 +1,7 @@
 {
 	"$schema": "https://inlang.com/schema/inlang-message-format",
 	"modpack_creator_name": "Modpack Creator",
+	"github_link": "Aller au repo GitHub",
 	"search_mod_by_name": "Recherchez un mod par son nom",
 	"search_for_mods": "Rechercher",
 	"loading_mod_search": "Veuillez patienter, nous recherchons votre mod",
