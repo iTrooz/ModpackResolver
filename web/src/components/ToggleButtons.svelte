@@ -1,5 +1,4 @@
 <script lang="ts">
-	import type { ChangeEventHandler } from 'svelte/elements';
 	import * as m from '$msg';
 
 	function toggle_selection(key: string) {
@@ -24,35 +23,34 @@
 		entries_list: string[];
 		name: string;
 		reset?: boolean;
-		onchange?: ChangeEventHandler<HTMLInputElement>;
+		onchange?: () => void;
 	} = $props();
 </script>
 
 <ul class="toggle_buttons_group">
 	{#each entries_list as name (name)}
 		<li class="toggle_button {selection.includes(name) ? 'on' : 'off'}">
-			<input
-				type="checkbox"
-				id={composant_name + '-' + name}
+			<button
+				id={composant_name + ' ' + name}
 				onclick={() => {
 					toggle_selection(name);
-				}}
-				{onchange}
-			/>
-			<label for={composant_name + '-' + name}>{name.toUpperCase()}</label>
+					if (onchange) onchange();
+				}}>{name.toUpperCase()}</button
+			>
 		</li>
 	{/each}
 	{#if reset}
 		<li class="toggle_button reset {selection.length < 1 ? 'disabled' : ''}">
-			<input
-				type="checkbox"
+			<button
 				id="{composant_name}-reset"
 				onclick={() => {
 					selection = [];
+					if (onchange) onchange();
 				}}
 				disabled={selection.length < 1}
-			/>
-			<label for="{composant_name}-reset">{m['filter.reset_toggle_group']().toUpperCase()}</label>
+			>
+				{m['filter.reset_toggle_group']().toUpperCase()}
+			</button>
 		</li>
 	{/if}
 </ul>
@@ -70,10 +68,7 @@
 			&::marker {
 				content: none;
 			}
-			& input {
-				display: none;
-			}
-			& label {
+			& button {
 				width: 100%;
 				text-align: center;
 				padding: 0.4rem 0.6rem;
@@ -82,16 +77,19 @@
 				border-width: 2px 1px;
 				border-color: var(--green);
 				user-select: none;
-				&:is(:focus, :focus-visible, :active, :hover) {
+				background-color: var(--grey-dark-2);
+				font-size: 16px;
+				color: var(--grey-light-1);
+				&:is(:active, :hover) {
 					border-color: var(--green-light-1);
 				}
 			}
-			&.on label {
+			&.on button {
 				background: var(--green);
 				color: var(--grey-dark-2);
 			}
 			&.reset {
-				label {
+				button {
 					border-style: solid;
 					border-width: 2px 1px;
 					border-color: var(--red);
@@ -99,14 +97,14 @@
 						border-color: var(--red-light-1);
 					}
 				}
-				&.disabled label {
+				&.disabled button {
 					border-color: var(--grey);
 				}
 			}
-			&:first-child label {
+			&:first-child button {
 				border-left-width: 2px;
 			}
-			&:last-child label {
+			&:last-child button {
 				border-right-width: 2px;
 			}
 		}
