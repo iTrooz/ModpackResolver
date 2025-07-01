@@ -38,11 +38,11 @@
 	main {
 		display: flex;
 		flex-direction: column;
-		align-items: stretch;
+		align-items: center;
 		width: 100%;
 		height: 100%;
-		max-width: 42rem;
-		gap: 1rem;
+		max-width: 48rem;
+		gap: 2rem;
 		padding: 2rem;
 	}
 </style>
