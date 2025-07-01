@@ -61,11 +61,13 @@
 						add_mod_to_list(mod);
 					}}
 				>
-					{humanize_number(mod.downloadCount) + ' ' + m.downloads_count()}
+					{humanize_number(mod.downloadCount) +
+						' ' +
+						m['add_mods.search_results.downloads_count']()}
 				</td>
 				<td class="link">
 					<a href={mod.homepageURL} target="_blank" rel="noopener noreferrer">
-						{m.open_mod_repo_link({ repo_name: repository })}
+						{m['add_mods.search_results.open_mod_repo_link']({ repo_name: repository })}
 					</a>
 				</td>
 			</tr>

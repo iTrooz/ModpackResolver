@@ -25,7 +25,7 @@
 						class="remove_mod"
 						onclick={() => {
 							remove_mod_from_list(mod);
-						}}>󰍴 {m.remove_mod()}</button
+						}}>󰍴 {m['add_mods.search_results.remove_mod']()}</button
 					>
 				</div>
 			</li>
