@@ -1,5 +1,4 @@
 <script lang="ts">
-	import type { ChangeEventHandler } from 'svelte/elements';
 	import * as m from '$msg';
 
 	function toggle_selection(key: string) {
