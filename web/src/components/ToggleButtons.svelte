@@ -52,7 +52,7 @@
 				}}
 				disabled={selection.length < 1}
 			/>
-			<label for="{composant_name}-reset">{m.reset_toggle_group().toUpperCase()}</label>
+			<label for="{composant_name}-reset">{m['filter.reset_toggle_group']().toUpperCase()}</label>
 		</li>
 	{/if}
 </ul>

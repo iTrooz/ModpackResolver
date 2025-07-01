@@ -1,25 +1,39 @@
 {
 	"$schema": "https://inlang.com/schema/inlang-message-format",
-	"modpack_creator_name": "Modpack Creator",
-	"github_link": "Aller au repo GitHub",
-	"search_mod_by_name": "Recherchez un mod par son nom",
-	"search_for_mods": "Rechercher",
-	"loading_mod_search": "Veuillez patienter, nous recherchons votre mod",
-	"downloads_count": "téléchargements",
-	"open_mod_repo_link": "Voir sur {repo_name}",
-	"reset_toggle_group": "Effacer",
-	"min_mc_version": "Version min",
-	"max_mc_version": "Version max",
-	"add_mod": "Ajouter",
-	"remove_mod": "Enlever",
-	"run_modpack_creator": "Exécuter le créateur de modpack",
-	"error_no_mod_added": "Aucun mod n'a été ajouté, exécution impossible s'il n'y a pas de mod",
-	"processing_modpack_creator": "Calcul...",
-	"error_while_calculating": "Erreur pendant processus",
-	"result": "Résultats",
-	"show_raw_data": "Afficher les données brutes",
-	"drag_drop_mods": "Glissez-déposez les fichiers .jar de mods ici",
-	"drag_drop_subtitle": "Nous essaierons de les identifier automatiquement",
-	"drop_mods_here": "Déposez les fichiers de mods ici pour les identifier",
-	"processing_mod_files": "Traitement des fichiers de mods..."
+	"about": {
+		"name": "Modpack Creator",
+		"github_link": "Aller au repo GitHub"
+	},
+	"add_mods": {
+		"zone_title": "Ajoutez des mods par recherche ou drag&drop",
+		"search_mod_by_name": "Recherchez un mod par son nom",
+		"search_mods_button": "Rechercher",
+		"search_results": {
+			"loading_mod_search": "Veuillez patienter, nous recherchons votre mod",
+			"downloads_count": "téléchargements",
+			"open_mod_repo_link": "Voir sur {repo_name}",
+			"add_mod": "Ajouter",
+			"remove_mod": "Enlever"
+		},
+		"drag_and_drop": {
+			"mods": "Glissez-déposez les fichiers .jar de mods ici",
+			"subtitle": "Nous essaierons de les identifier automatiquement",
+			"here": "Déposez les fichiers de mods ici pour les identifier",
+			"processing": "Traitement des fichiers de mods..."
+		}
+	},
+	"filter": {
+		"zone_title": "Filtres par loader et versions Minecraft",
+		"min_mc_version": "Version min",
+		"max_mc_version": "Version max",
+		"reset_toggle_group": "Effacer"
+	},
+	"runner": {
+		"run_modpack_creator": "Exécuter le créateur de modpack",
+		"error_no_mod_added": "Aucun mod n'a été ajouté, exécution impossible s'il n'y a pas de mod",
+		"processing_modpack_creator": "Calcul...",
+		"error_while_calculating": "Erreur pendant processus",
+		"result": "Résultats",
+		"show_raw_data": "Afficher les données brutes"
+	}
 }

@@ -55,7 +55,7 @@
 	async function runModpackCreator() {
 		try {
 			if (mod_list_added.length < 1) {
-				throw new Error(m.error_no_mod_added());
+				throw new Error(m['runner.error_no_mod_added']());
 			}
 			// Reset state
 			mc_results = null;
@@ -89,13 +89,17 @@
 	}
 </script>
 
-<h1>{m.modpack_creator_name()}</h1>
+<h1>{m['about.name']()}</h1>
+
+<h2>{m['add_mods.zone_title']()}</h2>
 
 <ModSearch bind:search_name_input bind:search_results bind:is_loading_search {add_mod_to_list} />
 
 <FileDropZone {add_mod_to_list} />
 
 <ModsList bind:mod_list_added {remove_mod_from_list} />
+
+<h2>{m['filter.zone_title']()}</h2>
 
 <ToggleButtons
 	bind:selection={loaders_selected}
@@ -112,19 +116,19 @@
 
 <button onclick={runModpackCreator} disabled={is_loading_mccreator || mod_list_added.length < 1}>
 	{#if is_loading_mccreator}
-		{m.processing_modpack_creator()}
+		{m['runner.processing_modpack_creator']()}
 	{:else}
-		{m.run_modpack_creator()}
+		{m['runner.run_modpack_creator']()}
 	{/if}
 </button>
 
 <section>
 	{#if error}
-		<p>{m.error_while_calculating()}: {error}</p>
+		<p>{m['runner.error_while_calculating']()}: {error}</p>
 	{:else if is_loading_mccreator}
-		<p>{m.processing_modpack_creator()}</p>
+		<p>{m['runner.processing_modpack_creator']()}</p>
 	{:else if mc_results}
-		<h2>{m.result()}:</h2>
+		<h2>{m['runner.result']()}:</h2>
 		<h3 class="font-bold">Best Minecraft Configuration:</h3>
 		<p>Version: {mc_results.mcConfig.mcVersion}</p>
 		<p>Loader: {mc_results.mcConfig.loader}</p>
@@ -143,7 +147,7 @@
 		</ul>
 
 		<input type="checkbox" bind:checked={show_raw_data} name="show_raw_data" />
-		<label for="show_raw_data">{m.show_raw_data()}</label>
+		<label for="show_raw_data">{m['runner.show_raw_data']()}</label>
 
 		{#if show_raw_data}
 			<pre>{JSON.stringify(mc_results, null, 2)}</pre>

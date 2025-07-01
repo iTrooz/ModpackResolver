@@ -26,7 +26,7 @@
 	</datalist>
 	<input
 		type="text"
-		placeholder={m.min_mc_version()}
+		placeholder={m['filter.min_mc_version']()}
 		bind:value={min_mc_version}
 		list="mc_version_selection_list"
 		size="8"
@@ -77,7 +77,7 @@
 	</div>
 	<input
 		type="text"
-		placeholder={m.max_mc_version()}
+		placeholder={m['filter.max_mc_version']()}
 		bind:value={max_mc_version}
 		list="mc_version_selection_list"
 		size="8"

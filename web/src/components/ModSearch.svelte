@@ -74,13 +74,13 @@
 		<div class="text">
 			<input
 				type="text"
-				placeholder={m.search_mod_by_name()}
+				placeholder={m['add_mods.search_mod_by_name']()}
 				bind:value={search_name_input}
 				oninput={handle_automatic_search_input}
 			/>
 			<input
 				type="submit"
-				value={m.search_for_mods()}
+				value={m['add_mods.search_mods_button']()}
 				onclick={search_for_mods}
 				disabled={automatic_searching}
 			/>

@@ -94,22 +94,25 @@
 	ondragleave={handleDragLeave}
 	ondragover={handleDragOver}
 	ondrop={handleDrop}
+	aria-dropeffect="move"
+	role="button"
+	tabindex="0"
 >
 	{#if isProcessing}
 		<div class="status">
 			<span class="icon">⏳</span>
-			<p>{m.processing_mod_files()}</p>
+			<p>{m['add_mods.drag_and_drop.mods']()}</p>
 		</div>
 	{:else if isDragging}
 		<div class="status">
 			<span class="icon">📦</span>
-			<p>{m.drop_mods_here()}</p>
+			<p>{m['add_mods.drag_and_drop.here']()}</p>
 		</div>
 	{:else}
 		<div class="status">
 			<span class="icon">⬆️</span>
-			<p>{m.drag_drop_mods()}</p>
-			<small>{m.drag_drop_subtitle()}</small>
+			<p>{m['add_mods.drag_and_drop.mods']()}</p>
+			<small>{m['add_mods.drag_and_drop.subtitle']()}</small>
 		</div>
 	{/if}
 </div>
