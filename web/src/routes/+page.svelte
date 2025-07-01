@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { slide } from 'svelte/transition';
 	import type { Solution, ModSearchMetadata, ModRepositoryName, MCVersion } from 'mclib';
 	import { ModpackCreator, ModLoader, MinecraftVersions } from 'mclib';
 	import { ModSearch, ModsList, ToggleButtons, MCVersionSelection, FileDropZone } from '$cmpts';
@@ -91,30 +92,42 @@
 
 <h1>{m['about.name']()}</h1>
 
-<h2>{m['add_mods.zone_title']()}</h2>
+<section>
+	<h2>{m['add_mods.zone_title']()}</h2>
 
-<ModSearch bind:search_name_input bind:search_results bind:is_loading_search {add_mod_to_list} />
+	<ModSearch bind:search_name_input bind:search_results bind:is_loading_search {add_mod_to_list} />
 
-<FileDropZone {add_mod_to_list} />
+	<FileDropZone {add_mod_to_list} />
 
-<ModsList bind:mod_list_added {remove_mod_from_list} />
+	{#if mod_list_added.length > 0}
+		<h3 transition:slide={{ axis: 'y', duration: 200 }}>{m['add_mods.mods_selected']()}</h3>
+	{/if}
 
-<h2>{m['filter.zone_title']()}</h2>
+	<ModsList bind:mod_list_added {remove_mod_from_list} />
+</section>
 
-<ToggleButtons
-	bind:selection={loaders_selected}
-	entries_list={Object.values(ModLoader)}
-	name="loaders-selection"
-	reset
-/>
+<section>
+	<h2>{m['filter.zone_title']()}</h2>
 
-<MCVersionSelection
-	mc_versions={mc_version_list}
-	bind:min_mc_version={mc_version_range.min}
-	bind:max_mc_version={mc_version_range.max}
-/>
+	<ToggleButtons
+		bind:selection={loaders_selected}
+		entries_list={Object.values(ModLoader)}
+		name="loaders-selection"
+		reset
+	/>
 
-<button onclick={runModpackCreator} disabled={is_loading_mccreator || mod_list_added.length < 1}>
+	<MCVersionSelection
+		mc_versions={mc_version_list}
+		bind:min_mc_version={mc_version_range.min}
+		bind:max_mc_version={mc_version_range.max}
+	/>
+</section>
+
+<button
+	id="run_modpack_creator"
+	onclick={runModpackCreator}
+	disabled={is_loading_mccreator || mod_list_added.length < 1}
+>
 	{#if is_loading_mccreator}
 		{m['runner.processing_modpack_creator']()}
 	{:else}
@@ -122,35 +135,64 @@
 	{/if}
 </button>
 
-<section>
-	{#if error}
-		<p>{m['runner.error_while_calculating']()}: {error}</p>
-	{:else if is_loading_mccreator}
-		<p>{m['runner.processing_modpack_creator']()}</p>
-	{:else if mc_results}
-		<h2>{m['runner.result']()}:</h2>
-		<h3 class="font-bold">Best Minecraft Configuration:</h3>
-		<p>Version: {mc_results.mcConfig.mcVersion}</p>
-		<p>Loader: {mc_results.mcConfig.loader}</p>
+{#if error || is_loading_mccreator || mc_results}
+	<section transition:slide={{ axis: 'y', duration: 200 }}>
+		{#if error}
+			<p>{m['runner.error_while_calculating']()}: {error}</p>
+		{:else if is_loading_mccreator}
+			<p>{m['runner.processing_modpack_creator']()}</p>
+		{:else if mc_results}
+			<h2>{m['runner.result']()}:</h2>
+			<h3 class="font-bold">Best Minecraft Configuration:</h3>
+			<p>Version: {mc_results.mcConfig.mcVersion}</p>
+			<p>Loader: {mc_results.mcConfig.loader}</p>
 
-		<h3 class="mt-4 font-bold">Compatible Mods:</h3>
-		<ul class="ml-6 list-disc">
-			{#each mc_results.mods as mod (mod.release)}
-				<li>
-					<strong>{mod.name}</strong>: {mod.release.modVersion}
-					<ul class="list-circle ml-4 text-sm">
-						<li>Loaders: {mod.release.loaders.join(', ')}</li>
-						<li>MC Versions: {mod.release.mcVersions.join(', ')}</li>
-					</ul>
-				</li>
-			{/each}
-		</ul>
+			<h3 class="mt-4 font-bold">Compatible Mods:</h3>
+			<ul class="ml-6 list-disc">
+				{#each mc_results.mods as mod (mod.release)}
+					<li>
+						<strong>{mod.name}</strong>: {mod.release.modVersion}
+						<ul class="list-circle ml-4 text-sm">
+							<li>Loaders: {mod.release.loaders.join(', ')}</li>
+							<li>MC Versions: {mod.release.mcVersions.join(', ')}</li>
+						</ul>
+					</li>
+				{/each}
+			</ul>
 
-		<input type="checkbox" bind:checked={show_raw_data} name="show_raw_data" />
-		<label for="show_raw_data">{m['runner.show_raw_data']()}</label>
+			<input type="checkbox" bind:checked={show_raw_data} name="show_raw_data" />
+			<label for="show_raw_data">{m['runner.show_raw_data']()}</label>
 
-		{#if show_raw_data}
-			<pre>{JSON.stringify(mc_results, null, 2)}</pre>
+			{#if show_raw_data}
+				<pre>{JSON.stringify(mc_results, null, 2)}</pre>
+			{/if}
 		{/if}
-	{/if}
-</section>
+	</section>
+{/if}
+
+<style>
+	section {
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+		width: 100%;
+		gap: 1rem;
+		padding: 2rem;
+		border: solid 1px var(--grey-dark-1);
+	}
+	button#run_modpack_creator {
+		color: var(--grey-dark-2);
+		background-color: var(--green);
+		border: solid 2px var(--green);
+		&:is(:active, :hover, :focus, :focus-visible) {
+			border-color: var(--green-light-1);
+		}
+		padding: 1rem 2rem;
+		font-size: 18px;
+		width: max-content;
+		&:disabled {
+			background-color: var(--grey);
+			border-color: var(--grey);
+		}
+	}
+</style>

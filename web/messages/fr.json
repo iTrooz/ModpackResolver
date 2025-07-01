@@ -20,7 +20,8 @@
 			"subtitle": "Nous essaierons de les identifier automatiquement",
 			"here": "Déposez les fichiers de mods ici pour les identifier",
 			"processing": "Traitement des fichiers de mods..."
-		}
+		},
+		"mods_selected": "Mods sélectionnés"
 	},
 	"filter": {
 		"zone_title": "Filtres par loader et versions Minecraft",
