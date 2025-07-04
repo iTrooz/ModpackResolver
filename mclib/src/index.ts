@@ -18,5 +18,5 @@ export type {
 
 export { ModQueryService, Constraints } from "./ModQueryService";
 
-export { ModrinthRepository, CurseForgeRepository, createModRepository } from "./repos";
+export { ModrinthRepository, CurseForgeRepository } from "./repos";
 export type { IRepository } from "./repos";
