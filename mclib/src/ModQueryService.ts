@@ -1,5 +1,5 @@
 import type { IRepository } from "./repos/IRepository";
-import type { MCVersion, ModAndReleases, ModRepositoryName, ModSearchMetadata } from "./ModpackCreator";
+import type { MCVersion, ModAndReleases, ModRepositoryName, ModSearchMetadata } from ".";
 
 export class ModQueryService {
 

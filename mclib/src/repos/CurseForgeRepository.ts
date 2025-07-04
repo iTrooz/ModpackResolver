@@ -1,5 +1,5 @@
 import type { IRepository } from "./IRepository";
-import { ModAndReleases, ModReleaseMetadata, ModRepositoryName, ModLoader, ModSearchMetadata } from "../ModpackCreator";
+import { ModAndReleases, ModReleaseMetadata, ModRepositoryName, ModLoader, ModSearchMetadata } from "..";
 import { cf_fingerprint } from 'cf-fingerprint';
 
 /**

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { ModpackCreator, ModLoader, ModRepositoryName, type ModAndReleases, type ModReleaseMetadata, ModSearchMetadata } from './ModpackCreator';
+import { ModpackCreator, ModLoader, ModRepositoryName, type ModAndReleases, type ModReleaseMetadata, ModSearchMetadata } from '.';
 import type { IRepository } from './repos/IRepository';
 import { ModQueryService } from './ModQueryService';
 

@@ -1,5 +1,5 @@
 import type { IRepository } from "./IRepository";
-import { ModAndReleases, ModReleaseMetadata, ModRepositoryName, ModLoader, ModSearchMetadata } from "../ModpackCreator";
+import { ModAndReleases, ModReleaseMetadata, ModRepositoryName, ModLoader, ModSearchMetadata } from "..";
 
 export class ModrinthRepository implements IRepository {
 
