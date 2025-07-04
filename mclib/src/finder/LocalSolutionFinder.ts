@@ -138,7 +138,7 @@ export class LocalSolutionFinder implements ISolutionFinder {
      */
     private matchConstraints(release: ModRelease, constraints: Constraints): boolean {
         // Check loader constraint
-        if (constraints.loaders && !constraints.loaders.some(l => release.loaders.includes(l))) {
+        if (constraints.loaders?.length && !constraints.loaders.some(l => release.loaders.includes(l))) {
             return false;
         }
 
