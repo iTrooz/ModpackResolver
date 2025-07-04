@@ -1,4 +1,4 @@
-import { MCConfig, ModAndRelease, ModAndReleases, ModLoader, ModRelease, Solution, Constraints, ISolutionFinder } from "..";
+import { MCConfig, ModAndRelease, ModAndReleases, ModRelease, Solution, Constraints, ISolutionFinder } from "..";
 import { ModQueryService } from "../ModQueryService";
 
 /**

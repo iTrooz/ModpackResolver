@@ -1,5 +1,4 @@
-import type { IRepository } from "./repos/IRepository";
-import { type MCVersion, type ModAndReleases, type ModLoader, type ModRepositoryName, type ModSearchMetadata, type Solution } from ".";
+import type { MCVersion, ModAndReleases, ModLoader, ModRepositoryName, ModSearchMetadata, IRepository } from ".";
 
 
 export class Constraints {
