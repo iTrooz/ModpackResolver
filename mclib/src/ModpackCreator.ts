@@ -1,4 +1,4 @@
-import { MCConfig, MCVersion, ModAndRelease, ModAndReleases, ModLoader, ModRelease, Solution } from ".";
+import { MCConfig, ModAndRelease, ModAndReleases, ModLoader, ModRelease, Solution } from ".";
 import { ModQueryService } from "./ModQueryService";
 
 /**
