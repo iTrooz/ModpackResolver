@@ -48,14 +48,6 @@ export type ModSearchMetadata = {
     downloadCount: number;
 };
 
-/** Unresolved mod that needs to be processed */
-export type UnresolvedMod = {
-    /** Type of source identifier */
-    source: ModSourceType;
-    /** Data specific to the source type */
-    data: string;
-};
-
 export type ModAndRelease = {
     name: string;
     release: ModRelease;

@@ -18,7 +18,6 @@ export type {
   MCConfig,
   ModAndRelease,
   ModAndReleases,
-  UnresolvedMod,
   ModRelease,
   MCVersion,
 } from "./types";
