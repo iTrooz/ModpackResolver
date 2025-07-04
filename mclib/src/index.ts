@@ -12,6 +12,8 @@ export {
   ModLoaderUtil
 } from "./types";
 
+export {  } from "./repos/utils";
+
 export type {
   MCConfig,
   RawModRepoRelease,

@@ -3,6 +3,7 @@
     "workspaces": [
         "cli",
         "web",
+        "backend",
         "mclib"
     ]
 }
