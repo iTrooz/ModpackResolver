@@ -1,7 +1,5 @@
 // place files you want to import through the `$lib` alias in this folder.
-export {
-  ModpackCreator,
-} from "./ModpackCreator";
+export { SolutionFinder } from "./SolutionFinder";
 
 export {
   ModRepositoryName,
@@ -12,7 +10,7 @@ export {
 } from "./types";
 
 export { ModrinthRepository } from "./repos/ModrinthRepository";
-export { CurseForgeRepository as CurseForgeRepository } from "./repos/CurseForgeRepository";
+export { CurseForgeRepository } from "./repos/CurseForgeRepository";
 
 export type {
   MCConfig,
@@ -23,6 +21,4 @@ export type {
 } from "./types";
 export type { IRepository } from "./repos/IRepository";
 
-export { ModQueryService as ModSearchService } from "./ModQueryService";
-
-export { ModQueryService } from "./ModQueryService";
+export { ModQueryService, Constraints } from "./ModQueryService";

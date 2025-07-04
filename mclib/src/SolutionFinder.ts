@@ -1,40 +1,16 @@
-import { MCConfig, ModAndRelease, ModAndReleases, ModLoader, ModRelease, Solution } from ".";
+import { MCConfig, ModAndRelease, ModAndReleases, ModLoader, ModRelease, Solution, Constraints } from ".";
 import { ModQueryService } from "./ModQueryService";
 
 /**
- * ModpackCreator Class
+ * SolutionFinder Class
  * This class helps to create and manage Minecraft modpacks, handling version compatibility,
  * mod loaders, and checking for incompatibilities between mods.
  */
-export class ModpackCreator {
-    private exactVersion: string | null = null;
-    private minimalVersion: string | null = null;
-    private loaders: ModLoader[] = [];
-    private unresolvedMods: string[] = [];
+export class SolutionFinder {
     private query: ModQueryService;
 
-    constructor(query: ModQueryService) {
-        this.query = query;
-    }
-
-    setExactVersion(version: string): ModpackCreator {
-        this.exactVersion = version;
-        return this;
-    }
-
-    chooseMinimalVersion(version: string): ModpackCreator {
-        this.minimalVersion = version;
-        return this;
-    }
-
-    setLoaders(loaders: ModLoader[]): ModpackCreator {
-        this.loaders = [...loaders];
-        return this;
-    }
-
-    addMod(id: string): ModpackCreator {
-        this.unresolvedMods.push(id);
-        return this;
+    constructor(modQueryService: ModQueryService) {
+        this.query = modQueryService;
     }
 
     /**
@@ -43,9 +19,9 @@ export class ModpackCreator {
      * @param nbSolution Number of solutions to return
      * @returns Array of compatible solutions
      */
-    async work(nbSolution: number): Promise<Solution[]> {
-        const resolvedMods = await this.resolveMods();
-        return this.resolveSolutions(resolvedMods, nbSolution);
+    async findSolutions(mods: string[], constraints: Constraints = {}, nbSolution: number = 5): Promise<Solution[]> {
+        const resolvedMods = await this.resolveMods(mods);
+        return this.resolveSolutions(resolvedMods, constraints, nbSolution);
     }
 
     /**
@@ -54,13 +30,13 @@ export class ModpackCreator {
      * @param nbSolution Maximum number of solutions to return
      * @returns Array of compatible solutions
      */
-    private resolveSolutions(mods: ModAndReleases[], nbSolution: number): Solution[] {
+    private resolveSolutions(mods: ModAndReleases[], constraints: Constraints, nbSolution: number): Solution[] {
         // Get flat list of all mod releases
         const flatReleases = this.getFlatReleases(mods);
 
         // Filter releases based on constraints
         const matchingReleases = flatReleases.filter(([_, release]) =>
-            this.matchConstraints(release)
+            this.matchConstraints(release, constraints)
         );
 
         // Create config candidates (unique mcVersion + loader combinations)
@@ -110,11 +86,11 @@ export class ModpackCreator {
         return solutions;
     }
 
-    private async resolveMods(): Promise<ModAndReleases[]> {
+    private async resolveMods(modIds: string[]): Promise<ModAndReleases[]> {
         const resolvedMods: ModAndReleases[] = [];
 
-        for (const unresolvedMod of this.unresolvedMods) {
-            resolvedMods.push(await this.query.getModReleases(unresolvedMod));
+        for (const modId of modIds) {
+            resolvedMods.push(await this.query.getModReleases(modId));
         }
 
         return resolvedMods;
@@ -160,23 +136,28 @@ export class ModpackCreator {
      * @param release The mod release to check
      * @returns True if the release matches the constraints
      */
-    private matchConstraints(release: ModRelease): boolean {
+    private matchConstraints(release: ModRelease, constraints: Constraints): boolean {
         // Check loader constraint
-        if (this.loaders.length > 0 && !this.loaders.some(l => release.loaders.includes(l))) {
-            return false;
-        }
-
-        // Check exact version constraint
-        if (this.exactVersion && !release.mcVersions.includes(this.exactVersion)) {
+        if (constraints.loaders && !constraints.loaders.some(l => release.loaders.includes(l))) {
             return false;
         }
 
         // Check minimal version constraint
-        if (this.minimalVersion) {
+        if (constraints.minVersion) {
             const hasVersionAboveMin = release.mcVersions.some(v =>
-                this.compareVersions(v, this.minimalVersion as string) >= 0
+                this.compareVersions(v, constraints.minVersion as string) >= 0
             );
             if (!hasVersionAboveMin) {
+                return false;
+            }
+        }
+
+        // Check maximal version constraint
+        if (constraints.maxVersion) {
+            const hasVersionBelowMax = release.mcVersions.some(v =>
+                this.compareVersions(v, constraints.maxVersion as string) <= 0
+            );
+            if (!hasVersionBelowMax) {
                 return false;
             }
         }

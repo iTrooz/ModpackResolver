@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Solution, ModSearchMetadata, ModRepositoryName, MCVersion } from 'mclib';
-	import { ModpackCreator, ModLoader } from 'mclib';
+	import { ModLoader } from 'mclib';
 	import { ModSearch, ModsList, ToggleButtons, MCVersionSelection, FileDropZone } from '$cmpts';
 	import * as m from '$msg';
 	import * as config from '../config';
@@ -62,19 +62,11 @@
 			error = null;
 			is_loading_mccreator = true;
 
-			// Create logic instance
-			let mc = new ModpackCreator(config.modQueryService);
-
-			// Configure MC version and loader
-			mc.setLoaders(loaders_selected.length > 0 ? loaders_selected : Object.values(ModLoader));
-
-			// Add mods to the modpack
-			for (const mod of mod_list_added) {
-				mc.addMod(mod.id);
-			}
-
-			// Let the logic run with the constraints
-			let solutions = await mc.work(1);
+			let solutions = await config.solutionFinder.findSolutions(mod_list_added.map((mod) => mod.id), {
+				minVersion: mc_version_range.min,
+				maxVersion: mc_version_range.max,
+				loaders: loaders_selected.length > 0 ? loaders_selected : undefined
+			});
 			mc_results = solutions[0];
 		} catch (err) {
 			if (err instanceof Error) {

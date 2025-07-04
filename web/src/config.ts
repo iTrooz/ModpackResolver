@@ -1,4 +1,4 @@
-import { ModrinthRepository, CurseForgeRepository, ModQueryService } from 'mclib';
+import { ModrinthRepository, CurseForgeRepository, ModQueryService, SolutionFinder } from 'mclib';
 declare const __APP_VERSION__: string;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -12,3 +12,4 @@ export const fetchClient = (url: any, init: RequestInit = {}) => {
 
 export const repositories = [new ModrinthRepository(fetchClient), new CurseForgeRepository(fetchClient)];
 export const modQueryService = new ModQueryService(repositories);
+export const solutionFinder = new SolutionFinder(modQueryService)
