@@ -19,7 +19,7 @@ export type {
   ModAndRelease,
   ModAndReleases,
   UnresolvedMod,
-  ModReleaseMetadata,
+  ModRelease,
   MCVersion,
 } from "./types";
 export type { IRepository } from "./repos/IRepository";

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { ModpackCreator, ModLoader, ModRepositoryName, type ModAndReleases, type ModReleaseMetadata, ModSearchMetadata } from '.';
+import { ModpackCreator, ModLoader, ModRepositoryName, type ModAndReleases, type ModRelease, ModSearchMetadata } from '.';
 import type { IRepository } from './repos/IRepository';
 import { ModQueryService } from './ModQueryService';
 
@@ -82,7 +82,7 @@ describe('ModpackCreator', () => {
     });
 
     describe('matchConstraints', () => {
-        function createRelease(overrides: Partial<ModReleaseMetadata> = {}): ModReleaseMetadata {
+        function createRelease(overrides: Partial<ModRelease> = {}): ModRelease {
             return {
                 mcVersions: ['1.16.5', '1.17.1'],
                 modVersion: '1.0.0',
@@ -93,7 +93,7 @@ describe('ModpackCreator', () => {
         }
 
         function matchConstraints(
-            release: ModReleaseMetadata,
+            release: ModRelease,
             modpackSettings: {
                 loaders?: ModLoader[],
                 exactVersion?: string,

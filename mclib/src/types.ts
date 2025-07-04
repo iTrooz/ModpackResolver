@@ -28,7 +28,7 @@ export type MCConfig = {
 };
 
 /** Represents a release of a mod */
-export type ModReleaseMetadata = {
+export type ModRelease = {
     /** List of Minecraft versions compatible with this release */
     mcVersions: MCVersion[];
     /** Mod version */
@@ -58,7 +58,7 @@ export type UnresolvedMod = {
 
 export type ModAndRelease = {
     name: string;
-    release: ModReleaseMetadata;
+    release: ModRelease;
 }
 
 /** Mod with all its available releases */
@@ -66,7 +66,7 @@ export type ModAndReleases = {
     /** Mod name */
     name: string;
     /** Available releases of the mod */
-    releases: ModReleaseMetadata[];
+    releases: ModRelease[];
 };
 
 /** Solution to run the modpack, using the given Minecraft version/loader, and the mod releases to use */

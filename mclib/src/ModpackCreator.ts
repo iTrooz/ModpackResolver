@@ -1,4 +1,4 @@
-import { MCConfig, MCVersion, ModAndRelease, ModAndReleases, ModLoader, ModReleaseMetadata, Solution } from ".";
+import { MCConfig, MCVersion, ModAndRelease, ModAndReleases, ModLoader, ModRelease, Solution } from ".";
 import { ModQueryService } from "./ModQueryService";
 
 /**
@@ -125,9 +125,9 @@ export class ModpackCreator {
      * @param mods List of mods with their releases
      * @returns Flattened list of (mod, release) pairs
      */
-    private getFlatReleases(mods: ModAndReleases[]): Array<[{ name: string }, ModReleaseMetadata]> {
+    private getFlatReleases(mods: ModAndReleases[]): Array<[{ name: string }, ModRelease]> {
         return mods.flatMap(mod =>
-            mod.releases.map(release => [{ name: mod.name }, release] as [{ name: string }, ModReleaseMetadata])
+            mod.releases.map(release => [{ name: mod.name }, release] as [{ name: string }, ModRelease])
         );
     }
 
@@ -136,7 +136,7 @@ export class ModpackCreator {
      * @param releases Flattened list of mod releases
      * @returns List of unique configuration candidates
      */
-    private extractConfigCandidates(releases: Array<[{ name: string }, ModReleaseMetadata]>): MCConfig[] {
+    private extractConfigCandidates(releases: Array<[{ name: string }, ModRelease]>): MCConfig[] {
         const configs: MCConfig[] = [];
         const configSet = new Set<string>();
 
@@ -160,7 +160,7 @@ export class ModpackCreator {
      * @param release The mod release to check
      * @returns True if the release matches the constraints
      */
-    private matchConstraints(release: ModReleaseMetadata): boolean {
+    private matchConstraints(release: ModRelease): boolean {
         // Check loader constraint
         if (this.loaders.length > 0 && !this.loaders.some(l => release.loaders.includes(l))) {
             return false;
