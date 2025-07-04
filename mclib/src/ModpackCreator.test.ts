@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { ModpackCreator, ModLoader, ModRepositoryName, type ModAndReleases, type ModReleaseMetadata, ModSearchMetadata } from './ModpackCreator';
 import type { IRepository } from './repos/IRepository';
+import { ModQueryService } from './ModQueryService';
 
 class MockRepository implements IRepository {
     private mods: Record<string, ModAndReleases> = {};
@@ -45,9 +46,14 @@ class MockRepository implements IRepository {
     }
 }
 
+const getModpackCreator = (repositories: IRepository[]): ModpackCreator => {
+    const modpackCreator = new ModpackCreator(new ModQueryService(repositories));
+    return modpackCreator;
+}
+
 describe('ModpackCreator', () => {
     describe('compareVersions', () => {
-        const modpackCreator = new ModpackCreator();
+        const modpackCreator = getModpackCreator([]);
 
         const compareVersions = (a: string, b: string): number => {
             return (modpackCreator as any).compareVersions(a, b);
@@ -94,7 +100,7 @@ describe('ModpackCreator', () => {
                 minimalVersion?: string
             } = {}
         ): boolean {
-            const modpack = new ModpackCreator();
+            const modpack = getModpackCreator([]);
 
             if (modpackSettings.loaders) {
                 modpack.setLoaders(modpackSettings.loaders);
@@ -270,12 +276,11 @@ describe('ModpackCreator', () => {
             mockRepository.setHash('123abc', 'jei');
             mockRepository.setHash('456def', 'ice-and-fire-dragons');
 
-            modpackCreator = new ModpackCreator();
-            (modpackCreator as any).repositories = [mockRepository];
+            modpackCreator = getModpackCreator([mockRepository]);
         });
 
         it('should find a compatible configuration for a single mod', async () => {
-            modpackCreator.addModFromID('ice-and-fire-dragons');
+            modpackCreator.addMod('ice-and-fire-dragons');
             const result = (await modpackCreator.work(1))[0];
 
             expect(result).toHaveProperty('mcConfig');
@@ -290,8 +295,8 @@ describe('ModpackCreator', () => {
         });
 
         it('should find a compatible configuration for multiple mods', async () => {
-            modpackCreator.addModFromID('jei');
-            modpackCreator.addModFromID('ice-and-fire-dragons');
+            modpackCreator.addMod('jei');
+            modpackCreator.addMod('ice-and-fire-dragons');
             const result = (await modpackCreator.work(1))[0];
 
             expect(result).toHaveProperty('mcConfig');
@@ -308,7 +313,7 @@ describe('ModpackCreator', () => {
 
         it('should respect loader constraints', async () => {
             modpackCreator.setLoaders([ModLoader.FORGE]);
-            modpackCreator.addModFromID('ice-and-fire-dragons');
+            modpackCreator.addMod('ice-and-fire-dragons');
             const result = (await modpackCreator.work(1))[0];
             expect(result.mcConfig.loader).toBe(ModLoader.FORGE);
             expect(result.mcConfig.mcVersion).toBe('1.17.1');
@@ -317,8 +322,8 @@ describe('ModpackCreator', () => {
 
         it('should respect exact version constraints', async () => {
             modpackCreator.setExactVersion('1.16.5');
-            modpackCreator.addModFromID('ice-and-fire-dragons');
-            modpackCreator.addModFromID('jei');
+            modpackCreator.addMod('ice-and-fire-dragons');
+            modpackCreator.addMod('jei');
             const result = (await modpackCreator.work(1))[0];
             expect(result.mcConfig.mcVersion).toBe('1.16.5');
             for (const mod of result.mods) {
@@ -328,7 +333,7 @@ describe('ModpackCreator', () => {
 
         it('should respect minimal version constraints', async () => {
             modpackCreator.chooseMinimalVersion('1.16.0');
-            modpackCreator.addModFromID('ice-and-fire-dragons');
+            modpackCreator.addMod('ice-and-fire-dragons');
             const result = (await modpackCreator.work(1))[0];
             expect(['1.16.5', '1.17.1', '1.18.1']).toContain(result.mcConfig.mcVersion);
         });
@@ -336,28 +341,29 @@ describe('ModpackCreator', () => {
         it('should handle when no compatible configuration exists', async () => {
             modpackCreator.setExactVersion('1.12.2');
             modpackCreator.setLoaders([ModLoader.FABRIC]);
-            modpackCreator.addModFromID('ice-and-fire-dragons');
+            modpackCreator.addMod('ice-and-fire-dragons');
             const result = await modpackCreator.work(1);
             expect(result).toHaveLength(0);
         });
 
         it('should handle multiple mod repositories', async () => {
-            // Setup second repository
+           // Setup second repository
             const secondMockRepo = new MockRepository();
             const secondRepoMod: ModAndReleases = {
                 name: 'Second Repo Mod',
                 releases: [{
                     mcVersions: ['1.17.1'],
                     modVersion: '1.0.0',
-                    repository: ModRepositoryName.CUSTOM,
+                    repository: ModRepositoryName.CURSEFORGE,
                     loaders: [ModLoader.FABRIC]
                 }]
             };
             secondMockRepo.setMod('second-repo-mod', secondRepoMod);
-            (modpackCreator as any).repositories = [mockRepository, secondMockRepo];
+            
+            modpackCreator = getModpackCreator([mockRepository, secondMockRepo]);
 
-            modpackCreator.addModFromID('ice-and-fire-dragons');
-            modpackCreator.addModFromID('second-repo-mod');
+            modpackCreator.addMod('ice-and-fire-dragons');
+            modpackCreator.addMod('second-repo-mod');
             const result = (await modpackCreator.work(1))[0];
 
             expect(result.mods).toHaveLength(2);

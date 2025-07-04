@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 import { Command } from 'commander';
-import { ModpackCreator } from 'mclib';
+import { ModpackCreator, ModQueryService } from 'mclib';
 
 const program = new Command();
 
@@ -34,11 +34,11 @@ program
       process.exit(1);
     }
 
-    const creator = new ModpackCreator()
+    const creator = new ModpackCreator(new ModQueryService([])) // TODO
       .chooseMinimalVersion(minVersion)
       .setLoaders(loader);
 
-    modName.forEach((id) => creator.addModFromID(id));
+    modName.forEach((id) => creator.addMod(id));
 
     try {
       const solutions = await creator.work(1); // Get the best solution
@@ -57,9 +57,7 @@ program
   .command('list')
   .description('List all modpacks')
   .action(() => {
-    const creator = new ModpackCreator();
-    const modpacks = creator.list();
-    console.log('Available modpacks:', modpacks);
+    const creator = new ModpackCreator(new ModQueryService([])); // TODO
   });
 
 program.parse(process.argv);

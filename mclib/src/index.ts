@@ -19,6 +19,7 @@ export type {
 } from "./ModpackCreator";
 export type { IRepository } from "./repos/IRepository";
 
-export { ModSearchService } from "./ModSearchService";
+export { ModQueryService as ModSearchService } from "./ModQueryService";
 
 export { MinecraftVersions } from "./MinecraftVersions";
+export { ModQueryService } from "./ModQueryService";

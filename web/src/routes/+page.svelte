@@ -3,7 +3,7 @@
 	import { ModpackCreator, ModLoader, MinecraftVersions } from 'mclib';
 	import { ModSearch, ModsList, ToggleButtons, MCVersionSelection, FileDropZone } from '$cmpts';
 	import * as m from '$msg';
-	import { repositories } from '../config';
+	import * as config from '../config';
 
 	let search_name_input = $state('');
 	let is_loading_search = $state(false);
@@ -63,14 +63,14 @@
 			is_loading_mccreator = true;
 
 			// Create logic instance
-			let mc = new ModpackCreator(repositories);
+			let mc = new ModpackCreator(config.modQueryService);
 
 			// Configure MC version and loader
 			mc.setLoaders(loaders_selected.length > 0 ? loaders_selected : Object.values(ModLoader));
 
 			// Add mods to the modpack
 			for (const mod of mod_list_added) {
-				mc.addModFromID(mod.id);
+				mc.addMod(mod.id);
 			}
 
 			// Let the logic run with the constraints

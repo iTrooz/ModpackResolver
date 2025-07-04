@@ -1,4 +1,4 @@
-import type { IRepository } from "./repos/IRepository";
+import { ModQueryService } from "./ModQueryService";
 
 export enum ModRepositoryName {
     MODRINTH = "modrinth",
@@ -87,11 +87,11 @@ export class ModpackCreator {
     private exactVersion: string | null = null;
     private minimalVersion: string | null = null;
     private loaders: ModLoader[] = [];
-    private unresolvedMods: UnresolvedMod[] = [];
-    private repositories: IRepository[];
+    private unresolvedMods: string[] = [];
+    private query: ModQueryService;
 
-    constructor(repositories: IRepository[] = []) {
-        this.repositories = repositories;
+    constructor(query: ModQueryService) {
+        this.query = query;
     }
 
     setExactVersion(version: string): ModpackCreator {
@@ -109,11 +109,8 @@ export class ModpackCreator {
         return this;
     }
 
-    addModFromID(id: string): ModpackCreator {
-        this.unresolvedMods.push({
-            source: ModSourceType.ID,
-            data: id
-        });
+    addMod(id: string): ModpackCreator {
+        this.unresolvedMods.push(id);
         return this;
     }
 
@@ -194,7 +191,7 @@ export class ModpackCreator {
         const resolvedMods: ModAndReleases[] = [];
 
         for (const unresolvedMod of this.unresolvedMods) {
-            resolvedMods.push(await this.resolveMod(unresolvedMod));
+            resolvedMods.push(await this.query.getModReleases(unresolvedMod));
         }
 
         return resolvedMods;
@@ -294,21 +291,4 @@ export class ModpackCreator {
      * @param unresolvedMod The unresolved mod to resolve
      * @returns A resolved mod with releases
      */
-    private async resolveMod(unresolvedMod: UnresolvedMod): Promise<ModAndReleases> {
-        switch (unresolvedMod.source) {
-            case ModSourceType.ID:
-                for (const repo of this.repositories) {
-                    // Try to get releases for this mod ID
-                    try {
-                        return await repo.getModReleases(unresolvedMod.data);
-                    } catch {
-                        // Ignore and try next repository
-                        // TODO handle error
-                    }
-                }
-                throw new Error(`Mod with ID ${unresolvedMod.data} not found in any repository`);
-            default:
-                throw new Error(`Unsupported mod source type: ${unresolvedMod.source}`);
-        }
-    }
 }
