@@ -1,5 +1,4 @@
-// place files you want to import through the `$lib` alias in this folder.
-export { ISolutionFinder, LocalSolutionFinder } from "./finder/index";
+export { ISolutionFinder, LocalSolutionFinder } from "./finder";
 
 export {
   ModRepositoryName,
@@ -9,9 +8,6 @@ export {
   ModSearchMetadata,
 } from "./types";
 
-export { ModrinthRepository } from "./repos/ModrinthRepository";
-export { CurseForgeRepository } from "./repos/CurseForgeRepository";
-
 export type {
   MCConfig,
   ModAndRelease,
@@ -19,6 +15,8 @@ export type {
   ModRelease,
   MCVersion,
 } from "./types";
-export type { IRepository } from "./repos/IRepository";
 
 export { ModQueryService, Constraints } from "./ModQueryService";
+
+export { ModrinthRepository, CurseForgeRepository, createModRepository } from "./repos";
+export type { IRepository } from "./repos";
