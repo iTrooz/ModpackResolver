@@ -21,5 +21,4 @@ export type { IRepository } from "./repos/IRepository";
 
 export { ModQueryService as ModSearchService } from "./ModQueryService";
 
-export { MinecraftVersions } from "./MinecraftVersions";
 export { ModQueryService } from "./ModQueryService";

@@ -1,5 +1,5 @@
 import type { IRepository } from "./repos/IRepository";
-import type { ModAndReleases, ModRepositoryName, ModSearchMetadata } from "./ModpackCreator";
+import type { MCVersion, ModAndReleases, ModRepositoryName, ModSearchMetadata } from "./ModpackCreator";
 
 export class ModQueryService {
 
@@ -8,6 +8,17 @@ export class ModQueryService {
     constructor(repositories: IRepository[]) {
         this.repositories = repositories;
     }
+
+    async getMinecraftVersions(): Promise<MCVersion[]> {
+    try {
+      const response = await fetch("https://mc-versions-api.net/api/java");
+      const data = await response.json();
+      return data.result.reverse();
+    } catch (error) {
+      console.error("Failed to fetch Minecraft versions:", error);
+      return ["error"];
+    }
+  }
 
     /**
      * Searches mods across multiple repositories, and return aggregated results, ranked by download count.

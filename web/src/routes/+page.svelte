@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Solution, ModSearchMetadata, ModRepositoryName, MCVersion } from 'mclib';
-	import { ModpackCreator, ModLoader, MinecraftVersions } from 'mclib';
+	import { ModpackCreator, ModLoader } from 'mclib';
 	import { ModSearch, ModsList, ToggleButtons, MCVersionSelection, FileDropZone } from '$cmpts';
 	import * as m from '$msg';
 	import * as config from '../config';
@@ -37,7 +37,7 @@
 	let mc_version_list: MCVersion[] = $state([]);
 
 	$effect.pre(() => {
-		MinecraftVersions.getReleases().then((values) => {
+		config.modQueryService.getMinecraftVersions().then((values) => {
 			mc_version_list = values;
 			mc_version_range = {
 				min: mc_version_list[0],
