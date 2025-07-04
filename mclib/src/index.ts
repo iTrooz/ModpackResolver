@@ -1,5 +1,5 @@
 // place files you want to import through the `$lib` alias in this folder.
-export { SolutionFinder } from "./SolutionFinder";
+export { ISolutionFinder, LocalSolutionFinder } from "./finder/index";
 
 export {
   ModRepositoryName,

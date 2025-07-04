@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { SolutionFinder, ModLoader, ModRepositoryName, type ModAndReleases, type ModRelease, ModSearchMetadata, Constraints, Solution } from '.';
-import type { IRepository } from './repos/IRepository';
-import { ModQueryService } from './ModQueryService';
+import { LocalSolutionFinder, ModLoader, ModRepositoryName, type ModAndReleases, type ModRelease, ModSearchMetadata, Constraints, Solution, ISolutionFinder } from '..';
+import type { IRepository } from '../repos/IRepository';
+import { ModQueryService } from '../ModQueryService';
 
 class MockRepository implements IRepository {
     private mods: Record<string, ModAndReleases> = {};
@@ -46,8 +46,8 @@ class MockRepository implements IRepository {
     }
 }
 
-const getSolutionFinder = (repositories: IRepository[]): SolutionFinder => {
-    const solutionFinder = new SolutionFinder(new ModQueryService(repositories));
+const getSolutionFinder = (repositories: IRepository[]): ISolutionFinder => {
+    const solutionFinder = new LocalSolutionFinder(new ModQueryService(repositories));
     return solutionFinder;
 }
 
@@ -183,7 +183,7 @@ describe('SolutionFinder', () => {
     });
 
     describe('work', () => {
-        let solutionFinder: SolutionFinder;
+        let solutionFinder: ISolutionFinder;
         let mockRepository: MockRepository;
 
         beforeEach(() => {

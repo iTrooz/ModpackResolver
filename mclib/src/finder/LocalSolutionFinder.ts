@@ -1,12 +1,12 @@
-import { MCConfig, ModAndRelease, ModAndReleases, ModLoader, ModRelease, Solution, Constraints } from ".";
-import { ModQueryService } from "./ModQueryService";
+import { MCConfig, ModAndRelease, ModAndReleases, ModLoader, ModRelease, Solution, Constraints, ISolutionFinder } from "..";
+import { ModQueryService } from "../ModQueryService";
 
 /**
  * SolutionFinder Class
  * This class helps to create and manage Minecraft modpacks, handling version compatibility,
  * mod loaders, and checking for incompatibilities between mods.
  */
-export class SolutionFinder {
+export class LocalSolutionFinder implements ISolutionFinder {
     private query: ModQueryService;
 
     constructor(modQueryService: ModQueryService) {
