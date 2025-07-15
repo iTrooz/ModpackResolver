@@ -1,5 +1,5 @@
 import type { IRepository } from "./IRepository";
-import { ModAndReleases, ModReleaseMetadata, ModRepositoryName, ModLoader, ModSearchMetadata } from "../ModpackCreator";
+import { ModAndReleases, ModRelease, ModRepositoryName, ModLoader, ModSearchMetadata } from "..";
 import { cf_fingerprint } from 'cf-fingerprint';
 
 /**
@@ -28,7 +28,7 @@ export class CurseForgeRepository implements IRepository {
         if (!filesResp.ok) throw new Error("Could not fetch files from CurseForge");
         const filesData = (await filesResp.json()).data;
         
-        const releases: ModReleaseMetadata[] = filesData.map((file: any) => {
+        const releases: ModRelease[] = filesData.map((file: any) => {
             const mcVersions: string[] = [];
             const loaders: ModLoader[] = [];
             for (const d of file.gameVersions || []) {

@@ -1,10 +1,10 @@
 <script lang="ts">
 	import * as m from '$msg';
-	import { ModSearchService, ModRepositoryName } from 'mclib';
+	import { ModRepositoryName } from 'mclib';
 	import type { ModSearchMetadata } from 'mclib';
 	import { ModSearchList, ToggleButtons } from '$cmpts';
 	import { slide } from 'svelte/transition';
-	import { repositories } from '../config';
+	import { modQueryService, repositories } from '../config';
 
 	let {
 		search_name_input = $bindable(),
@@ -19,14 +19,6 @@
 	} = $props();
 
 	let selected_mod_repo_names: ModRepositoryName[] = $state([]);
-	let selected_repositories = $derived(
-		repositories.filter((repo) => {
-			// select all repos for search if nothing is selected
-			if (selected_mod_repo_names.length < 1) return true;
-			// or check if the repo_name is selected
-			return selected_mod_repo_names.includes(repo.getRepositoryName());
-		})
-	);
 
 	let timeout: ReturnType<typeof setTimeout>; // because I fucking can't use NodeJS.Timeout
 	let automatic_searching: boolean = $state(false);
@@ -43,8 +35,7 @@
 		try {
 			// set loading mode
 			is_loading_search = true;
-			let mod_search_service = new ModSearchService();
-			const results = await mod_search_service.searchMods(search_name_input, selected_repositories);
+			const results = await modQueryService.searchMods(search_name_input, selected_mod_repo_names);
 			search_results = results;
 		} catch (err) {
 			console.log(err);

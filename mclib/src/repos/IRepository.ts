@@ -1,4 +1,4 @@
-import type { ModAndReleases, ModSearchMetadata, ModRepositoryName } from "../ModpackCreator";
+import type { ModAndReleases, ModSearchMetadata, ModRepositoryName } from "..";
 
 /**
  * Interface for a mod repository

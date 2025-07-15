@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 import { Command } from 'commander';
-import { ModpackCreator } from 'mclib';
+import { ModQueryService } from 'mclib';
 
 const program = new Command();
 
@@ -33,33 +33,13 @@ program
       console.error('Error: At least one --loader is required.');
       process.exit(1);
     }
-
-    const creator = new ModpackCreator()
-      .chooseMinimalVersion(minVersion)
-      .setLoaders(loader);
-
-    modName.forEach((id) => creator.addModFromID(id));
-
-    try {
-      const solutions = await creator.work(1); // Get the best solution
-      if (solutions.length > 0) {
-        console.log('Modpack created successfully with the following solution:');
-        console.log(JSON.stringify(solutions[0], null, 2));
-      } else {
-        console.error('No compatible solutions found for the given constraints.');
-      }
-    } catch (error) {
-      console.error('An error occurred while creating the modpack:', error.message);
-    }
   });
 
 program
   .command('list')
   .description('List all modpacks')
   .action(() => {
-    const creator = new ModpackCreator();
-    const modpacks = creator.list();
-    console.log('Available modpacks:', modpacks);
+    // TODO
   });
 
 program.parse(process.argv);

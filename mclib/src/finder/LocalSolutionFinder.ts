@@ -1,120 +1,16 @@
-import type { IRepository } from "./repos/IRepository";
-
-export enum ModRepositoryName {
-    MODRINTH = "modrinth",
-    CURSEFORGE = "curseforge",
-    FTB = "ftb",
-    CUSTOM = "custom"
-}
-
-export enum ModSourceType {
-    ID = "id"
-}
-
-export enum ModLoader {
-    FORGE = "forge",
-    FABRIC = "fabric",
-    QUILT = "quilt",
-    NEOFORGE = "neoforge"
-}
-
-/** Represents a Minecraft version */
-export type MCVersion = string;
-
-/** Represents a Minecraft configuration with mc version and loader */
-export type MCConfig = {
-    mcVersion: MCVersion;
-    loader: ModLoader;
-};
-
-/** Represents a release of a mod */
-export type ModReleaseMetadata = {
-    /** List of Minecraft versions compatible with this release */
-    mcVersions: MCVersion[];
-    /** Mod version */
-    modVersion: string;
-    /** Repository where the release is available */
-    repository: ModRepositoryName;
-    /** Compatible mod loaders */
-    loaders: ModLoader[];
-};
-
-/** Represents metadata for a mod search result. */
-export type ModSearchMetadata = {
-    id: string;
-    name: string; // user-facing name
-    homepageURL: string;
-    imageURL: string;
-    downloadCount: number;
-};
-
-/** Unresolved mod that needs to be processed */
-export type UnresolvedMod = {
-    /** Type of source identifier */
-    source: ModSourceType;
-    /** Data specific to the source type */
-    data: string;
-};
-
-
-export type ModAndRelease = {
-    name: string;
-    release: ModReleaseMetadata;
-}
-
-/** Mod with all its available releases */
-export type ModAndReleases = {
-    /** Mod name */
-    name: string;
-    /** Available releases of the mod */
-    releases: ModReleaseMetadata[];
-};
-
-/** Solution to run the modpack, using the given Minecraft version/loader, and the mod releases to use */
-export type Solution = {
-    /** The Minecraft configuration */
-    mcConfig: MCConfig;
-    /** The mod releases that are compatible with this configuration */
-    mods: ModAndRelease[];
-};
+import { MCConfig, ModAndRelease, ModAndReleases, ModRelease, Solution, Constraints, ISolutionFinder } from "..";
+import { ModQueryService } from "../ModQueryService";
 
 /**
- * ModpackCreator Class
+ * SolutionFinder Class
  * This class helps to create and manage Minecraft modpacks, handling version compatibility,
  * mod loaders, and checking for incompatibilities between mods.
  */
-export class ModpackCreator {
-    private exactVersion: string | null = null;
-    private minimalVersion: string | null = null;
-    private loaders: ModLoader[] = [];
-    private unresolvedMods: UnresolvedMod[] = [];
-    private repositories: IRepository[];
+export class LocalSolutionFinder implements ISolutionFinder {
+    private query: ModQueryService;
 
-    constructor(repositories: IRepository[] = []) {
-        this.repositories = repositories;
-    }
-
-    setExactVersion(version: string): ModpackCreator {
-        this.exactVersion = version;
-        return this;
-    }
-
-    chooseMinimalVersion(version: string): ModpackCreator {
-        this.minimalVersion = version;
-        return this;
-    }
-
-    setLoaders(loaders: ModLoader[]): ModpackCreator {
-        this.loaders = [...loaders];
-        return this;
-    }
-
-    addModFromID(id: string): ModpackCreator {
-        this.unresolvedMods.push({
-            source: ModSourceType.ID,
-            data: id
-        });
-        return this;
+    constructor(modQueryService: ModQueryService) {
+        this.query = modQueryService;
     }
 
     /**
@@ -123,9 +19,9 @@ export class ModpackCreator {
      * @param nbSolution Number of solutions to return
      * @returns Array of compatible solutions
      */
-    async work(nbSolution: number): Promise<Solution[]> {
-        const resolvedMods = await this.resolveMods();
-        return this.resolveSolutions(resolvedMods, nbSolution);
+    async findSolutions(mods: string[], constraints: Constraints = {}, nbSolution: number = 5): Promise<Solution[]> {
+        const resolvedMods = await this.resolveMods(mods);
+        return this.resolveSolutions(resolvedMods, constraints, nbSolution);
     }
 
     /**
@@ -134,13 +30,13 @@ export class ModpackCreator {
      * @param nbSolution Maximum number of solutions to return
      * @returns Array of compatible solutions
      */
-    private resolveSolutions(mods: ModAndReleases[], nbSolution: number): Solution[] {
+    private resolveSolutions(mods: ModAndReleases[], constraints: Constraints, nbSolution: number): Solution[] {
         // Get flat list of all mod releases
         const flatReleases = this.getFlatReleases(mods);
 
         // Filter releases based on constraints
         const matchingReleases = flatReleases.filter(([_, release]) =>
-            this.matchConstraints(release)
+            this.matchConstraints(release, constraints)
         );
 
         // Create config candidates (unique mcVersion + loader combinations)
@@ -190,11 +86,11 @@ export class ModpackCreator {
         return solutions;
     }
 
-    private async resolveMods(): Promise<ModAndReleases[]> {
+    private async resolveMods(modIds: string[]): Promise<ModAndReleases[]> {
         const resolvedMods: ModAndReleases[] = [];
 
-        for (const unresolvedMod of this.unresolvedMods) {
-            resolvedMods.push(await this.resolveMod(unresolvedMod));
+        for (const modId of modIds) {
+            resolvedMods.push(await this.query.getModReleases(modId));
         }
 
         return resolvedMods;
@@ -205,9 +101,9 @@ export class ModpackCreator {
      * @param mods List of mods with their releases
      * @returns Flattened list of (mod, release) pairs
      */
-    private getFlatReleases(mods: ModAndReleases[]): Array<[{ name: string }, ModReleaseMetadata]> {
+    private getFlatReleases(mods: ModAndReleases[]): Array<[{ name: string }, ModRelease]> {
         return mods.flatMap(mod =>
-            mod.releases.map(release => [{ name: mod.name }, release] as [{ name: string }, ModReleaseMetadata])
+            mod.releases.map(release => [{ name: mod.name }, release] as [{ name: string }, ModRelease])
         );
     }
 
@@ -216,7 +112,7 @@ export class ModpackCreator {
      * @param releases Flattened list of mod releases
      * @returns List of unique configuration candidates
      */
-    private extractConfigCandidates(releases: Array<[{ name: string }, ModReleaseMetadata]>): MCConfig[] {
+    private extractConfigCandidates(releases: Array<[{ name: string }, ModRelease]>): MCConfig[] {
         const configs: MCConfig[] = [];
         const configSet = new Set<string>();
 
@@ -240,23 +136,28 @@ export class ModpackCreator {
      * @param release The mod release to check
      * @returns True if the release matches the constraints
      */
-    private matchConstraints(release: ModReleaseMetadata): boolean {
+    private matchConstraints(release: ModRelease, constraints: Constraints): boolean {
         // Check loader constraint
-        if (this.loaders.length > 0 && !this.loaders.some(l => release.loaders.includes(l))) {
-            return false;
-        }
-
-        // Check exact version constraint
-        if (this.exactVersion && !release.mcVersions.includes(this.exactVersion)) {
+        if (constraints.loaders && !constraints.loaders.some(l => release.loaders.includes(l))) {
             return false;
         }
 
         // Check minimal version constraint
-        if (this.minimalVersion) {
+        if (constraints.minVersion) {
             const hasVersionAboveMin = release.mcVersions.some(v =>
-                this.compareVersions(v, this.minimalVersion as string) >= 0
+                this.compareVersions(v, constraints.minVersion as string) >= 0
             );
             if (!hasVersionAboveMin) {
+                return false;
+            }
+        }
+
+        // Check maximal version constraint
+        if (constraints.maxVersion) {
+            const hasVersionBelowMax = release.mcVersions.some(v =>
+                this.compareVersions(v, constraints.maxVersion as string) <= 0
+            );
+            if (!hasVersionBelowMax) {
                 return false;
             }
         }
@@ -294,21 +195,4 @@ export class ModpackCreator {
      * @param unresolvedMod The unresolved mod to resolve
      * @returns A resolved mod with releases
      */
-    private async resolveMod(unresolvedMod: UnresolvedMod): Promise<ModAndReleases> {
-        switch (unresolvedMod.source) {
-            case ModSourceType.ID:
-                for (const repo of this.repositories) {
-                    // Try to get releases for this mod ID
-                    try {
-                        return await repo.getModReleases(unresolvedMod.data);
-                    } catch {
-                        // Ignore and try next repository
-                        // TODO handle error
-                    }
-                }
-                throw new Error(`Mod with ID ${unresolvedMod.data} not found in any repository`);
-            default:
-                throw new Error(`Unsupported mod source type: ${unresolvedMod.source}`);
-        }
-    }
 }

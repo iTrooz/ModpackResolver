@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
 	import type { Solution, ModSearchMetadata, ModRepositoryName, MCVersion } from 'mclib';
-	import { ModpackCreator, ModLoader, MinecraftVersions } from 'mclib';
+	import { ModLoader } from 'mclib';
 	import { ModSearch, ModsList, ToggleButtons, MCVersionSelection, FileDropZone } from '$cmpts';
 	import * as m from '$msg';
-	import { repositories } from '../config';
+	import * as config from '../config';
 
 	let search_name_input = $state('');
 	let is_loading_search = $state(false);
@@ -38,7 +38,7 @@
 	let mc_version_list: MCVersion[] = $state([]);
 
 	$effect.pre(() => {
-		MinecraftVersions.getReleases().then((values) => {
+		config.modQueryService.getMinecraftVersions().then((values) => {
 			mc_version_list = values;
 			mc_version_range = {
 				min: mc_version_list[0],
@@ -63,19 +63,11 @@
 			error = null;
 			is_loading_mccreator = true;
 
-			// Create logic instance
-			let mc = new ModpackCreator(repositories);
-
-			// Configure MC version and loader
-			mc.setLoaders(loaders_selected.length > 0 ? loaders_selected : Object.values(ModLoader));
-
-			// Add mods to the modpack
-			for (const mod of mod_list_added) {
-				mc.addModFromID(mod.id);
-			}
-
-			// Let the logic run with the constraints
-			let solutions = await mc.work(1);
+			let solutions = await config.solutionFinder.findSolutions(mod_list_added.map((mod) => mod.id), {
+				minVersion: mc_version_range.min,
+				maxVersion: mc_version_range.max,
+				loaders: loaders_selected.length > 0 ? loaders_selected : undefined
+			});
 			mc_results = solutions[0];
 		} catch (err) {
 			if (err instanceof Error) {

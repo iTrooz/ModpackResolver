@@ -1,5 +1,5 @@
 import type { IRepository } from "./IRepository";
-import { ModAndReleases, ModReleaseMetadata, ModRepositoryName, ModLoader, ModSearchMetadata } from "../ModpackCreator";
+import { ModAndReleases, ModRelease, ModRepositoryName, ModLoader, ModSearchMetadata } from "..";
 
 export class ModrinthRepository implements IRepository {
 
@@ -26,7 +26,7 @@ export class ModrinthRepository implements IRepository {
         if (!versionsResp.ok) throw new Error("Could not fetch versions from Modrinth");
         const versionsData = await versionsResp.json();
 
-        const releases: ModReleaseMetadata[] = versionsData.map((v: any) => ({
+        const releases: ModRelease[] = versionsData.map((v: any) => ({
             mcVersions: v.game_versions,
             modVersion: v.version_number,
             repository: ModRepositoryName.MODRINTH,

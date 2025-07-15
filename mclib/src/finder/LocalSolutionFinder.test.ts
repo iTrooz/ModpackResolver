@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { ModpackCreator, ModLoader, ModRepositoryName, type ModAndReleases, type ModReleaseMetadata, ModSearchMetadata } from './ModpackCreator';
-import type { IRepository } from './repos/IRepository';
+import { LocalSolutionFinder, ModLoader, ModRepositoryName, type ModAndReleases, type ModRelease, ModSearchMetadata, Constraints, Solution, ISolutionFinder } from '..';
+import type { IRepository } from '../repos/IRepository';
+import { ModQueryService } from '../ModQueryService';
 
 class MockRepository implements IRepository {
     private mods: Record<string, ModAndReleases> = {};
@@ -45,12 +46,17 @@ class MockRepository implements IRepository {
     }
 }
 
-describe('ModpackCreator', () => {
+const getSolutionFinder = (repositories: IRepository[]): ISolutionFinder => {
+    const solutionFinder = new LocalSolutionFinder(new ModQueryService(repositories));
+    return solutionFinder;
+}
+
+describe('SolutionFinder', () => {
     describe('compareVersions', () => {
-        const modpackCreator = new ModpackCreator();
+        const SolutionFinder = getSolutionFinder([]);
 
         const compareVersions = (a: string, b: string): number => {
-            return (modpackCreator as any).compareVersions(a, b);
+            return (SolutionFinder as any).compareVersions(a, b);
         };
 
         it('compares simple versions correctly', () => {
@@ -76,7 +82,7 @@ describe('ModpackCreator', () => {
     });
 
     describe('matchConstraints', () => {
-        function createRelease(overrides: Partial<ModReleaseMetadata> = {}): ModReleaseMetadata {
+        function createRelease(overrides: Partial<ModRelease> = {}): ModRelease {
             return {
                 mcVersions: ['1.16.5', '1.17.1'],
                 modVersion: '1.0.0',
@@ -87,28 +93,10 @@ describe('ModpackCreator', () => {
         }
 
         function matchConstraints(
-            release: ModReleaseMetadata,
-            modpackSettings: {
-                loaders?: ModLoader[],
-                exactVersion?: string,
-                minimalVersion?: string
-            } = {}
+            release: ModRelease,
+            constraints: Constraints = {}
         ): boolean {
-            const modpack = new ModpackCreator();
-
-            if (modpackSettings.loaders) {
-                modpack.setLoaders(modpackSettings.loaders);
-            }
-
-            if (modpackSettings.exactVersion) {
-                modpack.setExactVersion(modpackSettings.exactVersion);
-            }
-
-            if (modpackSettings.minimalVersion) {
-                modpack.chooseMinimalVersion(modpackSettings.minimalVersion);
-            }
-
-            return (modpack as any).matchConstraints(release);
+            return (getSolutionFinder([]) as any).matchConstraints(release, constraints);
         }
 
         it('matches when no constraints are set', () => {
@@ -134,36 +122,20 @@ describe('ModpackCreator', () => {
             });
         });
 
-        describe('exact version constraints', () => {
-            it('matches when release supports the exact version', () => {
-                const release = createRelease({ mcVersions: ['1.16.5', '1.17.1'] });
-
-                expect(matchConstraints(release, { exactVersion: '1.16.5' })).toBe(true);
-                expect(matchConstraints(release, { exactVersion: '1.17.1' })).toBe(true);
-            });
-
-            it('does not match when release does not support the exact version', () => {
-                const release = createRelease({ mcVersions: ['1.16.5', '1.17.1'] });
-
-                expect(matchConstraints(release, { exactVersion: '1.16.4' })).toBe(false);
-                expect(matchConstraints(release, { exactVersion: '1.18.0' })).toBe(false);
-            });
-        });
-
         describe('minimal version constraints', () => {
             it('matches when release supports a version greater than or equal to minimal version', () => {
                 const release = createRelease({ mcVersions: ['1.16.5', '1.17.1'] });
 
-                expect(matchConstraints(release, { minimalVersion: '1.16.0' })).toBe(true);
-                expect(matchConstraints(release, { minimalVersion: '1.16.5' })).toBe(true);
-                expect(matchConstraints(release, { minimalVersion: '1.17.0' })).toBe(true);
-                expect(matchConstraints(release, { minimalVersion: '1.17.1' })).toBe(true);
+                expect(matchConstraints(release, { minVersion: '1.16.0' })).toBe(true);
+                expect(matchConstraints(release, { minVersion: '1.16.5' })).toBe(true);
+                expect(matchConstraints(release, { minVersion: '1.17.0' })).toBe(true);
+                expect(matchConstraints(release, { minVersion: '1.17.1' })).toBe(true);
             });
 
             it('does not match when release does not support a version greater than or equal to minimal version', () => {
                 const release = createRelease({ mcVersions: ['1.16.5', '1.17.1'] });
 
-                expect(matchConstraints(release, { minimalVersion: '1.18.0' })).toBe(false);
+                expect(matchConstraints(release, { minVersion: '1.18.0' })).toBe(false);
             });
         });
 
@@ -175,18 +147,18 @@ describe('ModpackCreator', () => {
                 });
 
                 expect(matchConstraints(release, {
-                    exactVersion: '1.16.5',
+                    maxVersion: '1.16.5',
                     loaders: [ModLoader.FORGE]
                 })).toBe(true);
 
                 expect(matchConstraints(release, {
-                    minimalVersion: '1.16.0',
+                    minVersion: '1.16.0',
                     loaders: [ModLoader.FABRIC]
                 })).toBe(true);
 
                 expect(matchConstraints(release, {
-                    exactVersion: '1.17.1',
-                    minimalVersion: '1.16.0',
+                    minVersion: '1.16.0',
+                    maxVersion: '1.17.1',
                     loaders: [ModLoader.FORGE]
                 })).toBe(true);
             });
@@ -198,25 +170,20 @@ describe('ModpackCreator', () => {
                 });
 
                 expect(matchConstraints(release, {
-                    exactVersion: '1.16.5',
+                    maxVersion: '1.15.2',
                     loaders: [ModLoader.QUILT]
                 })).toBe(false);
 
                 expect(matchConstraints(release, {
-                    exactVersion: '1.18.0',
+                    minVersion: '1.18.0',
                     loaders: [ModLoader.FORGE]
-                })).toBe(false);
-
-                expect(matchConstraints(release, {
-                    minimalVersion: '1.18.0',
-                    loaders: [ModLoader.FABRIC]
                 })).toBe(false);
             });
         });
     });
 
     describe('work', () => {
-        let modpackCreator: ModpackCreator;
+        let solutionFinder: ISolutionFinder;
         let mockRepository: MockRepository;
 
         beforeEach(() => {
@@ -270,13 +237,15 @@ describe('ModpackCreator', () => {
             mockRepository.setHash('123abc', 'jei');
             mockRepository.setHash('456def', 'ice-and-fire-dragons');
 
-            modpackCreator = new ModpackCreator();
-            (modpackCreator as any).repositories = [mockRepository];
+            solutionFinder = getSolutionFinder([mockRepository]);
         });
 
+        async function findSolution(mods: string[], constraints: Constraints = {}, nbSolution: number = 5): Promise<Solution> {
+            return (await solutionFinder.findSolutions(mods, constraints, nbSolution))[0];
+        }
+
         it('should find a compatible configuration for a single mod', async () => {
-            modpackCreator.addModFromID('ice-and-fire-dragons');
-            const result = (await modpackCreator.work(1))[0];
+            const result = await findSolution(['ice-and-fire-dragons']);
 
             expect(result).toHaveProperty('mcConfig');
             expect(result).toHaveProperty('mods');
@@ -290,9 +259,7 @@ describe('ModpackCreator', () => {
         });
 
         it('should find a compatible configuration for multiple mods', async () => {
-            modpackCreator.addModFromID('jei');
-            modpackCreator.addModFromID('ice-and-fire-dragons');
-            const result = (await modpackCreator.work(1))[0];
+            const result = await findSolution(['jei', 'ice-and-fire-dragons']);
 
             expect(result).toHaveProperty('mcConfig');
             expect(result).toHaveProperty('mods');
@@ -307,37 +274,24 @@ describe('ModpackCreator', () => {
         });
 
         it('should respect loader constraints', async () => {
-            modpackCreator.setLoaders([ModLoader.FORGE]);
-            modpackCreator.addModFromID('ice-and-fire-dragons');
-            const result = (await modpackCreator.work(1))[0];
+            const result = (await solutionFinder.findSolutions(['ice-and-fire-dragons'], { loaders: [ModLoader.FORGE] }))[0];
             expect(result.mcConfig.loader).toBe(ModLoader.FORGE);
             expect(result.mcConfig.mcVersion).toBe('1.17.1');
             expect(result.mods[0].release.loaders).toContain(ModLoader.FORGE);
         });
 
-        it('should respect exact version constraints', async () => {
-            modpackCreator.setExactVersion('1.16.5');
-            modpackCreator.addModFromID('ice-and-fire-dragons');
-            modpackCreator.addModFromID('jei');
-            const result = (await modpackCreator.work(1))[0];
-            expect(result.mcConfig.mcVersion).toBe('1.16.5');
-            for (const mod of result.mods) {
-                expect(mod.release.mcVersions).toContain('1.16.5');
-            }
-        });
-
         it('should respect minimal version constraints', async () => {
-            modpackCreator.chooseMinimalVersion('1.16.0');
-            modpackCreator.addModFromID('ice-and-fire-dragons');
-            const result = (await modpackCreator.work(1))[0];
+            const result = (await solutionFinder.findSolutions(['ice-and-fire-dragons'], { minVersion: '1.16.0' }, 1))[0];
             expect(['1.16.5', '1.17.1', '1.18.1']).toContain(result.mcConfig.mcVersion);
         });
 
         it('should handle when no compatible configuration exists', async () => {
-            modpackCreator.setExactVersion('1.12.2');
-            modpackCreator.setLoaders([ModLoader.FABRIC]);
-            modpackCreator.addModFromID('ice-and-fire-dragons');
-            const result = await modpackCreator.work(1);
+            const constraints: Constraints = {
+                minVersion: '1.12.2',
+                maxVersion: '1.12.2',
+                loaders: [ModLoader.FABRIC]
+            };
+            const result = await solutionFinder.findSolutions(['ice-and-fire-dragons'], constraints, 1);
             expect(result).toHaveLength(0);
         });
 
@@ -349,16 +303,14 @@ describe('ModpackCreator', () => {
                 releases: [{
                     mcVersions: ['1.17.1'],
                     modVersion: '1.0.0',
-                    repository: ModRepositoryName.CUSTOM,
+                    repository: ModRepositoryName.CURSEFORGE,
                     loaders: [ModLoader.FABRIC]
                 }]
             };
             secondMockRepo.setMod('second-repo-mod', secondRepoMod);
-            (modpackCreator as any).repositories = [mockRepository, secondMockRepo];
 
-            modpackCreator.addModFromID('ice-and-fire-dragons');
-            modpackCreator.addModFromID('second-repo-mod');
-            const result = (await modpackCreator.work(1))[0];
+            solutionFinder = getSolutionFinder([mockRepository, secondMockRepo]);
+            const result = (await solutionFinder.findSolutions(['ice-and-fire-dragons', 'second-repo-mod']))[0];
 
             expect(result.mods).toHaveLength(2);
             const modNames = result.mods.map(mod => mod.name);
