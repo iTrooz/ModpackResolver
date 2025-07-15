@@ -6,6 +6,7 @@ export {
   ModLoader,
   Solution,
   ModSearchMetadata,
+  Constraints,
 } from "./types";
 
 export type {
@@ -16,7 +17,7 @@ export type {
   MCVersion,
 } from "./types";
 
-export { ModQueryService, Constraints } from "./ModQueryService";
+export { ModQueryService } from "./ModQueryService";
 
 export { ModrinthRepository, CurseForgeRepository } from "./repos";
 export type { IRepository } from "./repos";

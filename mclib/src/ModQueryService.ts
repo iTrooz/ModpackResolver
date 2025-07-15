@@ -1,11 +1,4 @@
-import type { MCVersion, ModAndReleases, ModLoader, ModRepositoryName, ModSearchMetadata, IRepository } from ".";
-
-
-export class Constraints {
-    minVersion?: string;
-    maxVersion?: string;
-    loaders?: ModLoader[];
-}
+import type { MCVersion, ModAndReleases, ModRepositoryName, ModSearchMetadata, IRepository } from ".";
 
 export class ModQueryService {
 

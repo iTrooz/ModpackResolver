@@ -68,3 +68,10 @@ export type Solution = {
     /** The mod releases that are compatible with this configuration */
     mods: ModAndRelease[];
 };
+
+/** Represents constraints for a modpack solution */
+export class Constraints {
+    minVersion?: string;
+    maxVersion?: string;
+    loaders?: ModLoader[];
+}
