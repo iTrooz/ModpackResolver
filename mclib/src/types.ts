@@ -71,7 +71,7 @@ export type Solution = {
 
 /** Represents constraints for a modpack solution */
 export class Constraints {
-    minVersion?: string;
-    maxVersion?: string;
+    minVersion?: MCVersion;
+    maxVersion?: MCVersion;
     loaders?: ModLoader[];
 }
