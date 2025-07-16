@@ -67,4 +67,18 @@ export class ModQueryService {
         }
         throw new Error(`Mod with ID ${modId} not found in any repository`);
     }
+
+    async getModByDataHash(modData: Uint8Array): Promise<ModSearchMetadata | undefined> {
+        for (const repo of this.repositories) {
+            try {
+                const result = await repo.getByDataHash(modData);
+                if (result) {
+                    return result;
+                }
+            } catch (error) {
+                console.error(`Error fetching mod by hash from ${repo.getRepositoryName()}:`, error);
+            }
+        }
+        return undefined; // No mod found in any repository
+    }
 }
