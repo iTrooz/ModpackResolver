@@ -3,8 +3,20 @@
 import { program } from '@commander-js/extra-typings';
 import { CurseForgeRepository, LocalSolutionFinder, LoggerConfig, ModLoader, ModQueryService, ModrinthRepository, LogLevel, Constraints } from 'mclib';
 import { readFileSync } from 'fs';
+import pino from 'pino';
 
-LoggerConfig.setLevel((process.env.LOG_LEVEL ?? "info") as LogLevel);
+// Logging setup
+const LOG_LEVEL = (process.env.LOG_LEVEL ?? "info") as LogLevel;
+const logger = pino({
+    level: LOG_LEVEL,
+    transport: {
+        target: 'pino-pretty',
+        options: {
+            colorize: true
+        }
+    }
+});
+LoggerConfig.setLevel(LOG_LEVEL);
 
 function getModQueryService() {
   const repositories = [
@@ -34,18 +46,18 @@ async function getModIds(modQueryService: ModQueryService, options: Options): Pr
   if (options.modFile) {
     for (const file of options.modFile) {
       try {
-        console.log(`Reading mod file: ${file}`);
+        logger.debug("Reading mod file %s", file);
         const modData = readFileSync(file);
         const modMetadata = await modQueryService.getModByDataHash(new Uint8Array(modData));
         
         if (modMetadata) {
           modIds.push(modMetadata.id);
-          console.log(`Found mod ID ${modMetadata.id} from file: ${file}`);
+          logger.info(`Found mod ID ${modMetadata.id} from file: ${file}`);
         } else {
-          console.warn(`Could not extract mod ID from file: ${file}`);
+          logger.warn(`Could not extract mod ID from file: ${file}`);
         }
       } catch (error) {
-        console.error(`Error reading file ${file}:`, error);
+        logger.error(`Error reading file ${file}:`, error);
       }
     }
   }
@@ -74,11 +86,11 @@ program
     const modIds = await getModIds(modQueryService, cliOptions);
     
     if (modIds.length === 0) {
-      console.error('No valid mod IDs found from provided options.');
+      logger.error('No valid mod IDs found from provided options.');
       return;
     }
 
-    console.log(`Searching for solutions with ${modIds.length} mod(s)...`);
+    logger.info(`Searching for solutions with ${modIds.length} mod(s)...`);
     let solutionFinder = new LocalSolutionFinder(modQueryService);
     let solutions = await solutionFinder.findSolutions(modIds, {
       minVersion: cliOptions.minVersion,
@@ -87,13 +99,13 @@ program
     });
 
     if (solutions.length === 0) {
-      console.log('No solutions found.');
+      logger.info('No solutions found.');
       return;
     }
 
-    console.log(`Found ${solutions.length} solution(s):`);
+    logger.info(`Found ${solutions.length} solution(s):`);
     for (const solution of solutions) {
-      console.log(`- Version: ${solution.mcConfig.mcVersion}, Loader: ${solution.mcConfig.loader}, Mods: ${solution.mods.length}/${modIds.length}`);
+      logger.info(`- Version: ${solution.mcConfig.mcVersion}, Loader: ${solution.mcConfig.loader}, Mods: ${solution.mods.length}/${modIds.length}`);
     }
   });
 
