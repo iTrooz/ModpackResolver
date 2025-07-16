@@ -1,4 +1,5 @@
 import { MCConfig, ModAndRelease, ModAndReleases, ModRelease, Solution, Constraints, ISolutionFinder } from "..";
+import { logger } from "../logger";
 import { ModQueryService } from "../ModQueryService";
 
 /**
@@ -20,8 +21,11 @@ export class LocalSolutionFinder implements ISolutionFinder {
      * @returns Array of compatible solutions
      */
     async findSolutions(mods: string[], constraints: Constraints = {}, nbSolution: number = 5): Promise<Solution[]> {
+        logger.debug("findSolutions()");
         const resolvedMods = await this.resolveMods(mods);
-        return this.resolveSolutions(resolvedMods, constraints, nbSolution);
+        const solutions = this.resolveSolutions(resolvedMods, constraints, nbSolution);
+        logger.debug("findSolutions() = %s solutions", solutions.length);
+        return solutions;
     }
 
     /**
@@ -31,13 +35,17 @@ export class LocalSolutionFinder implements ISolutionFinder {
      * @returns Array of compatible solutions
      */
     private resolveSolutions(mods: ModAndReleases[], constraints: Constraints, nbSolution: number): Solution[] {
+        logger.debug({constraints}, "resolveSolutions(mods=%s)", mods.length);
+
         // Get flat list of all mod releases
         const flatReleases = this.getFlatReleases(mods);
+        logger.debug("%s releases after flattening", flatReleases.length);
 
         // Filter releases based on constraints
         const matchingReleases = flatReleases.filter(([_, release]) =>
             this.matchConstraints(release, constraints)
         );
+        logger.debug("%s releases match constraints", matchingReleases.length);
 
         // Create config candidates (unique mcVersion + loader combinations)
         const configCandidates = this.extractConfigCandidates(matchingReleases);
@@ -52,6 +60,7 @@ export class LocalSolutionFinder implements ISolutionFinder {
         const solutions: Solution[] = [];
 
         // Find configs that have compatible releases for each mod
+        logger.debug("Iterating over %d config candidates", configCandidates.length);
         for (const config of configCandidates) {
             // Skip if we already have enough solutions
             if (solutions.length >= nbSolution) break;
@@ -75,6 +84,7 @@ export class LocalSolutionFinder implements ISolutionFinder {
             }
 
             // If we found a match for every mod, add this solution
+            logger.debug({config}, "Found solution with %d/%d matching mods", matchingModReleases.length, mods.length);
             if (matchedModNames.size === mods.length) {
                 solutions.push({
                     mcConfig: config,
@@ -82,11 +92,12 @@ export class LocalSolutionFinder implements ISolutionFinder {
                 });
             }
         }
-
+        logger.debug("resolveSolutions() = %s solutions", solutions.length);
         return solutions;
     }
 
     private async resolveMods(modIds: string[]): Promise<ModAndReleases[]> {
+        logger.debug("resolveMods(mods=%s)", modIds.length);
         const resolvedMods: ModAndReleases[] = [];
 
         for (const modId of modIds) {
@@ -137,15 +148,20 @@ export class LocalSolutionFinder implements ISolutionFinder {
      * @returns True if the release matches the constraints
      */
     private matchConstraints(release: ModRelease, constraints: Constraints): boolean {
+        logger.trace({release, constraints}, "matchConstraints()");
         // Check loader constraint
+        logger.trace("AAAA");
         if (constraints.loaders?.length && !constraints.loaders.some(l => release.loaders.includes(l))) {
             return false;
         }
+        logger.trace("BBBB");
 
         // Check minimal version constraint
         if (constraints.minVersion) {
-            const hasVersionAboveMin = release.mcVersions.some(v =>
-                this.compareVersions(v, constraints.minVersion as string) >= 0
+            const hasVersionAboveMin = release.mcVersions.some(v => {
+                logger.trace({version: v, minVersion: constraints.minVersion}, "compareVersions()")
+                return this.compareVersions(v, constraints.minVersion as string) >= 0
+            }
             );
             if (!hasVersionAboveMin) {
                 return false;
