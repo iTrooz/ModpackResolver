@@ -47,36 +47,42 @@
 </script>
 
 <section>
-	<form
-		class="search"
-		onsubmit={(e: Event) => {
-			e.preventDefault();
-		}}
-	>
-		<ToggleButtons
-			bind:selection={selected_mod_repo_names}
-			entries_list={repositories.map((repo) => {
-				return repo.getRepositoryName();
-			})}
-			name="mod-repo-names-selection"
-			onchange={search_for_mods}
-			reset
-		/>
-		<div class="text">
+	<ToggleButtons
+		bind:selection={selected_mod_repo_names}
+		entries_list={repositories.map((repo) => {
+			return repo.getRepositoryName();
+		})}
+		name="mod-repo-names-selection"
+		onchange={search_for_mods}
+		reset
+	/>
+	<div class="text">
+		<form
+			id="search"
+			onsubmit={(e: Event) => {
+				e.preventDefault();
+			}}
+			onreset={() => {
+				(document.querySelector('form#search input[type=search]') as HTMLInputElement).focus();
+			}}
+		>
 			<input
-				type="text"
+				type="search"
 				placeholder={m['add_mods.search_mod_by_name']()}
 				bind:value={search_name_input}
 				oninput={handle_automatic_search_input}
 			/>
-			<input
-				type="submit"
-				value={m['add_mods.search_mods_button']()}
-				onclick={search_for_mods}
-				disabled={automatic_searching}
-			/>
-		</div>
-	</form>
+			{#if search_name_input.length > 0}
+				<input transition:slide={{ axis: 'x', duration: 200 }} type="reset" value="X" />
+			{/if}
+		</form>
+		<input
+			type="submit"
+			value={m['add_mods.search_mods_button']()}
+			onclick={search_for_mods}
+			disabled={automatic_searching}
+		/>
+	</div>
 
 	{#if search_results.length > 0 && search_name_input.length > 0}
 		<div transition:slide={{ axis: 'y', duration: 200 }}>
@@ -88,10 +94,6 @@
 <style>
 	section {
 		display: flex;
-		flex-direction: column;
-	}
-	form.search {
-		display: flex;
 		flex-flow: column;
 		gap: 0.5rem;
 		& .text {
@@ -99,15 +101,33 @@
 			flex-direction: row;
 			gap: 0.5rem;
 			flex-wrap: wrap;
-			& input[type='text'] {
+			#search {
 				flex: 7;
+				display: flex;
+				flex-direction: row;
 				background: var(--grey-dark-1);
 				border: solid 2px var(--green);
 				outline: none;
-				color: var(--grey-light-2);
-				padding: 0.4rem;
 				&:is(:focus, :focus-visible, :active, :hover) {
 					border-color: var(--green-light-1);
+				}
+				& input[type='search'] {
+					width: 100%;
+					padding: 0.4rem;
+					color: var(--grey-light-2);
+					background: none;
+					border: none;
+					outline: none;
+				}
+				& input[type='reset'] {
+					border: none;
+					outline: none;
+					padding: 0rem 0.4rem;
+					background: none;
+					color: var(--grey);
+					&:is(:focus, :focus-visible, :active, :hover) {
+						color: var(--grey-light-1);
+					}
 				}
 			}
 			& input[type='submit'] {
