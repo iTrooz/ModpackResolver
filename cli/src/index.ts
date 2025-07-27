@@ -9,6 +9,9 @@ import pino from 'pino';
 const LOG_LEVEL = (process.env.LOG_LEVEL ?? "info") as LogLevel;
 const logger = pino({
   level: LOG_LEVEL,
+  base: {
+    pid: false,
+  },
   transport: {
     target: 'pino-pretty',
     options: {

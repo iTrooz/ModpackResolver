@@ -11,6 +11,9 @@ export enum LogLevel {
 
 const logger = pino({
     level: 'info', // default level
+    base: {
+        pid: false,
+    },
     transport: {
         target: 'pino-pretty',
         options: {
