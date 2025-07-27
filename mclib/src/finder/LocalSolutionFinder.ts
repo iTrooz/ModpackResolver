@@ -30,7 +30,7 @@ export class LocalSolutionFinder implements ISolutionFinder {
         logger.debug("%s releases after flattening", flatReleases.length);
 
         // Filter releases based on constraints
-        const matchingReleases = flatReleases.filter(([_, release]) =>
+        const matchingReleases = flatReleases.filter(({ id, release }) =>
             this.matchConstraints(release, constraints)
         );
         logger.debug("%s releases match constraints", matchingReleases.length);
@@ -53,18 +53,18 @@ export class LocalSolutionFinder implements ISolutionFinder {
             const matchingModReleases: ModAndRelease[] = [];
             const matchedModIds = new Set<string>();
 
-            for (const [mod, release] of matchingReleases) {
+            for (const {id, release} of matchingReleases) {
                 // Skip if we already found a release for this mod
-                if (matchedModIds.has(mod.id)) continue;
+                if (matchedModIds.has(id)) continue;
 
                 // Check if this release matches the current config
                 if (release.mcVersions.has(config.mcVersion) &&
                     release.loaders.has(config.loader)) {
                     matchingModReleases.push({
-                        id: mod.id,
+                        id: id,
                         release: release
                     });
-                    matchedModIds.add(mod.id);
+                    matchedModIds.add(id);
                 }
             }
 
@@ -105,9 +105,9 @@ export class LocalSolutionFinder implements ISolutionFinder {
      * @param mods List of mods with their releases
      * @returns Flattened list of (mod, release) pairs
      */
-    private getFlatReleases(mods: ModAndReleases[]): Array<[{ id: string }, ModRelease]> {
+    private getFlatReleases(mods: ModAndReleases[]): Array<ModAndRelease> {
         return mods.flatMap(mod =>
-            mod.releases.map(release => [{ id: mod.id }, release] as [{ id: string }, ModRelease])
+            mod.releases.map(release => ({ id: mod.id, release }))
         );
     }
 
@@ -116,11 +116,11 @@ export class LocalSolutionFinder implements ISolutionFinder {
      * @param releases Flattened list of mod releases
      * @returns List of unique configuration candidates
      */
-    private extractConfigCandidates(releases: Array<[{ id: string }, ModRelease]>): MCConfig[] {
+    private extractConfigCandidates(releases: Array<ModAndRelease>): MCConfig[] {
         const configs: MCConfig[] = [];
         const configSet = new Set<string>();
 
-        for (const [_, release] of releases) {
+        for (const { release } of releases) {
             for (const mcVersion of release.mcVersions) {
                 for (const loader of release.loaders) {
                     const configKey = `${mcVersion}:${loader}`;
