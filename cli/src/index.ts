@@ -18,7 +18,8 @@ const logger = pino({
 });
 LoggerConfig.setLevel(LOG_LEVEL);
 
-async function timedFetch(input: RequestInfo | URL, options?: RequestInit): Promise<Response> {
+// Fetch wrapper to log timing and errors
+async function fetchWrapper(input: RequestInfo | URL, options?: RequestInit): Promise<Response> {
   const start = Date.now();
   const response = await fetch(input, options);
   const duration = Date.now() - start;
@@ -31,8 +32,8 @@ async function timedFetch(input: RequestInfo | URL, options?: RequestInit): Prom
 
 function getModQueryService() {
   const repositories = [
-    new ModrinthRepository(timedFetch),
-    new CurseForgeRepository(timedFetch),
+    new ModrinthRepository(fetchWrapper),
+    new CurseForgeRepository(fetchWrapper),
   ];
   return new ModQueryService(repositories);
 }
@@ -48,7 +49,7 @@ interface CliOptions {
   sinytra?: boolean;
 }
 
-function validate(options: CliOptions) {
+function validateCliOptions(options: CliOptions) {
   if ((!options.modId || options.modId.length === 0) && (!options.modFile || options.modFile.length === 0)) {
     throw new Error('At least one --mod-id or --mod-file is required.');
   }
@@ -70,26 +71,29 @@ async function getModIds(modQueryService: ModQueryService, options: CliOptions):
   if (options.modFile) {
     for (const file of options.modFile) {
       try {
-
+        // Read file
         const start = Date.now();
-        const modData = readFileSync(file);
+        let modData = readFileSync(file);
         const duration = Date.now() - start;
         logger.debug(`readFileSync(${file}): ${duration}ms`);
 
-        const modMetadata = await modQueryService.getModByDataHash(new Uint8Array(modData));
-
-        if (modMetadata) {
-          if (modIdSet.has(modMetadata.id)) {
-            logger.warn(`Duplicate mod ID from file: ${modMetadata.id} (file: ${file})`);
-          } else {
-            modIdSet.add(modMetadata.id);
-            logger.info(`Found mod ID ${modMetadata.id} from file: ${file}`);
-          }
-        } else {
+        // Get metadata
+        let modMetadata = await modQueryService.getModByDataHash(new Uint8Array(modData));
+        if (!modMetadata) {
           logger.warn(`Could not extract mod ID from file: ${file}`);
+          continue;
+        }
+
+        // add to set
+        if (modIdSet.has(modMetadata.id)) {
+          logger.warn(`Duplicate mod ID from file: ${modMetadata.id} (file: ${file})`);
+        } else {
+          modIdSet.add(modMetadata.id);
+          logger.info(`Found mod ID ${modMetadata.id} from file: ${file}`);
         }
       } catch (error) {
-        logger.error(`Error reading file ${file}: ${error}`);
+        logger.error(`Error processing mod file ${file}: ${error}`);
+        continue;
       }
     }
   }
@@ -102,7 +106,7 @@ async function findSolutions(
   requestedModIds: string[],
   constraints: Constraints,
   nbSolutions: number,
-  sinytra: boolean = false
+  sinytra: boolean
 ): Promise<Solution[]> {
   let solutionFinder = new LocalSolutionFinder(modQueryService);
 
@@ -146,7 +150,7 @@ program
   .option('--sinytra', 'Inject forge and neoforge into fabric-compatible releases')
   .action(async (cliOptions: CliOptions & { sinytra?: boolean }) => {
     let modQueryService = getModQueryService();
-    validate(cliOptions);
+    validateCliOptions(cliOptions);
 
     const requestedModIds = await getModIds(modQueryService, cliOptions);
     if (requestedModIds.length === 0) {
