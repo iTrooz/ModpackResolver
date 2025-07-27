@@ -24,7 +24,7 @@ export class LocalSolutionFinder implements ISolutionFinder {
         logger.debug("findSolutions()");
         const resolvedMods = await this.resolveMods(mods);
         const solutions = this.resolveSolutions(resolvedMods, constraints, nbSolution);
-        logger.debug("findSolutions() = %s solutions", solutions.length);
+        logger.debug("findSolutions(): %s solutions", solutions.length);
         return solutions;
     }
 
@@ -93,18 +93,22 @@ export class LocalSolutionFinder implements ISolutionFinder {
             return b.mods.length - a.mods.length;
         });
         if (solutions.length > nbSolution) solutions.length = nbSolution; // Trim to nbSolution
-        logger.debug("resolveSolutions() = %s solutions (sizes: [%s])", solutions.length, solutions.map(s => s.mods.length).join(", "));
+        logger.debug("resolveSolutions(): %s solutions (sizes: [%s])", solutions.length, solutions.map(s => s.mods.length).join(", "));
         return solutions;
     }
 
     private async resolveMods(modIds: string[]): Promise<ModAndReleases[]> {
         logger.debug("resolveMods(mods=%s)", modIds.length);
         const resolvedMods: ModAndReleases[] = [];
-
+        
+        let releaseCount = 0;
         for (const modId of modIds) {
-            resolvedMods.push(await this.query.getModReleases(modId));
+            let releases = await this.query.getModReleases(modId);
+            releaseCount += releases.releases.length;
+            resolvedMods.push(releases);
         }
-
+        
+        logger.debug("resolveMods(mods=%s): %s total releases", modIds.length, releaseCount);
         return resolvedMods;
     }
 
