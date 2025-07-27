@@ -72,7 +72,7 @@ async function getModIds(modQueryService: ModQueryService, options: Options): Pr
           logger.warn(`Could not extract mod ID from file: ${file}`);
         }
       } catch (error) {
-        logger.error(`Error reading file ${file}:`, error);
+        logger.error(`Error reading file ${file}: ${error}`);
       }
     }
   }
