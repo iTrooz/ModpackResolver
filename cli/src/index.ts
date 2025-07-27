@@ -37,7 +37,7 @@ function getModQueryService() {
   return new ModQueryService(repositories);
 }
 
-interface Options {
+interface CliOptions {
   modId?: string[];
   modFile?: string[];
   minVersion?: string;
@@ -47,13 +47,13 @@ interface Options {
   nbSolutions: number;
 }
 
-function validate(options: Options) {
+function validate(options: CliOptions) {
   if ((!options.modId || options.modId.length === 0) && (!options.modFile || options.modFile.length === 0)) {
     throw new Error('At least one --mod-id or --mod-file is required.');
   }
 }
 
-async function getModIds(modQueryService: ModQueryService, options: Options): Promise<string[]> {
+async function getModIds(modQueryService: ModQueryService, options: CliOptions): Promise<string[]> {
   let modIds = [...(options.modId ?? [])];
 
   if (options.modFile) {
@@ -97,7 +97,7 @@ program
   .option('--loader <loader...>', 'Loaders to consider (e.g., forge, fabric)', [])
   .option('-d, --details', 'Include details (e.g. unsupported mods in solutions found)')
   .option('-n, --nb-solutions <number>', 'Number of solutions to output', (value) => parseInt(value, 10), 3)
-  .action(async (cliOptions: Options) => {
+  .action(async (cliOptions: CliOptions) => {
 
     let modQueryService = getModQueryService();
     validate(cliOptions);
