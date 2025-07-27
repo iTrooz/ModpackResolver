@@ -1,5 +1,5 @@
 import type { IRepository } from "./IRepository";
-import { ModAndReleases, ModRelease, ModRepositoryName, ModLoader, ModSearchMetadata, MCVersion } from "..";
+import { ModAndReleases, ModRelease, ModRepositoryName, ModLoader, ModSearchMetadata, MCVersion, ModLoaderUtil } from "..";
 import { cf_fingerprint } from 'cf-fingerprint';
 import { logger } from "../logger";
 
@@ -24,14 +24,14 @@ export class CurseForgeRepository implements IRepository {
         const filesResp = await this.fetchClient(`${CurseForgeRepository.BASE_URL}/mods/${modId}/files`);
         if (!filesResp.ok) throw new Error("Could not fetch files from CurseForge");
         const filesData = (await filesResp.json()).data;
-        
+
         const releases: ModRelease[] = filesData.map((file: any) => {
             const mcVersions: Set<MCVersion> = new Set();
             const loaders: Set<ModLoader> = new Set();
             for (let gameVersion of file.gameVersions || []) {
                 gameVersion = gameVersion.toLowerCase();
                 if (/^[a-z]+$/.test(gameVersion)) {
-                    loaders.add(ModLoader.from(gameVersion));
+                    loaders.add(ModLoaderUtil.from(gameVersion));
                 } else {
                     mcVersions.add(gameVersion);
                 }
@@ -95,7 +95,7 @@ export class CurseForgeRepository implements IRepository {
             return null;
         }
         const data = (await resp.json()).data;
-        
+
         if (!data.exactMatches || data.exactMatches.length === 0) return null;
 
         const fileMatch = data.exactMatches[0];

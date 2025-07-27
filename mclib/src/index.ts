@@ -7,6 +7,7 @@ export {
   Solution,
   ModSearchMetadata,
   Constraints,
+  ModLoaderUtil
 } from "./types";
 
 export type {

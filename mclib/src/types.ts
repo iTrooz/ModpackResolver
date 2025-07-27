@@ -20,12 +20,12 @@ export enum ModLoader {
     NEOFORGE = "neoforge"
 }
 
-export namespace ModLoader {
-    export function from(loader: string): ModLoader {
+export class ModLoaderUtil {
+    static from(loader: string): ModLoader {
         loader = loader.toLowerCase();
         for (const modLoader of Object.values(ModLoader)) {
             if (modLoader === loader) {
-                return modLoader;
+                return modLoader as ModLoader;
             }
         }
         logger.trace(`Unknown mod loader: ${loader}`);

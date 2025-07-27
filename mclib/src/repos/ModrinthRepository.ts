@@ -1,5 +1,5 @@
 import type { IRepository } from "./IRepository";
-import { ModAndReleases, ModRelease, ModRepositoryName, ModLoader, ModSearchMetadata } from "..";
+import { ModAndReleases, ModRelease, ModRepositoryName, ModSearchMetadata, ModLoaderUtil } from "..";
 
 export class ModrinthRepository implements IRepository {
 
@@ -26,7 +26,7 @@ export class ModrinthRepository implements IRepository {
             mcVersions: new Set(v.game_versions),
             modVersion: v.version_number,
             repository: ModRepositoryName.MODRINTH,
-            loaders: new Set(v.loaders.map((l: string) => ModLoader.from(l))),
+            loaders: new Set(v.loaders.map((l: string) => ModLoaderUtil.from(l))),
         }));
 
         return {

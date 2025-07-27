@@ -30,7 +30,7 @@ export class LocalSolutionFinder implements ISolutionFinder {
         logger.debug("%s releases after flattening", flatReleases.length);
 
         // Filter releases based on constraints
-        const matchingReleases = flatReleases.filter(({ id, release }) =>
+        const matchingReleases = flatReleases.filter(({ release }) =>
             this.matchConstraints(release, constraints)
         );
         logger.debug("%s releases match constraints", matchingReleases.length);
@@ -91,7 +91,7 @@ export class LocalSolutionFinder implements ISolutionFinder {
 
         let releaseCount = 0;
         for (const modId of modIds) {
-            let releases = await this.query.getModReleases(modId);
+            const releases = await this.query.getModReleases(modId);
             releaseCount += releases.releases.length;
             resolvedMods.push(releases);
         }
