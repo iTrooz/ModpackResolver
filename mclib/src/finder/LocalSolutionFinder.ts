@@ -62,9 +62,6 @@ export class LocalSolutionFinder implements ISolutionFinder {
         // Find configs that have compatible releases for each mod
         logger.debug("Iterating over %d config candidates", configCandidates.length);
         for (const config of configCandidates) {
-            // Skip if we already have enough solutions
-            if (solutions.length >= nbSolution) break;
-
             const matchingModReleases: ModAndRelease[] = [];
             const matchedModNames = new Set<string>();
 
@@ -85,14 +82,18 @@ export class LocalSolutionFinder implements ISolutionFinder {
 
             // If we found a match for every mod, add this solution
             logger.debug({config}, "Found solution with %d/%d matching mods", matchingModReleases.length, mods.length);
-            if (matchedModNames.size === mods.length) {
-                solutions.push({
-                    mcConfig: config,
-                    mods: matchingModReleases
-                });
-            }
+            solutions.push({
+                mcConfig: config,
+                mods: matchingModReleases
+            });
         }
         logger.debug("resolveSolutions() = %s solutions", solutions.length);
+        
+        // Return top 'nbSolution' solutions
+        solutions.sort((a, b) => {
+            return b.mods.length - a.mods.length;
+        });
+        if (solutions.length > nbSolution) solutions.length = nbSolution; // Trim to nbSolution
         return solutions;
     }
 
