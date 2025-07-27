@@ -8,25 +8,25 @@ import pino from 'pino';
 // Logging setup
 const LOG_LEVEL = (process.env.LOG_LEVEL ?? "info") as LogLevel;
 const logger = pino({
-    level: LOG_LEVEL,
-    transport: {
-        target: 'pino-pretty',
-        options: {
-            colorize: true
-        }
+  level: LOG_LEVEL,
+  transport: {
+    target: 'pino-pretty',
+    options: {
+      colorize: true
     }
+  }
 });
 LoggerConfig.setLevel(LOG_LEVEL);
 
 async function timedFetch(input: RequestInfo | URL, options?: RequestInit): Promise<Response> {
-    const start = Date.now();
-    const response = await fetch(input, options);
-    const duration = Date.now() - start;
-    logger.debug(`fetch(${input}): ${duration}ms`);
-    if (!response.ok) {
-        logger.error(`Fetch failed for ${input}: ${response.status} ${response.statusText}`);
-    }
-    return response;
+  const start = Date.now();
+  const response = await fetch(input, options);
+  const duration = Date.now() - start;
+  logger.debug(`fetch(${input}): ${duration}ms`);
+  if (!response.ok) {
+    logger.error(`Fetch failed for ${input}: ${response.status} ${response.statusText}`);
+  }
+  return response;
 }
 
 function getModQueryService() {
@@ -53,7 +53,7 @@ function validate(options: Options) {
 
 async function getModIds(modQueryService: ModQueryService, options: Options): Promise<string[]> {
   let modIds = [...(options.modId ?? [])];
-  
+
   if (options.modFile) {
     for (const file of options.modFile) {
       try {
@@ -64,7 +64,7 @@ async function getModIds(modQueryService: ModQueryService, options: Options): Pr
         logger.debug(`readFileSync(${file}): ${duration}ms`);
 
         const modMetadata = await modQueryService.getModByDataHash(new Uint8Array(modData));
-        
+
         if (modMetadata) {
           modIds.push(modMetadata.id);
           logger.info(`Found mod ID ${modMetadata.id} from file: ${file}`);
@@ -76,7 +76,7 @@ async function getModIds(modQueryService: ModQueryService, options: Options): Pr
       }
     }
   }
-  
+
   return modIds;
 }
 
@@ -97,9 +97,9 @@ program
 
     let modQueryService = getModQueryService();
     validate(cliOptions);
-    
+
     const modIds = await getModIds(modQueryService, cliOptions);
-    
+
     if (modIds.length === 0) {
       logger.error('No valid mod IDs found from provided options.');
       return;

@@ -35,7 +35,7 @@ export class LocalSolutionFinder implements ISolutionFinder {
      * @returns Array of compatible solutions
      */
     private resolveSolutions(mods: ModAndReleases[], constraints: Constraints, nbSolution: number): Solution[] {
-        logger.debug({constraints}, "resolveSolutions(mods=%s)", mods.length);
+        logger.debug({ constraints }, "resolveSolutions(mods=%s)", mods.length);
 
         // Get flat list of all mod releases
         const flatReleases = this.getFlatReleases(mods);
@@ -81,13 +81,13 @@ export class LocalSolutionFinder implements ISolutionFinder {
             }
 
             // If we found a match for every mod, add this solution
-            logger.trace({config}, "Found solution with %d/%d matching mods", matchingModReleases.length, mods.length);
+            logger.trace({ config }, "Found solution with %d/%d matching mods", matchingModReleases.length, mods.length);
             solutions.push({
                 mcConfig: config,
                 mods: matchingModReleases
             });
         }
-        
+
         // Return top 'nbSolution' solutions
         solutions.sort((a, b) => {
             return b.mods.length - a.mods.length;
@@ -100,14 +100,14 @@ export class LocalSolutionFinder implements ISolutionFinder {
     private async resolveMods(modIds: string[]): Promise<ModAndReleases[]> {
         logger.debug("resolveMods(mods=%s)", modIds.length);
         const resolvedMods: ModAndReleases[] = [];
-        
+
         let releaseCount = 0;
         for (const modId of modIds) {
             let releases = await this.query.getModReleases(modId);
             releaseCount += releases.releases.length;
             resolvedMods.push(releases);
         }
-        
+
         logger.debug("resolveMods(mods=%s): %s total releases", modIds.length, releaseCount);
         return resolvedMods;
     }
@@ -153,7 +153,7 @@ export class LocalSolutionFinder implements ISolutionFinder {
      * @returns True if the release matches the constraints
      */
     private matchConstraints(release: ModRelease, constraints: Constraints): boolean {
-        logger.trace({release, constraints}, "matchConstraints()");
+        logger.trace({ release, constraints }, "matchConstraints()");
         // Check loader constraint
         logger.trace("AAAA");
         if (constraints.loaders?.length && !constraints.loaders.some(l => release.loaders.includes(l))) {
@@ -164,7 +164,7 @@ export class LocalSolutionFinder implements ISolutionFinder {
         // Check minimal version constraint
         if (constraints.minVersion) {
             const hasVersionAboveMin = release.mcVersions.some(v => {
-                logger.trace({version: v, minVersion: constraints.minVersion}, "compareVersions()")
+                logger.trace({ version: v, minVersion: constraints.minVersion }, "compareVersions()")
                 return this.compareVersions(v, constraints.minVersion as string) >= 0
             }
             );
