@@ -1,6 +1,7 @@
 import type { IRepository } from "./IRepository";
 import { ModAndReleases, ModRelease, ModRepositoryName, ModLoader, ModSearchMetadata } from "..";
 import { cf_fingerprint } from 'cf-fingerprint';
+import { logger } from "../logger";
 
 /**
  * Implementation of IRepository for the CurseForge repository.
@@ -78,7 +79,10 @@ export class CurseForgeRepository implements IRepository {
 
     async getByDataHash(modData: Uint8Array): Promise<ModSearchMetadata | null> {
         // Calculate CurseForge fingerprint
+        const start = Date.now();
         const fingerprint: number = cf_fingerprint(modData);
+        const duration = Date.now() - start;
+        logger.debug(`cf_fingerprint(${modData.length} bytes): ${duration}ms`);
 
         // Use the CurseForge API to get file info by fingerprint
         const resp = await this.fetchClient(`${CurseForgeRepository.BASE_URL}/fingerprints`, {
