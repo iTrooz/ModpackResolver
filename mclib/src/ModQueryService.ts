@@ -1,4 +1,5 @@
 import type { MCVersion, ModAndReleases, ModRepositoryName, ModSearchMetadata, IRepository } from ".";
+import { logger } from "./logger";
 
 export class ModQueryService {
 
@@ -70,13 +71,17 @@ export class ModQueryService {
 
     async getModByDataHash(modData: Uint8Array): Promise<ModSearchMetadata | undefined> {
         for (const repo of this.repositories) {
+            logger.debug("Trying to query mod id from data using repository %s", repo.getRepositoryName())
             try {
                 const result = await repo.getByDataHash(modData);
                 if (result) {
+                    logger.debug("Success");
                     return result;
+                } else {
+                    logger.debug("Failure (not found)");
                 }
             } catch (error) {
-                console.error(`Error fetching mod by hash from ${repo.getRepositoryName()}:`, error);
+                logger.error("Error fetching mod by hash from %s: %s", repo.getRepositoryName(), error);
             }
         }
         return undefined; // No mod found in any repository
