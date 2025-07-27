@@ -44,6 +44,7 @@ interface Options {
   maxVersion?: string;
   loader?: string[];
   details?: boolean;
+  nbSolutions: number;
 }
 
 function validate(options: Options) {
@@ -95,6 +96,7 @@ program
   .option('--max-version <version>', 'Maximum Minecraft version to consider')
   .option('--loader <loader...>', 'Loaders to consider (e.g., forge, fabric)', [])
   .option('-d, --details', 'Include details (e.g. unsupported mods in solutions found)')
+  .option('-n, --nb-solutions <number>', 'Number of solutions to output', (value) => parseInt(value, 10), 3)
   .action(async (cliOptions: Options) => {
 
     let modQueryService = getModQueryService();
@@ -113,7 +115,7 @@ program
       minVersion: cliOptions.minVersion,
       maxVersion: cliOptions.maxVersion,
       loaders: cliOptions.loader as ModLoader[] | undefined,
-    });
+    }, cliOptions.nbSolutions);
 
     if (solutions.length === 0) {
       logger.info('No solutions found.');
