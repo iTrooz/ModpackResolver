@@ -87,13 +87,13 @@ export class LocalSolutionFinder implements ISolutionFinder {
                 mods: matchingModReleases
             });
         }
-        logger.debug("resolveSolutions() = %s solutions", solutions.length);
         
         // Return top 'nbSolution' solutions
         solutions.sort((a, b) => {
             return b.mods.length - a.mods.length;
         });
         if (solutions.length > nbSolution) solutions.length = nbSolution; // Trim to nbSolution
+        logger.debug("resolveSolutions() = %s solutions (sizes: [%s])", solutions.length, solutions.map(s => s.mods.length).join(", "));
         return solutions;
     }
 
