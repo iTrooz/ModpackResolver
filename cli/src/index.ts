@@ -57,8 +57,12 @@ async function getModIds(modQueryService: ModQueryService, options: Options): Pr
   if (options.modFile) {
     for (const file of options.modFile) {
       try {
-        logger.debug("Reading mod file %s", file);
+
+        const start = Date.now();
         const modData = readFileSync(file);
+        const duration = Date.now() - start;
+        logger.debug(`readFileSync(${file}): ${duration}ms`);
+
         const modMetadata = await modQueryService.getModByDataHash(new Uint8Array(modData));
         
         if (modMetadata) {
