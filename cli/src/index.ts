@@ -44,9 +44,9 @@ interface CliOptions {
   minVersion?: string;
   maxVersion?: string;
   loader?: string[];
-  details?: boolean;
+  details: boolean;
   nbSolutions: number;
-  sinytra?: boolean;
+  sinytra: boolean;
 }
 
 function validateCliOptions(options: CliOptions) {
@@ -145,9 +145,9 @@ program
   .option('--min-version <version>', 'Minimum Minecraft version to consider')
   .option('--max-version <version>', 'Maximum Minecraft version to consider')
   .option('--loader <loader...>', 'Loaders to consider (e.g., forge, fabric)', [])
-  .option('-d, --details', 'Include details (e.g. unsupported mods in solutions found)')
+  .option('-d, --details', 'Include details (e.g. unsupported mods in solutions found)', false)
   .option('-n, --nb-solutions <number>', 'Number of solutions to output', (value) => parseInt(value, 10), 3)
-  .option('--sinytra', 'Inject forge and neoforge into fabric-compatible releases')
+  .option('--sinytra', 'Inject forge and neoforge into fabric-compatible releases', false)
   .action(async (cliOptions: CliOptions & { sinytra?: boolean }) => {
     let modQueryService = getModQueryService();
     validateCliOptions(cliOptions);
