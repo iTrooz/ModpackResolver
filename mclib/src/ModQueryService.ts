@@ -71,19 +71,20 @@ export class ModQueryService {
 
     async getModByDataHash(modData: Uint8Array): Promise<ModSearchMetadata | undefined> {
         for (const repo of this.repositories) {
-            logger.debug("Trying to query mod id from data using repository %s", repo.getRepositoryName())
+            logger.debug("getModByDataHash(size = %s, %s)", modData.length, repo.getRepositoryName())
             try {
                 const result = await repo.getByDataHash(modData);
                 if (result) {
-                    logger.debug("Success");
+                    logger.debug("getModByDataHash(size = %s, %s) = %s (%s)", modData.length, repo.getRepositoryName(), result.id, result.name);
                     return result;
                 } else {
-                    logger.debug("Failure (not found)");
+                    logger.trace("getModByDataHash(size = %s, %s) = not found", modData.length, repo.getRepositoryName());
                 }
             } catch (error) {
                 logger.error("Error fetching mod by hash from %s: %s", repo.getRepositoryName(), error);
             }
         }
+        logger.debug("getModByDataHash(size = %s) = not found in any repository", modData.length);
         return undefined; // No mod found in any repository
     }
 }
