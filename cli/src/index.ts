@@ -54,7 +54,17 @@ function validate(options: CliOptions) {
 }
 
 async function getModIds(modQueryService: ModQueryService, options: CliOptions): Promise<string[]> {
-  let modIds = [...(options.modId ?? [])];
+  const modIdSet = new Set<string>();
+
+  if (options.modId) {
+    for (const id of options.modId) {
+      if (modIdSet.has(id)) {
+        logger.warn(`Duplicate mod ID from --mod-id: ${id}`);
+      } else {
+        modIdSet.add(id);
+      }
+    }
+  }
 
   if (options.modFile) {
     for (const file of options.modFile) {
@@ -68,8 +78,12 @@ async function getModIds(modQueryService: ModQueryService, options: CliOptions):
         const modMetadata = await modQueryService.getModByDataHash(new Uint8Array(modData));
 
         if (modMetadata) {
-          modIds.push(modMetadata.id);
-          logger.info(`Found mod ID ${modMetadata.id} from file: ${file}`);
+          if (modIdSet.has(modMetadata.id)) {
+            logger.warn(`Duplicate mod ID from file: ${modMetadata.id} (file: ${file})`);
+          } else {
+            modIdSet.add(modMetadata.id);
+            logger.info(`Found mod ID ${modMetadata.id} from file: ${file}`);
+          }
         } else {
           logger.warn(`Could not extract mod ID from file: ${file}`);
         }
@@ -79,7 +93,7 @@ async function getModIds(modQueryService: ModQueryService, options: CliOptions):
     }
   }
 
-  return modIds;
+  return Array.from(modIdSet);
 }
 
 program
@@ -103,7 +117,6 @@ program
     validate(cliOptions);
 
     const requestedModIds = await getModIds(modQueryService, cliOptions);
-
     if (requestedModIds.length === 0) {
       logger.error('No valid mod IDs found from provided options.');
       return;
