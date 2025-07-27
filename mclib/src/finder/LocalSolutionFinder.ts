@@ -154,12 +154,11 @@ export class LocalSolutionFinder implements ISolutionFinder {
      */
     private matchConstraints(release: ModRelease, constraints: Constraints): boolean {
         logger.trace({ release, constraints }, "matchConstraints()");
+
         // Check loader constraint
-        logger.trace("AAAA");
         if (constraints.loaders?.length && !constraints.loaders.some(l => release.loaders.includes(l))) {
             return false;
         }
-        logger.trace("BBBB");
 
         // Check minimal version constraint
         if (constraints.minVersion) {
