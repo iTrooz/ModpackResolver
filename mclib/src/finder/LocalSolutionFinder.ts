@@ -81,7 +81,7 @@ export class LocalSolutionFinder implements ISolutionFinder {
             }
 
             // If we found a match for every mod, add this solution
-            logger.debug({config}, "Found solution with %d/%d matching mods", matchingModReleases.length, mods.length);
+            logger.trace({config}, "Found solution with %d/%d matching mods", matchingModReleases.length, mods.length);
             solutions.push({
                 mcConfig: config,
                 mods: matchingModReleases
