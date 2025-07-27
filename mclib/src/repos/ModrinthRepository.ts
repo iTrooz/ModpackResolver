@@ -18,10 +18,6 @@ export class ModrinthRepository implements IRepository {
     }
 
     async getModReleases(modId: string): Promise<ModAndReleases> {
-        const projectResp = await this.fetchClient(`https://api.modrinth.com/v2/project/${modId}`);
-        if (!projectResp.ok) throw new Error("Mod not found on Modrinth");
-        const projectData = await projectResp.json();
-
         const versionsResp = await this.fetchClient(`https://api.modrinth.com/v2/project/${modId}/version`);
         if (!versionsResp.ok) throw new Error("Could not fetch versions from Modrinth");
         const versionsData = await versionsResp.json();

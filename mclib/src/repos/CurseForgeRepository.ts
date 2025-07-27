@@ -21,10 +21,6 @@ export class CurseForgeRepository implements IRepository {
     }
 
     async getModReleases(modId: string): Promise<ModAndReleases> {
-        const modResp = await this.fetchClient(`${CurseForgeRepository.BASE_URL}/mods/${modId}`);
-        if (!modResp.ok) throw new Error("Mod not found on CurseForge");
-        const modData = (await modResp.json()).data;
-
         const filesResp = await this.fetchClient(`${CurseForgeRepository.BASE_URL}/mods/${modId}/files`);
         if (!filesResp.ok) throw new Error("Could not fetch files from CurseForge");
         const filesData = (await filesResp.json()).data;
