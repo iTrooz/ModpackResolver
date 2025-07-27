@@ -34,7 +34,7 @@ export class ModrinthRepository implements IRepository {
         }));
 
         return {
-            name: projectData.title || projectData.slug || modId,
+            id: modId,
             releases,
         };
     }

@@ -49,14 +49,14 @@ export type ModSearchMetadata = {
 };
 
 export type ModAndRelease = {
-    name: string;
+    id: string;
     release: ModRelease;
 }
 
 /** Mod with all its available releases */
 export type ModAndReleases = {
-    /** Mod name */
-    name: string;
+    /** Mod ID */
+    id: string;
     /** Available releases of the mod */
     releases: ModRelease[];
 };

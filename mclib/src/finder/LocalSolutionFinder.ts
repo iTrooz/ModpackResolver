@@ -63,20 +63,20 @@ export class LocalSolutionFinder implements ISolutionFinder {
         logger.debug("Iterating over %d config candidates", configCandidates.length);
         for (const config of configCandidates) {
             const matchingModReleases: ModAndRelease[] = [];
-            const matchedModNames = new Set<string>();
+            const matchedModIds = new Set<string>();
 
             for (const [mod, release] of matchingReleases) {
                 // Skip if we already found a release for this mod
-                if (matchedModNames.has(mod.name)) continue;
+                if (matchedModIds.has(mod.id)) continue;
 
                 // Check if this release matches the current config
                 if (release.mcVersions.includes(config.mcVersion) &&
                     release.loaders.includes(config.loader)) {
                     matchingModReleases.push({
-                        name: mod.name,
+                        id: mod.id,
                         release: release
                     });
-                    matchedModNames.add(mod.name);
+                    matchedModIds.add(mod.id);
                 }
             }
 
@@ -117,9 +117,9 @@ export class LocalSolutionFinder implements ISolutionFinder {
      * @param mods List of mods with their releases
      * @returns Flattened list of (mod, release) pairs
      */
-    private getFlatReleases(mods: ModAndReleases[]): Array<[{ name: string }, ModRelease]> {
+    private getFlatReleases(mods: ModAndReleases[]): Array<[{ id: string }, ModRelease]> {
         return mods.flatMap(mod =>
-            mod.releases.map(release => [{ name: mod.name }, release] as [{ name: string }, ModRelease])
+            mod.releases.map(release => [{ id: mod.id }, release] as [{ id: string }, ModRelease])
         );
     }
 
@@ -128,7 +128,7 @@ export class LocalSolutionFinder implements ISolutionFinder {
      * @param releases Flattened list of mod releases
      * @returns List of unique configuration candidates
      */
-    private extractConfigCandidates(releases: Array<[{ name: string }, ModRelease]>): MCConfig[] {
+    private extractConfigCandidates(releases: Array<[{ id: string }, ModRelease]>): MCConfig[] {
         const configs: MCConfig[] = [];
         const configSet = new Set<string>();
 

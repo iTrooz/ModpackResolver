@@ -190,7 +190,7 @@ describe('SolutionFinder', () => {
             mockRepository = new MockRepository();
 
             const jeiMod: ModAndReleases = {
-                name: 'Just Enough Items',
+                id: 'jei',
                 releases: [
                     {
                         mcVersions: ['1.17.1', '1.18.1'],
@@ -208,7 +208,7 @@ describe('SolutionFinder', () => {
             };
 
             const dragonsMod: ModAndReleases = {
-                name: 'Ice and Fire: Dragons',
+                id: 'ice-and-fire-dragons',
                 releases: [
                     {
                         mcVersions: ['1.16.5', '1.17.1'],
@@ -254,7 +254,7 @@ describe('SolutionFinder', () => {
                 loader: ModLoader.FABRIC
             });
             expect(result.mods).toHaveLength(1);
-            expect(result.mods[0].name).toBe('Ice and Fire: Dragons');
+            expect(result.mods[0].id).toBe('ice-and-fire-dragons');
             expect(result.mods[0].release.modVersion).toBe('2.0.0');
         });
 
@@ -268,9 +268,9 @@ describe('SolutionFinder', () => {
                 loader: ModLoader.FABRIC
             });
             expect(result.mods).toHaveLength(2);
-            const modNames = result.mods.map(mod => mod.name);
-            expect(modNames).toContain('Ice and Fire: Dragons');
-            expect(modNames).toContain('Just Enough Items');
+            const modIds = result.mods.map(mod => mod.id);
+            expect(modIds).toContain('ice-and-fire-dragons');
+            expect(modIds).toContain('jei');
         });
 
         it('should respect loader constraints', async () => {
@@ -299,7 +299,7 @@ describe('SolutionFinder', () => {
             // Setup second repository
             const secondMockRepo = new MockRepository();
             const secondRepoMod: ModAndReleases = {
-                name: 'Second Repo Mod',
+                id: 'second-repo-mod',
                 releases: [{
                     mcVersions: ['1.17.1'],
                     modVersion: '1.0.0',
@@ -313,9 +313,9 @@ describe('SolutionFinder', () => {
             const result = (await solutionFinder.findSolutions(['ice-and-fire-dragons', 'second-repo-mod']))[0];
 
             expect(result.mods).toHaveLength(2);
-            const modNames = result.mods.map(mod => mod.name);
-            expect(modNames).toContain('Ice and Fire: Dragons');
-            expect(modNames).toContain('Second Repo Mod');
+            const modIds = result.mods.map(mod => mod.id);
+            expect(modIds).toContain('ice-and-fire-dragons');
+            expect(modIds).toContain('second-repo-mod');
             expect(result.mcConfig.mcVersion).toBe('1.17.1');
             expect(result.mcConfig.loader).toBe(ModLoader.FABRIC);
         });

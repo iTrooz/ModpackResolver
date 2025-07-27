@@ -50,7 +50,7 @@ export class CurseForgeRepository implements IRepository {
         });
 
         return {
-            name: modData.name,
+            id: modId,
             releases,
         };
     }
