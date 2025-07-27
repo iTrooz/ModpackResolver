@@ -43,6 +43,7 @@ interface Options {
   minVersion?: string;
   maxVersion?: string;
   loader?: string[];
+  details?: boolean;
 }
 
 function validate(options: Options) {
@@ -93,21 +94,22 @@ program
   .option('--min-version <version>', 'Minimum Minecraft version to consider')
   .option('--max-version <version>', 'Maximum Minecraft version to consider')
   .option('--loader <loader...>', 'Loaders to consider (e.g., forge, fabric)', [])
+  .option('-d, --details', 'Include details (e.g. unsupported mods in solutions found)')
   .action(async (cliOptions: Options) => {
 
     let modQueryService = getModQueryService();
     validate(cliOptions);
 
-    const modIds = await getModIds(modQueryService, cliOptions);
+    const requestedModIds = await getModIds(modQueryService, cliOptions);
 
-    if (modIds.length === 0) {
+    if (requestedModIds.length === 0) {
       logger.error('No valid mod IDs found from provided options.');
       return;
     }
 
-    logger.info(`Searching for solutions with ${modIds.length} mod(s)...`);
+    logger.info(`Searching for solutions with ${requestedModIds.length} mod(s)...`);
     let solutionFinder = new LocalSolutionFinder(modQueryService);
-    let solutions = await solutionFinder.findSolutions(modIds, {
+    let solutions = await solutionFinder.findSolutions(requestedModIds, {
       minVersion: cliOptions.minVersion,
       maxVersion: cliOptions.maxVersion,
       loaders: cliOptions.loader as ModLoader[] | undefined,
@@ -120,7 +122,17 @@ program
 
     logger.info(`Found ${solutions.length} solution(s):`);
     for (const solution of solutions) {
-      logger.info(`- Version: ${solution.mcConfig.mcVersion}, Loader: ${solution.mcConfig.loader}, Mods: ${solution.mods.length}/${modIds.length}`);
+      logger.info(`- Version: ${solution.mcConfig.mcVersion}, Loader: ${solution.mcConfig.loader}, Mods: ${solution.mods.length}/${requestedModIds.length}`);
+      if (cliOptions.details && solution.mods.length != requestedModIds.length) {
+        logger.info(`  Unsupported mods:`);
+        let unsupportedMods = requestedModIds.filter(modId => !solution.mods.some(mod => mod.name === modId));
+        for (const modId of unsupportedMods) {
+          logger.info(`  - ${modId}`);
+        }
+      }
+    }
+    if (!cliOptions.details) {
+      logger.info('Use --details to see unsupported mods in solutions.');
     }
   });
 
