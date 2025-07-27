@@ -10,6 +10,7 @@
   },
   "scripts": {
     "build": "(cd ../mclib && bun run build) && bun build src/index.ts --outdir dist --minify --target node",
-    "start": "(cd ../mclib && bun run build) && bun src/index.ts"
+    "start": "(cd ../mclib && bun run build) && bun src/index.ts",
+    "proxy-start": "HTTP_PROXY=http://127.0.0.1:8080 HTTPS_PROXY=http://127.0.0.1:8080 bun run start"
   }
 }
