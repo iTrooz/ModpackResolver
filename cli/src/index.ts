@@ -114,13 +114,9 @@ async function findSolutions(
     logger.info('Sinytra mode: Injecting Forge and NeoForge into Fabric-compatible releases...');
     for (const mod of mods) {
       for (const release of mod.releases) {
-        if (release.loaders.includes(ModLoader.FABRIC)) {
-          if (!release.loaders.includes(ModLoader.FORGE)) {
-            release.loaders.push(ModLoader.FORGE);
-          }
-          if (!release.loaders.includes(ModLoader.NEOFORGE)) {
-            release.loaders.push(ModLoader.NEOFORGE);
-          }
+        if (release.loaders.has(ModLoader.FABRIC)) {
+          release.loaders.add(ModLoader.FORGE);
+          release.loaders.add(ModLoader.NEOFORGE);
           logger.trace(`Injected forge and neoforge into fabric-compatible release: ${mod.id} ${release.modVersion}`);
         }
       }
@@ -165,7 +161,7 @@ program
       {
         minVersion: cliOptions.minVersion,
         maxVersion: cliOptions.maxVersion,
-        loaders: cliOptions.loader as ModLoader[] | undefined,
+        loaders: new Set(cliOptions.loader as ModLoader[]),
       },
       cliOptions.nbSolutions,
       !!cliOptions.sinytra

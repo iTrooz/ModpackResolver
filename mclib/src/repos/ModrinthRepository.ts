@@ -27,10 +27,10 @@ export class ModrinthRepository implements IRepository {
         const versionsData = await versionsResp.json();
 
         const releases: ModRelease[] = versionsData.map((v: any) => ({
-            mcVersions: v.game_versions,
+            mcVersions: new Set(v.game_versions),
             modVersion: v.version_number,
             repository: ModRepositoryName.MODRINTH,
-            loaders: (v.loaders || []).map((l: string) => l as ModLoader),
+            loaders: new Set(v.loaders.map((l: string) => ModLoader.from(l))),
         }));
 
         return {

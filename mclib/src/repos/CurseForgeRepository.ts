@@ -1,5 +1,5 @@
 import type { IRepository } from "./IRepository";
-import { ModAndReleases, ModRelease, ModRepositoryName, ModLoader, ModSearchMetadata } from "..";
+import { ModAndReleases, ModRelease, ModRepositoryName, ModLoader, ModSearchMetadata, MCVersion } from "..";
 import { cf_fingerprint } from 'cf-fingerprint';
 import { logger } from "../logger";
 
@@ -30,14 +30,14 @@ export class CurseForgeRepository implements IRepository {
         const filesData = (await filesResp.json()).data;
         
         const releases: ModRelease[] = filesData.map((file: any) => {
-            const mcVersions: string[] = [];
-            const loaders: ModLoader[] = [];
-            for (const d of file.gameVersions || []) {
-                const lower = d.toLowerCase();
-                if (/^[a-z]+$/.test(lower)) {
-                    loaders.push(lower as ModLoader);
+            const mcVersions: Set<MCVersion> = new Set();
+            const loaders: Set<ModLoader> = new Set();
+            for (let gameVersion of file.gameVersions || []) {
+                gameVersion = gameVersion.toLowerCase();
+                if (/^[a-z]+$/.test(gameVersion)) {
+                    loaders.add(ModLoader.from(gameVersion));
                 } else {
-                    mcVersions.push(lower);
+                    mcVersions.add(gameVersion);
                 }
             }
 

@@ -58,8 +58,8 @@ export class LocalSolutionFinder implements ISolutionFinder {
                 if (matchedModIds.has(mod.id)) continue;
 
                 // Check if this release matches the current config
-                if (release.mcVersions.includes(config.mcVersion) &&
-                    release.loaders.includes(config.loader)) {
+                if (release.mcVersions.has(config.mcVersion) &&
+                    release.loaders.has(config.loader)) {
                     matchingModReleases.push({
                         id: mod.id,
                         release: release
@@ -144,13 +144,13 @@ export class LocalSolutionFinder implements ISolutionFinder {
         logger.trace({ release, constraints }, "matchConstraints()");
 
         // Check loader constraint
-        if (constraints.loaders?.length && !constraints.loaders.some(l => release.loaders.includes(l))) {
+        if (constraints.loaders?.size && ![...constraints.loaders].some(l => release.loaders.has(l))) {
             return false;
         }
 
         // Check minimal version constraint
         if (constraints.minVersion) {
-            const hasVersionAboveMin = release.mcVersions.some(v => {
+            const hasVersionAboveMin = [...release.mcVersions].some(v => {
                 logger.trace({ version: v, minVersion: constraints.minVersion }, "compareVersions()")
                 return this.compareVersions(v, constraints.minVersion as string) >= 0
             }
@@ -162,7 +162,7 @@ export class LocalSolutionFinder implements ISolutionFinder {
 
         // Check maximal version constraint
         if (constraints.maxVersion) {
-            const hasVersionBelowMax = release.mcVersions.some(v =>
+            const hasVersionBelowMax = [...release.mcVersions].some(v =>
                 this.compareVersions(v, constraints.maxVersion as string) <= 0
             );
             if (!hasVersionBelowMax) {
