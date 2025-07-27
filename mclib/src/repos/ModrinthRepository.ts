@@ -58,12 +58,12 @@ export class ModrinthRepository implements IRepository {
         const hash = await this.calculateSHA1(modData);
         
         // Get version info using the hash
-        const versionResp = await fetch(`https://api.modrinth.com/v2/version_file/${hash}`);
+        const versionResp = await this.fetchClient(`https://api.modrinth.com/v2/version_file/${hash}`);
         if (!versionResp.ok) return null;
         const versionData = await versionResp.json();
         
         // Get project info using the project ID
-        const projectResp = await fetch(`https://api.modrinth.com/v2/project/${versionData.project_id}`);
+        const projectResp = await this.fetchClient(`https://api.modrinth.com/v2/project/${versionData.project_id}`);
         if (!projectResp.ok) return null;
         const projectData = await projectResp.json();
         

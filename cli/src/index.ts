@@ -18,10 +18,21 @@ const logger = pino({
 });
 LoggerConfig.setLevel(LOG_LEVEL);
 
+async function timedFetch(input: RequestInfo | URL, options?: RequestInit): Promise<Response> {
+    const start = Date.now();
+    const response = await fetch(input, options);
+    const duration = Date.now() - start;
+    logger.debug(`fetch(${input}): ${duration}ms`);
+    if (!response.ok) {
+        logger.error(`Fetch failed for ${input}: ${response.status} ${response.statusText}`);
+    }
+    return response;
+}
+
 function getModQueryService() {
   const repositories = [
-    new ModrinthRepository(fetch),
-    new CurseForgeRepository(fetch),
+    new ModrinthRepository(timedFetch),
+    new CurseForgeRepository(timedFetch),
   ];
   return new ModQueryService(repositories);
 }

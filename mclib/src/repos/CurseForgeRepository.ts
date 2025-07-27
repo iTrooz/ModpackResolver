@@ -81,7 +81,7 @@ export class CurseForgeRepository implements IRepository {
         const fingerprint: number = cf_fingerprint(modData);
 
         // Use the CurseForge API to get file info by fingerprint
-        const resp = await fetch(`${CurseForgeRepository.BASE_URL}/fingerprints`, {
+        const resp = await this.fetchClient(`${CurseForgeRepository.BASE_URL}/fingerprints`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -102,7 +102,7 @@ export class CurseForgeRepository implements IRepository {
         const modId: number = fileMatch.file.modId;
 
         // Get mod info using the mod ID
-        const modResp = await fetch(`${CurseForgeRepository.BASE_URL}/mods/${modId}`);
+        const modResp = await this.fetchClient(`${CurseForgeRepository.BASE_URL}/mods/${modId}`);
         if (!modResp.ok) return null;
         const modInfo = (await modResp.json()).data;
 
