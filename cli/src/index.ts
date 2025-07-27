@@ -33,11 +33,24 @@ async function fetchWrapper(input: RequestInfo | URL, options?: RequestInit): Pr
   return response;
 }
 
-function getModQueryService() {
-  const repositories = [
-    new ModrinthRepository(fetchWrapper),
-    new CurseForgeRepository(fetchWrapper),
-  ];
+function getModQueryService(selectedRepos?: string[]) {
+  const repoMap = {
+    modrinth: () => new ModrinthRepository(fetchWrapper),
+    curseforge: () => new CurseForgeRepository(fetchWrapper),
+  };
+  let repositories: any[] = [];
+  if (selectedRepos && selectedRepos.length > 0) {
+    for (const repo of selectedRepos) {
+      const factory = repoMap[repo.toLowerCase() as keyof typeof repoMap];
+      if (factory) repositories.push(factory());
+      else {
+        logger.error(`Unknown repository: ${repo}`);
+        process.exit(1);
+      }
+    }
+  } else {
+    repositories = [new ModrinthRepository(fetchWrapper), new CurseForgeRepository(fetchWrapper)];
+  }
   return new ModQueryService(repositories);
 }
 
@@ -151,8 +164,9 @@ program
   .option('-d, --details', 'Include details (e.g. unsupported mods in solutions found)', false)
   .option('-n, --nb-solutions <number>', 'Number of solutions to output', (value) => parseInt(value, 10), 3)
   .option('--sinytra', 'Inject forge and neoforge into fabric-compatible releases', false)
-  .action(async (cliOptions: CliOptions & { sinytra?: boolean }) => {
-    let modQueryService = getModQueryService();
+  .option('-r, --repository <repo...>', 'Repositories to use (modrinth, curseforge)')
+  .action(async (cliOptions: CliOptions & { repository?: string[] }) => {
+    let modQueryService = getModQueryService(cliOptions.repository);
     validateCliOptions(cliOptions);
 
     const requestedModIds = await getModIds(modQueryService, cliOptions);
