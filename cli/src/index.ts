@@ -126,8 +126,8 @@ program
     for (const solution of solutions) {
       logger.info(`- Version: ${solution.mcConfig.mcVersion}, Loader: ${solution.mcConfig.loader}, Mods: ${solution.mods.length}/${requestedModIds.length}`);
       if (cliOptions.details && solution.mods.length != requestedModIds.length) {
-        logger.info(`  Unsupported mods:`);
         let unsupportedMods = requestedModIds.filter(modId => !solution.mods.some(mod => mod.id === modId));
+        logger.info(`  Unsupported mods (${unsupportedMods.length}):`);
         for (const modId of unsupportedMods) {
           logger.info(`  - ${modId}`);
         }
