@@ -14,12 +14,6 @@ export class LocalSolutionFinder implements ISolutionFinder {
         this.query = modQueryService;
     }
 
-    /**
-     * Download releases metadata for all mods, and return solutions that try to satisfy the constraints (Best solutions are returned first)
-     * This is the method you should use for the main functionality of the class.
-     * @param nbSolution Number of solutions to return
-     * @returns Array of compatible solutions
-     */
     async findSolutions(mods: string[], constraints: Constraints = {}, nbSolution: number = 5): Promise<Solution[]> {
         logger.debug("findSolutions()");
         const resolvedMods = await this.resolveMods(mods);
@@ -28,13 +22,7 @@ export class LocalSolutionFinder implements ISolutionFinder {
         return solutions;
     }
 
-    /**
-     * Finds the best Minecraft configurations (version + loader) that satisfy all mods
-     * @param mods List of mods with their releases
-     * @param nbSolution Maximum number of solutions to return
-     * @returns Array of compatible solutions
-     */
-    private resolveSolutions(mods: ModAndReleases[], constraints: Constraints, nbSolution: number): Solution[] {
+    resolveSolutions(mods: ModAndReleases[], constraints: Constraints, nbSolution: number): Solution[] {
         logger.debug({ constraints }, "resolveSolutions(mods=%s)", mods.length);
 
         // Get flat list of all mod releases
@@ -97,7 +85,7 @@ export class LocalSolutionFinder implements ISolutionFinder {
         return solutions;
     }
 
-    private async resolveMods(modIds: string[]): Promise<ModAndReleases[]> {
+    async resolveMods(modIds: string[]): Promise<ModAndReleases[]> {
         logger.debug("resolveMods(mods=%s)", modIds.length);
         const resolvedMods: ModAndReleases[] = [];
 

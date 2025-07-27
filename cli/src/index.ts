@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 import { program } from '@commander-js/extra-typings';
-import { CurseForgeRepository, LocalSolutionFinder, LoggerConfig, ModLoader, ModQueryService, ModrinthRepository, LogLevel, Constraints } from 'mclib';
+import { CurseForgeRepository, LocalSolutionFinder, LoggerConfig, ModLoader, ModQueryService, ModrinthRepository, LogLevel, Constraints, Solution } from 'mclib';
 import { readFileSync } from 'fs';
 import pino from 'pino';
 
@@ -45,6 +45,7 @@ interface CliOptions {
   loader?: string[];
   details?: boolean;
   nbSolutions: number;
+  sinytra?: boolean;
 }
 
 function validate(options: CliOptions) {
@@ -96,6 +97,41 @@ async function getModIds(modQueryService: ModQueryService, options: CliOptions):
   return Array.from(modIdSet);
 }
 
+async function findSolutions(
+  modQueryService: ModQueryService,
+  requestedModIds: string[],
+  constraints: Constraints,
+  nbSolutions: number,
+  sinytra: boolean = false
+): Promise<Solution[]> {
+  let solutionFinder = new LocalSolutionFinder(modQueryService);
+
+  // Resolve mods
+  const mods = await solutionFinder.resolveMods(requestedModIds);
+
+  // Sinytra loader injection
+  if (sinytra) {
+    logger.info('Sinytra mode: Injecting Forge and NeoForge into Fabric-compatible releases...');
+    for (const mod of mods) {
+      for (const release of mod.releases) {
+        if (release.loaders.includes(ModLoader.FABRIC)) {
+          if (!release.loaders.includes(ModLoader.FORGE)) {
+            release.loaders.push(ModLoader.FORGE);
+          }
+          if (!release.loaders.includes(ModLoader.NEOFORGE)) {
+            release.loaders.push(ModLoader.NEOFORGE);
+          }
+          logger.trace(`Injected forge and neoforge into fabric-compatible release: ${mod.id} ${release.modVersion}`);
+        }
+      }
+    }
+  }
+
+  // Get solutions
+  return await solutionFinder.resolveSolutions(
+    mods, constraints, nbSolutions);
+}
+
 program
   .name('modpack-cli')
   .description('CLI for managing modpacks')
@@ -111,8 +147,8 @@ program
   .option('--loader <loader...>', 'Loaders to consider (e.g., forge, fabric)', [])
   .option('-d, --details', 'Include details (e.g. unsupported mods in solutions found)')
   .option('-n, --nb-solutions <number>', 'Number of solutions to output', (value) => parseInt(value, 10), 3)
-  .action(async (cliOptions: CliOptions) => {
-
+  .option('--sinytra', 'Inject forge and neoforge into fabric-compatible releases')
+  .action(async (cliOptions: CliOptions & { sinytra?: boolean }) => {
     let modQueryService = getModQueryService();
     validate(cliOptions);
 
@@ -123,12 +159,17 @@ program
     }
 
     logger.info(`Searching for solutions with ${requestedModIds.length} mod(s)...`);
-    let solutionFinder = new LocalSolutionFinder(modQueryService);
-    let solutions = await solutionFinder.findSolutions(requestedModIds, {
-      minVersion: cliOptions.minVersion,
-      maxVersion: cliOptions.maxVersion,
-      loaders: cliOptions.loader as ModLoader[] | undefined,
-    }, cliOptions.nbSolutions);
+    const solutions = await findSolutions(
+      modQueryService,
+      requestedModIds,
+      {
+        minVersion: cliOptions.minVersion,
+        maxVersion: cliOptions.maxVersion,
+        loaders: cliOptions.loader as ModLoader[] | undefined,
+      },
+      cliOptions.nbSolutions,
+      !!cliOptions.sinytra
+    );
 
     if (solutions.length === 0) {
       logger.info('No solutions found.');
