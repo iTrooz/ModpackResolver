@@ -39,6 +39,7 @@ export class ModrinthRepository implements IRepository {
 
         return data.hits.map((hit: any) => ({
             id: hit.slug,
+            repository: ModRepositoryName.MODRINTH,
             name: hit.title,
             homepageURL: "https://modrinth.com/mod/" + hit.slug,
             imageURL: hit.icon_url || "",

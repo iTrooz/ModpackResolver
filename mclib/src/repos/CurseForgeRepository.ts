@@ -63,6 +63,7 @@ export class CurseForgeRepository implements IRepository {
         const data = (await resp.json()).data;
         return data.map((mod: any) => ({
             id: mod.id.toString(),
+            repository: ModRepositoryName.CURSEFORGE,
             name: mod.name,
             homepageURL: mod.links.websiteUrl,
             imageURL: mod.logo.url,

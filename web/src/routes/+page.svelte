@@ -63,10 +63,10 @@
 			error = null;
 			is_loading_mccreator = true;
 
-			let solutions = await config.solutionFinder.findSolutions(mod_list_added.map((mod) => mod.id), {
+			let solutions = await config.solutionFinder.findSolutions(mod_list_added.map(modRepoMeta => [modRepoMeta]), {
 				minVersion: mc_version_range.min,
 				maxVersion: mc_version_range.max,
-				loaders: loaders_selected.length > 0 ? loaders_selected : undefined
+				loaders: loaders_selected.length > 0 ? new Set(loaders_selected) : undefined
 			});
 			mc_results = solutions[0];
 		} catch (err) {
@@ -141,12 +141,12 @@
 
 			<h3 class="mt-4 font-bold">Compatible Mods:</h3>
 			<ul class="ml-6 list-disc">
-				{#each mc_results.mods as mod (mod.release)}
+				{#each mc_results.mods as release}
 					<li>
-						<strong>{mod.name}</strong>: {mod.release.modVersion}
+						<strong>{release.modMetadata.name}</strong>: {release.modVersion}
 						<ul class="list-circle ml-4 text-sm">
-							<li>Loaders: {mod.release.loaders.join(', ')}</li>
-							<li>MC Versions: {mod.release.mcVersions.join(', ')}</li>
+							<li>Loaders: {Array.from(release.loaders).join(', ')}</li>
+							<li>MC Versions: {Array.from(release.mcVersions).join(', ')}</li>
 						</ul>
 					</li>
 				{/each}
