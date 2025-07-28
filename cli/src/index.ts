@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 
-import { program } from '@commander-js/extra-typings';
+import { program, Option } from '@commander-js/extra-typings';
 import { CurseForgeRepository, LocalSolutionFinder, LoggerConfig, ModLoader, ModQueryService, ModrinthRepository, LogLevel, Constraints, Solution, ModMetadata, RepositoryUtil, ModRepositoryName, ModRepoMetadata } from 'mclib';
 import { readFileSync } from 'fs';
 import pino from 'pino';
@@ -57,6 +57,7 @@ function getModQueryService(selectedRepos?: string[]) {
 interface CliOptions {
   modId?: string[];
   modFile?: string[];
+  exactVersion?: string;
   minVersion?: string;
   maxVersion?: string;
   loader?: string[];
@@ -182,6 +183,7 @@ program
   .description('Find mod versions that match constraints')
   .option('--mod-id <modID...>', 'Mod IDs to include in the modpack')
   .option('--mod-file <path...>', 'Mod IDs to include in the modpack')
+  .addOption(new Option('--exact-version <version>', 'Exact Minecraft version to consider').conflicts(['minVersion', 'maxVersion']))
   .option('--min-version <version>', 'Minimum Minecraft version to consider')
   .option('--max-version <version>', 'Maximum Minecraft version to consider')
   .option('--loader <loader...>', 'Loaders to consider (e.g., forge, fabric)', [])
@@ -204,8 +206,8 @@ program
       modQueryService,
       requestedMods,
       {
-        minVersion: cliOptions.minVersion,
-        maxVersion: cliOptions.maxVersion,
+        minVersion: cliOptions.exactVersion || cliOptions.minVersion,
+        maxVersion: cliOptions.exactVersion || cliOptions.maxVersion,
         loaders: new Set(cliOptions.loader as ModLoader[]),
       },
       cliOptions.nbSolutions,
