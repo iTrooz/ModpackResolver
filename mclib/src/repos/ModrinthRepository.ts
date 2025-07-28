@@ -1,5 +1,5 @@
 import type { IRepository } from "./IRepository";
-import { ModAndReleases, ModRelease, ModRepositoryName, ModSearchMetadata, ModLoaderUtil } from "..";
+import { ModRepoRelease, ModRepositoryName, ModRepoMetadata, ModLoaderUtil, ModReleases } from "..";
 
 export class ModrinthRepository implements IRepository {
 
@@ -17,25 +17,22 @@ export class ModrinthRepository implements IRepository {
         return data.project_id || null;
     }
 
-    async getModReleases(modId: string): Promise<ModAndReleases> {
+    async getModReleases(modId: string): Promise<ModReleases> {
         const versionsResp = await this.fetchClient(`https://api.modrinth.com/v2/project/${modId}/version`);
         if (!versionsResp.ok) throw new Error("Could not fetch versions from Modrinth");
         const versionsData = await versionsResp.json();
 
-        const releases: ModRelease[] = versionsData.map((v: any) => ({
+        const releases: ModRepoRelease[] = versionsData.map((v: any) => ({
             mcVersions: new Set(v.game_versions),
             modVersion: v.version_number,
             repository: ModRepositoryName.MODRINTH,
             loaders: new Set(v.loaders.map((l: string) => ModLoaderUtil.from(l))),
         }));
 
-        return {
-            id: modId,
-            releases,
-        };
+        return releases;
     }
 
-    async searchMods(query: string, maxResults: number): Promise<ModSearchMetadata[]> {
+    async searchMods(query: string, maxResults: number): Promise<ModRepoMetadata[]> {
         const resp = await this.fetchClient(`https://api.modrinth.com/v2/search?facets=[["project_type:mod"]]&query=${encodeURIComponent(query)}&limit=${maxResults}`);
         if (!resp.ok) throw new Error("Failed to fetch search results from Modrinth");
         const data = await resp.json();
@@ -49,22 +46,23 @@ export class ModrinthRepository implements IRepository {
         }));
     }
 
-    async getByDataHash(modData: Uint8Array): Promise<ModSearchMetadata | null> {
+    async getByDataHash(modData: Uint8Array): Promise<ModRepoMetadata | null> {
         // Calculate SHA-1 hash of the mod data for Modrinth
         const hash = await this.calculateSHA1(modData);
-        
+
         // Get version info using the hash
         const versionResp = await this.fetchClient(`https://api.modrinth.com/v2/version_file/${hash}`);
         if (!versionResp.ok) return null;
         const versionData = await versionResp.json();
-        
+
         // Get project info using the project ID
         const projectResp = await this.fetchClient(`https://api.modrinth.com/v2/project/${versionData.project_id}`);
         if (!projectResp.ok) return null;
         const projectData = await projectResp.json();
-        
+
         return {
             id: projectData.slug,
+            repository: ModRepositoryName.MODRINTH,
             name: projectData.title,
             homepageURL: "https://modrinth.com/mod/" + projectData.slug,
             imageURL: projectData.icon_url || "",

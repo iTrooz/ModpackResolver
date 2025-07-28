@@ -1,12 +1,12 @@
 <script lang="ts">
 	import * as m from '$msg';
-	import type { ModSearchMetadata } from 'mclib';
+	import type { ModRepoMetadata } from 'mclib';
 	import { repositories } from '../config';
 
 	let {
 		add_mod_to_list
 	}: {
-		add_mod_to_list: (mod: ModSearchMetadata) => void;
+		add_mod_to_list: (mod: ModRepoMetadata) => void;
 	} = $props();
 
 	let isDragging = $state(false);

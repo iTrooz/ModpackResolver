@@ -1,4 +1,4 @@
-import type { ModAndReleases, ModSearchMetadata, ModRepositoryName } from "..";
+import type { ModReleases, ModRepoMetadata, ModRepositoryName } from "..";
 
 /**
  * Interface for a mod repository
@@ -16,21 +16,21 @@ export interface IRepository {
      * @param modId The ID of the mod.
      * @returns A promise resolving to an array of mod releases.
      */
-    getModReleases(modId: string): Promise<ModAndReleases>;
+    getModReleases(modId: string): Promise<ModReleases>;
 
     /**
      * Search for mods by a query string.
      * @param query The search query.
      * @returns A promise resolving to an array of mods matching the query.
      */
-    searchMods(query: string, maxResults: number): Promise<ModSearchMetadata[]>;
+    searchMods(query: string, maxResults: number): Promise<ModRepoMetadata[]>;
 
     /**
      * Get mod information by file hash/fingerprint from mod file bytes.
      * @param modData The complete mod file data as bytes.
      * @returns A promise resolving to mod search metadata, or null if not found.
      */
-    getByDataHash(modData: Uint8Array): Promise<ModSearchMetadata | null>;
+    getByDataHash(modData: Uint8Array): Promise<ModRepoMetadata | null>;
 
     /**
      * Returns the repository name (ModRepositoryName enum value)

@@ -1,14 +1,14 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { LocalSolutionFinder, ModLoader, ModRepositoryName, type ModAndReleases, type ModRelease, ModSearchMetadata, Constraints, Solution, ISolutionFinder } from '..';
+import { LocalSolutionFinder, ModLoader, ModRepositoryName, type ModRepoRelease, ModRepoMetadata, Constraints, Solution, ISolutionFinder, ModReleases } from '..';
 import type { IRepository } from '../repos/IRepository';
 import { ModQueryService } from '../ModQueryService';
 
 class MockRepository implements IRepository {
-    private mods: Record<string, ModAndReleases> = {};
+    private mods: Record<string, ModReleases> = {};
     private hashes: Record<string, string> = {};
-    private dataHashes: Record<string, ModSearchMetadata> = {};
+    private dataHashes: Record<string, ModRepoMetadata> = {};
 
-    setMod(modId: string, mod: ModAndReleases) {
+    setMod(modId: string, mod: ModReleases) {
         this.mods[modId] = mod;
     }
 
@@ -16,7 +16,7 @@ class MockRepository implements IRepository {
         this.hashes[hash] = modId;
     }
 
-    setDataHash(dataKey: string, mod: ModSearchMetadata) {
+    setDataHash(dataKey: string, mod: ModRepoMetadata) {
         this.dataHashes[dataKey] = mod;
     }
 
@@ -24,18 +24,18 @@ class MockRepository implements IRepository {
         return this.hashes[hash] || null;
     }
 
-    async getModReleases(modId: string): Promise<ModAndReleases> {
+    async getModReleases(modId: string): Promise<ModReleases> {
         if (!this.mods[modId]) {
             throw new Error(`Mod with ID ${modId} not found`);
         }
         return this.mods[modId];
     }
 
-    async searchMods(_query: string): Promise<ModSearchMetadata[]> {
+    async searchMods(_query: string): Promise<ModRepoMetadata[]> {
         throw new Error('Method not implemented.');
     }
 
-    async getByDataHash(modData: Uint8Array): Promise<ModSearchMetadata | null> {
+    async getByDataHash(modData: Uint8Array): Promise<ModRepoMetadata | null> {
         // For testing, we'll use a simple key based on the first few bytes
         const key = Array.from(modData.slice(0, 8)).join('-');
         return this.dataHashes[key] || null;
@@ -46,9 +46,37 @@ class MockRepository implements IRepository {
     }
 }
 
-const getSolutionFinder = (repositories: IRepository[]): ISolutionFinder => {
-    const solutionFinder = new LocalSolutionFinder(new ModQueryService(repositories));
-    return solutionFinder;
+const getSolutionFinder = (repositories: IRepository[]): LocalSolutionFinder => {
+    return new LocalSolutionFinder(new ModQueryService(repositories));
+};
+
+// Helper to mimic CLI's solution finding logic
+async function findSolutions(
+    solutionFinder: LocalSolutionFinder,
+    modMetadatas: ModRepoMetadata[],
+    constraints: Constraints = {},
+    nbSolutions: number = 5
+): Promise<any[]> {
+    const possibleConfigs = (solutionFinder as any).getAllPossibleConfigs(modMetadatas, constraints);
+    let solutions: any[] = [];
+    for (const config of possibleConfigs) {
+        const found = (solutionFinder as any).findSolutionsForConfig(modMetadatas, config);
+        solutions.push(...found);
+        if (solutions.length >= nbSolutions) break;
+    }
+    return solutions.slice(0, nbSolutions);
+}
+
+// Helper to create test ModRepoMetadata
+function newTestMetadata(id: string, repository: ModRepositoryName): ModRepoMetadata {
+    return {
+        id,
+        repository,
+        name: id,
+        homepageURL: '',
+        imageURL: '',
+        downloadCount: 0,
+    };
 }
 
 describe('SolutionFinder', () => {
@@ -82,18 +110,19 @@ describe('SolutionFinder', () => {
     });
 
     describe('matchConstraints', () => {
-        function createRelease(overrides: Partial<ModRelease> = {}): ModRelease {
+        function createRelease(overrides: Partial<ModRepoRelease> = {}): ModRepoRelease {
             return {
                 mcVersions: new Set(['1.16.5', '1.17.1']),
                 modVersion: '1.0.0',
                 repository: ModRepositoryName.MODRINTH,
                 loaders: new Set([ModLoader.FORGE, ModLoader.FABRIC]),
+                modMetadata: newTestMetadata('test', ModRepositoryName.MODRINTH),
                 ...overrides
             };
         }
 
         function matchConstraints(
-            release: ModRelease,
+            release: ModRepoRelease,
             constraints: Constraints = {}
         ): boolean {
             return (getSolutionFinder([]) as any).matchConstraints(release, constraints);
@@ -183,53 +212,52 @@ describe('SolutionFinder', () => {
     });
 
     describe('work', () => {
-        let solutionFinder: ISolutionFinder;
+        let solutionFinder: LocalSolutionFinder;
         let mockRepository: MockRepository;
 
         beforeEach(() => {
             mockRepository = new MockRepository();
 
-            const jeiMod: ModAndReleases = {
-                id: 'jei',
-                releases: [
-                    {
-                        mcVersions: new Set(['1.17.1', '1.18.1']),
-                        modVersion: '9.0.0',
-                        repository: ModRepositoryName.MODRINTH,
-                        loaders: new Set([ModLoader.FORGE, ModLoader.FABRIC])
-                    },
-                    {
-                        mcVersions: new Set(['1.16.5']),
-                        modVersion: '8.0.0',
-                        repository: ModRepositoryName.MODRINTH,
-                        loaders: new Set([ModLoader.FORGE, ModLoader.FABRIC])
-                    }
-                ]
-            };
+            const jeiMod: ModReleases = [
+                {
+                    mcVersions: new Set(['1.17.1', '1.18.1']),
+                    modVersion: '9.0.0',
+                    repository: ModRepositoryName.MODRINTH,
+                    loaders: new Set([ModLoader.FORGE, ModLoader.FABRIC]),
+                    modMetadata: newTestMetadata('jei', ModRepositoryName.MODRINTH)
+                },
+                {
+                    mcVersions: new Set(['1.16.5']),
+                    modVersion: '8.0.0',
+                    repository: ModRepositoryName.MODRINTH,
+                    loaders: new Set([ModLoader.FORGE, ModLoader.FABRIC]),
+                    modMetadata: newTestMetadata('jei', ModRepositoryName.MODRINTH)
+                }
+            ];
 
-            const dragonsMod: ModAndReleases = {
-                id: 'ice-and-fire-dragons',
-                releases: [
-                    {
-                        mcVersions: new Set(['1.16.5', '1.17.1']),
-                        modVersion: '2.0.0',
-                        repository: ModRepositoryName.MODRINTH,
-                        loaders: new Set([ModLoader.FORGE])
-                    },
-                    {
-                        mcVersions: new Set(['1.12.2']),
-                        modVersion: '1.0.0',
-                        repository: ModRepositoryName.MODRINTH,
-                        loaders: new Set([ModLoader.FORGE])
-                    },
-                    {
-                        mcVersions: new Set(['1.16.5', '1.17.1', '1.18.1']),
-                        modVersion: '2.0.0',
-                        repository: ModRepositoryName.MODRINTH,
-                        loaders: new Set([ModLoader.FABRIC])
-                    }
-                ]
-            };
+            const dragonsMod: ModReleases = [
+                {
+                    mcVersions: new Set(['1.16.5', '1.17.1']),
+                    modVersion: '2.0.0',
+                    repository: ModRepositoryName.MODRINTH,
+                    loaders: new Set([ModLoader.FORGE]),
+                    modMetadata: newTestMetadata('ice-and-fire-dragons', ModRepositoryName.MODRINTH)
+                },
+                {
+                    mcVersions: new Set(['1.12.2']),
+                    modVersion: '1.0.0',
+                    repository: ModRepositoryName.MODRINTH,
+                    loaders: new Set([ModLoader.FORGE]),
+                    modMetadata: newTestMetadata('ice-and-fire-dragons', ModRepositoryName.MODRINTH)
+                },
+                {
+                    mcVersions: new Set(['1.16.5', '1.17.1', '1.18.1']),
+                    modVersion: '2.0.0',
+                    repository: ModRepositoryName.MODRINTH,
+                    loaders: new Set([ModLoader.FABRIC]),
+                    modMetadata: newTestMetadata('ice-and-fire-dragons', ModRepositoryName.MODRINTH)
+                }
+            ];
 
             mockRepository.setMod('jei', jeiMod);
             mockRepository.setMod('ice-and-fire-dragons', dragonsMod);
@@ -241,7 +269,8 @@ describe('SolutionFinder', () => {
         });
 
         async function findSolution(mods: string[], constraints: Constraints = {}, nbSolution: number = 5): Promise<Solution> {
-            return (await solutionFinder.findSolutions(mods, constraints, nbSolution))[0];
+            const modMetadatas = mods.map(id => [newTestMetadata(id, ModRepositoryName.MODRINTH)]); // ModMetadata[]
+            return (await solutionFinder.findSolutions(modMetadatas, constraints, nbSolution))[0];
         }
 
         it('should find a compatible configuration for a single mod', async () => {
@@ -254,8 +283,8 @@ describe('SolutionFinder', () => {
                 loader: ModLoader.FABRIC
             });
             expect(result.mods).toHaveLength(1);
-            expect(result.mods[0].id).toBe('ice-and-fire-dragons');
-            expect(result.mods[0].release.modVersion).toBe('2.0.0');
+            expect(result.mods[0].modMetadata.id).toBe('ice-and-fire-dragons');
+            expect(result.mods[0].modVersion).toBe('2.0.0');
         });
 
         it('should find a compatible configuration for multiple mods', async () => {
@@ -268,20 +297,22 @@ describe('SolutionFinder', () => {
                 loader: ModLoader.FABRIC
             });
             expect(result.mods).toHaveLength(2);
-            const modIds = result.mods.map(mod => mod.id);
+            const modIds = result.mods.map((mod: any) => mod.modMetadata.id);
             expect(modIds).toContain('ice-and-fire-dragons');
             expect(modIds).toContain('jei');
         });
 
         it('should respect loader constraints', async () => {
-            const result = (await solutionFinder.findSolutions(['ice-and-fire-dragons'], { loaders: new Set([ModLoader.FORGE]) }))[0];
+            const modMetadatas = ['ice-and-fire-dragons'].map(id => newTestMetadata(id, ModRepositoryName.MODRINTH));
+            const result = (await findSolutions(solutionFinder, modMetadatas, { loaders: new Set([ModLoader.FORGE]) }))[0];
             expect(result.mcConfig.loader).toBe(ModLoader.FORGE);
             expect(result.mcConfig.mcVersion).toBe('1.17.1');
-            expect(result.mods[0].release.loaders).toContain(ModLoader.FORGE);
+            expect(result.mods[0].loaders.has(ModLoader.FORGE)).toBe(true);
         });
 
         it('should respect minimal version constraints', async () => {
-            const result = (await solutionFinder.findSolutions(['ice-and-fire-dragons'], { minVersion: '1.16.0' }, 1))[0];
+            const modMetadatas = ['ice-and-fire-dragons'].map(id => newTestMetadata(id, ModRepositoryName.MODRINTH));
+            const result = (await findSolutions(solutionFinder, modMetadatas, { minVersion: '1.16.0' }, 1))[0];
             expect(['1.16.5', '1.17.1', '1.18.1']).toContain(result.mcConfig.mcVersion);
         });
 
@@ -291,29 +322,35 @@ describe('SolutionFinder', () => {
                 maxVersion: '1.12.2',
                 loaders: new Set([ModLoader.FABRIC])
             };
-            const result = await solutionFinder.findSolutions(['ice-and-fire-dragons'], constraints, 1);
+            const modMetadatas = ['ice-and-fire-dragons'].map(id => newTestMetadata(id, ModRepositoryName.MODRINTH));
+            const result = await findSolutions(solutionFinder, modMetadatas, constraints, 1);
             expect(result).toHaveLength(0);
         });
 
         it('should handle multiple mod repositories', async () => {
             // Setup second repository
             const secondMockRepo = new MockRepository();
-            const secondRepoMod: ModAndReleases = {
-                id: 'second-repo-mod',
-                releases: [{
+            const secondRepoMod: ModReleases = [
+                {
                     mcVersions: new Set(['1.17.1']),
                     modVersion: '1.0.0',
                     repository: ModRepositoryName.CURSEFORGE,
-                    loaders: new Set([ModLoader.FABRIC])
-                }]
-            };
+                    loaders: new Set([ModLoader.FABRIC]),
+                    modMetadata: newTestMetadata('second-repo-mod', ModRepositoryName.CURSEFORGE)
+                }
+            ];
             secondMockRepo.setMod('second-repo-mod', secondRepoMod);
 
             solutionFinder = getSolutionFinder([mockRepository, secondMockRepo]);
-            const result = (await solutionFinder.findSolutions(['ice-and-fire-dragons', 'second-repo-mod']))[0];
+            const modMetadatas = ['ice-and-fire-dragons', 'second-repo-mod'].map(id =>
+                id === 'second-repo-mod'
+                    ? newTestMetadata(id, ModRepositoryName.CURSEFORGE)
+                    : newTestMetadata(id, ModRepositoryName.MODRINTH)
+            );
+            const result = (await findSolutions(solutionFinder, modMetadatas))[0];
 
             expect(result.mods).toHaveLength(2);
-            const modIds = result.mods.map(mod => mod.id);
+            const modIds = result.mods.map((mod: any) => mod.modMetadata.id);
             expect(modIds).toContain('ice-and-fire-dragons');
             expect(modIds).toContain('second-repo-mod');
             expect(result.mcConfig.mcVersion).toBe('1.17.1');

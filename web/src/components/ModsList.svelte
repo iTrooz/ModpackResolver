@@ -1,14 +1,14 @@
 <script lang="ts">
 	import * as m from '$msg';
-	import type { ModSearchMetadata } from 'mclib';
+	import type { ModRepoMetadata } from 'mclib';
 	import { slide } from 'svelte/transition';
 
 	let {
 		mod_list_added = $bindable(),
 		remove_mod_from_list
 	}: {
-		mod_list_added: ModSearchMetadata[];
-		remove_mod_from_list: (mod: ModSearchMetadata) => void;
+		mod_list_added: ModRepoMetadata[];
+		remove_mod_from_list: (mod: ModRepoMetadata) => void;
 	} = $props();
 </script>
 

@@ -1,4 +1,4 @@
-import type { MCVersion, ModAndReleases, ModRepositoryName, ModSearchMetadata, IRepository } from ".";
+import { type MCVersion, type ModRepositoryName, type ModRepoMetadata, type IRepository, type ModMetadata, type ModReleases, ModMetadataUtil } from ".";
 import { logger } from "./logger";
 
 export class ModQueryService {
@@ -27,8 +27,8 @@ export class ModQueryService {
         query: string,
         specifiedRepos: ModRepositoryName[],
         maxResults: number = 10,
-    ): Promise<Array<[ModRepositoryName, ModSearchMetadata]>> {
-        const allResults: Array<[ModRepositoryName, ModSearchMetadata]> = [];
+    ): Promise<Array<[ModRepositoryName, ModRepoMetadata]>> {
+        const allResults: Array<[ModRepositoryName, ModRepoMetadata]> = [];
 
         for (const repo of this.repositories) {
             try {
@@ -55,28 +55,50 @@ export class ModQueryService {
         return allResults;
     }
 
-    // TODO do better
-    async getModReleases(modId: string): Promise<ModAndReleases> {
+    private getRepoByName(repoName: ModRepositoryName): IRepository | null {
         for (const repo of this.repositories) {
-            // Try to get releases for this mod ID
-            try {
-                return await repo.getModReleases(modId);
-            } catch {
-                // Ignore and try next repository
-                // TODO handle error
+            if (repo.getRepositoryName() === repoName) {
+                return repo;
             }
         }
-        throw new Error(`Mod with ID ${modId} not found in any repository`);
+        return null;
     }
 
-    async getModByDataHash(modData: Uint8Array): Promise<ModSearchMetadata | undefined> {
+    // get releases of this mod across all repositories, using all metadata provided
+    async getModReleasesFromMetadata(modMeta: ModMetadata): Promise<ModReleases> {
+        logger.debug("getModReleasesFromMetadata(%s)", ModMetadataUtil.toString(modMeta));
+        let releases: ModReleases = [];
+        for (const modRepoMeta of modMeta) {
+            let repo = this.getRepoByName(modRepoMeta.repository);
+            if (!repo) {
+                logger.warn("getModReleasesFromMetadata(%s): Repository %s not found", modRepoMeta.id, modRepoMeta.repository);
+                continue;
+            }
+            // Try to get releases for this mod ID
+            try {
+                let repoReleases = await repo.getModReleases(modRepoMeta.id);
+                // Attach the metadata to the release
+                repoReleases.forEach(release => {
+                    release.modMetadata = modRepoMeta;
+                });
+                releases.push(...repoReleases);
+            } catch (error) {
+                logger.error("Error fetching mod releases for %s from %s: %s", modRepoMeta.id, repo.getRepositoryName(), error);
+            }
+        }
+        logger.debug("getModReleasesFromMetadata(%s) = %d releases found", ModMetadataUtil.toString(modMeta), releases.length);
+        return releases;
+    }
+
+    async getModByDataHash(modData: Uint8Array): Promise<ModMetadata> {
+        let results: ModMetadata = [];
         for (const repo of this.repositories) {
             logger.debug("getModByDataHash(size = %s, %s)", modData.length, repo.getRepositoryName())
             try {
                 const result = await repo.getByDataHash(modData);
                 if (result) {
                     logger.debug("getModByDataHash(size = %s, %s) = %s (%s)", modData.length, repo.getRepositoryName(), result.id, result.name);
-                    return result;
+                    results.push(result);
                 } else {
                     logger.trace("getModByDataHash(size = %s, %s) = not found", modData.length, repo.getRepositoryName());
                 }
@@ -84,7 +106,7 @@ export class ModQueryService {
                 logger.error("Error fetching mod by hash from %s: %s", repo.getRepositoryName(), error);
             }
         }
-        logger.debug("getModByDataHash(size = %s) = not found in any repository", modData.length);
-        return undefined; // No mod found in any repository
+        logger.debug("getModByDataHash(size = %s) = found in %s repositories", modData.length, results.length);
+        return results
     }
 }

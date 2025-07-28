@@ -5,22 +5,23 @@ export {
   ModSourceType,
   ModLoader,
   Solution,
-  ModSearchMetadata,
+  ModMetadata,
+  ModMetadataUtil,
+  ModRepoMetadata,
   Constraints,
   ModLoaderUtil
 } from "./types";
 
 export type {
   MCConfig,
-  ModAndRelease,
-  ModAndReleases,
-  ModRelease,
+  ModRepoRelease,
   MCVersion,
+  ModReleases
 } from "./types";
 
 export { ModQueryService } from "./ModQueryService";
 
-export { ModrinthRepository, CurseForgeRepository } from "./repos";
+export { ModrinthRepository, CurseForgeRepository, RepositoryUtil } from "./repos";
 export type { IRepository } from "./repos";
 
 export { LoggerConfig, LogLevel } from "./logger";
