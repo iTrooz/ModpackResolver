@@ -21,11 +21,19 @@ export class CurseForgeRepository implements IRepository {
     }
 
     async getModReleases(modId: string): Promise<ModReleases> {
+        type Data = {
+            data: {
+                displayName: string;
+                gameVersions: string[];
+                downloadUrl: string;
+            }[];
+        };
+
         const filesResp = await this.fetchClient(`${CurseForgeRepository.BASE_URL}/mods/${modId}/files`);
         if (!filesResp.ok) throw new Error("Could not fetch files from CurseForge");
-        const filesData = (await filesResp.json()).data;
+        const jsonResp: Data = await filesResp.json();
 
-        const releases: ModRepoRelease[] = filesData.map((file: any) => {
+        const releases: ModRepoRelease[] = jsonResp.data.map(file => {
             const mcVersions: Set<MCVersion> = new Set();
             const loaders: Set<ModLoader> = new Set();
             for (let gameVersion of file.gameVersions || []) {
@@ -50,6 +58,20 @@ export class CurseForgeRepository implements IRepository {
     }
 
     async searchMods(query: string, maxResults: number): Promise<ModRepoMetadata[]> {
+        type Data = {
+            data: {
+                id: number;
+                name: string;
+                links: {
+                    websiteUrl: string;
+                };
+                logo: {
+                    url: string;
+                };
+                downloadCount: number;
+            }[];
+        };
+
         const resp = await this.fetchClient(`${CurseForgeRepository.BASE_URL}/mods/search?` + new URLSearchParams({
             // params from PrismLancher
             gameId: "432", // Minecraft game ID
@@ -61,8 +83,9 @@ export class CurseForgeRepository implements IRepository {
             searchFilter: query
         }));
         if (!resp.ok) throw new Error("Failed to fetch search results from CurseForge");
-        const data = (await resp.json()).data;
-        return data.map((mod: any) => ({
+        const jsonResp: Data = (await resp.json());
+
+        return jsonResp.data.map(mod => ({
             id: mod.id.toString(),
             repository: ModRepositoryName.CURSEFORGE,
             name: mod.name,
