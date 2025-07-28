@@ -42,6 +42,7 @@ export class CurseForgeRepository implements IRepository {
                 modVersion: file.displayName,
                 repository: ModRepositoryName.CURSEFORGE,
                 loaders: loaders,
+                downloadUrl: file.downloadUrl || '',
             })
         });
 

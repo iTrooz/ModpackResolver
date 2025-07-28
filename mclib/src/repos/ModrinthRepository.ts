@@ -26,7 +26,8 @@ export class ModrinthRepository implements IRepository {
             mcVersions: new Set(v.game_versions),
             modVersion: v.version_number,
             repository: ModRepositoryName.MODRINTH,
-            loaders: new Set(v.loaders.map((l: string) => ModLoaderUtil.from(l))),
+            loaders: new Set(v.loaders.map(ModLoaderUtil.from)),
+            downloadUrl: v.files?.[0]?.url || '',
         }));
 
         return releases;

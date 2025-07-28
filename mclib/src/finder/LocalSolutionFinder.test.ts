@@ -113,6 +113,7 @@ describe('SolutionFinder', () => {
                 modVersion: '1.0.0',
                 repository: ModRepositoryName.MODRINTH,
                 loaders: new Set([ModLoader.FORGE, ModLoader.FABRIC]),
+                downloadUrl: 'https://example.com/download',
                 modMetadata: newTestMetadata('test', ModRepositoryName.MODRINTH),
                 ...overrides
             };
@@ -214,6 +215,7 @@ describe('SolutionFinder', () => {
                     modVersion: '9.0.0',
                     repository: ModRepositoryName.MODRINTH,
                     loaders: new Set([ModLoader.FORGE, ModLoader.FABRIC]),
+                    downloadUrl: 'https://example.com/download',
                     modMetadata: newTestMetadata('jei', ModRepositoryName.MODRINTH)
                 },
                 {
@@ -221,6 +223,7 @@ describe('SolutionFinder', () => {
                     modVersion: '8.0.0',
                     repository: ModRepositoryName.MODRINTH,
                     loaders: new Set([ModLoader.FORGE, ModLoader.FABRIC]),
+                    downloadUrl: 'https://example.com/download',
                     modMetadata: newTestMetadata('jei', ModRepositoryName.MODRINTH)
                 }
             ];
@@ -231,6 +234,7 @@ describe('SolutionFinder', () => {
                     modVersion: '2.0.0',
                     repository: ModRepositoryName.MODRINTH,
                     loaders: new Set([ModLoader.FORGE]),
+                    downloadUrl: 'https://example.com/download',
                     modMetadata: newTestMetadata('ice-and-fire-dragons', ModRepositoryName.MODRINTH)
                 },
                 {
@@ -238,6 +242,7 @@ describe('SolutionFinder', () => {
                     modVersion: '1.0.0',
                     repository: ModRepositoryName.MODRINTH,
                     loaders: new Set([ModLoader.FORGE]),
+                    downloadUrl: 'https://example.com/download',
                     modMetadata: newTestMetadata('ice-and-fire-dragons', ModRepositoryName.MODRINTH)
                 },
                 {
@@ -245,6 +250,7 @@ describe('SolutionFinder', () => {
                     modVersion: '2.0.0',
                     repository: ModRepositoryName.MODRINTH,
                     loaders: new Set([ModLoader.FABRIC]),
+                    downloadUrl: 'https://example.com/download',
                     modMetadata: newTestMetadata('ice-and-fire-dragons', ModRepositoryName.MODRINTH)
                 }
             ];
@@ -326,6 +332,7 @@ describe('SolutionFinder', () => {
                     modVersion: '1.0.0',
                     repository: ModRepositoryName.CURSEFORGE,
                     loaders: new Set([ModLoader.FABRIC]),
+                    downloadUrl: 'https://example.com/download',
                     modMetadata: newTestMetadata('second-repo-mod', ModRepositoryName.CURSEFORGE)
                 }
             ];

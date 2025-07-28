@@ -52,6 +52,8 @@ export type ModRepoRelease = {
     repository: ModRepositoryName;
     /** Compatible mod loaders */
     loaders: Set<ModLoader>;
+    /** Download URL for the mod release */
+    downloadUrl: string;
 
     modMetadata: ModRepoMetadata;
 };

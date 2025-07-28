@@ -141,7 +141,7 @@
 
 			<h3 class="mt-4 font-bold">Compatible Mods:</h3>
 			<ul class="ml-6 list-disc">
-				{#each mc_results.mods as release}
+				{#each mc_results.mods as release (release.downloadUrl)}
 					<li>
 						<strong>{release.modMetadata.name}</strong>: {release.modVersion}
 						<ul class="list-circle ml-4 text-sm">
