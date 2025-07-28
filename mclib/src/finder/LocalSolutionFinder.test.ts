@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { LocalSolutionFinder, ModLoader, ModRepositoryName, type ModRepoRelease, ModRepoMetadata, Constraints, Solution, ISolutionFinder, ModReleases } from '..';
+import { LocalSolutionFinder, ModLoader, ModRepositoryName, type ModRepoRelease, ModRepoMetadata, Constraints, Solution, ModReleases } from '..';
 import type { IRepository } from '../repos/IRepository';
 import { ModQueryService } from '../ModQueryService';
 
@@ -58,7 +58,7 @@ async function findSolutions(
     nbSolutions: number = 5
 ): Promise<any[]> {
     const possibleConfigs = (solutionFinder as any).getAllPossibleConfigs(modMetadatas, constraints);
-    let solutions: any[] = [];
+    const solutions: any[] = [];
     for (const config of possibleConfigs) {
         const found = (solutionFinder as any).findSolutionsForConfig(modMetadatas, config);
         solutions.push(...found);

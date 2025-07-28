@@ -1,4 +1,3 @@
-import { relative } from "path";
 import { MCConfig, ModRepoRelease, Solution, Constraints, ISolutionFinder, ModMetadata, ModReleases, ModLoader } from "..";
 import { logger } from "../logger";
 import { ModQueryService } from "../ModQueryService";

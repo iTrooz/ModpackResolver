@@ -67,16 +67,16 @@ export class ModQueryService {
     // get releases of this mod across all repositories, using all metadata provided
     async getModReleasesFromMetadata(modMeta: ModMetadata): Promise<ModReleases> {
         logger.debug("getModReleasesFromMetadata(%s)", ModMetadataUtil.toString(modMeta));
-        let releases: ModReleases = [];
+        const releases: ModReleases = [];
         for (const modRepoMeta of modMeta) {
-            let repo = this.getRepoByName(modRepoMeta.repository);
+            const repo = this.getRepoByName(modRepoMeta.repository);
             if (!repo) {
                 logger.warn("getModReleasesFromMetadata(%s): Repository %s not found", modRepoMeta.id, modRepoMeta.repository);
                 continue;
             }
             // Try to get releases for this mod ID
             try {
-                let repoReleases = await repo.getModReleases(modRepoMeta.id);
+                const repoReleases = await repo.getModReleases(modRepoMeta.id);
                 // Attach the metadata to the release
                 repoReleases.forEach(release => {
                     release.modMetadata = modRepoMeta;
@@ -91,7 +91,7 @@ export class ModQueryService {
     }
 
     async getModByDataHash(modData: Uint8Array): Promise<ModMetadata> {
-        let results: ModMetadata = [];
+        const results: ModMetadata = [];
         for (const repo of this.repositories) {
             logger.debug("getModByDataHash(size = %s, %s)", modData.length, repo.getRepositoryName())
             try {
