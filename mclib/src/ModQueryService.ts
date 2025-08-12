@@ -1,4 +1,5 @@
 import type { MCVersion, ModAndReleases, ModRepositoryName, ModSearchMetadata, IRepository } from ".";
+import { logger } from "./logger";
 
 export class ModQueryService {
 
@@ -66,5 +67,24 @@ export class ModQueryService {
             }
         }
         throw new Error(`Mod with ID ${modId} not found in any repository`);
+    }
+
+    async getModByDataHash(modData: Uint8Array): Promise<ModSearchMetadata | undefined> {
+        for (const repo of this.repositories) {
+            logger.debug("getModByDataHash(size = %s, %s)", modData.length, repo.getRepositoryName())
+            try {
+                const result = await repo.getByDataHash(modData);
+                if (result) {
+                    logger.debug("getModByDataHash(size = %s, %s) = %s (%s)", modData.length, repo.getRepositoryName(), result.id, result.name);
+                    return result;
+                } else {
+                    logger.trace("getModByDataHash(size = %s, %s) = not found", modData.length, repo.getRepositoryName());
+                }
+            } catch (error) {
+                logger.error("Error fetching mod by hash from %s: %s", repo.getRepositoryName(), error);
+            }
+        }
+        logger.debug("getModByDataHash(size = %s) = not found in any repository", modData.length);
+        return undefined; // No mod found in any repository
     }
 }

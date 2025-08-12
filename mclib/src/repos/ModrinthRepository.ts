@@ -1,5 +1,5 @@
 import type { IRepository } from "./IRepository";
-import { ModAndReleases, ModRelease, ModRepositoryName, ModLoader, ModSearchMetadata } from "..";
+import { ModAndReleases, ModRelease, ModRepositoryName, ModSearchMetadata, ModLoaderUtil } from "..";
 
 export class ModrinthRepository implements IRepository {
 
@@ -18,23 +18,19 @@ export class ModrinthRepository implements IRepository {
     }
 
     async getModReleases(modId: string): Promise<ModAndReleases> {
-        const projectResp = await this.fetchClient(`https://api.modrinth.com/v2/project/${modId}`);
-        if (!projectResp.ok) throw new Error("Mod not found on Modrinth");
-        const projectData = await projectResp.json();
-
         const versionsResp = await this.fetchClient(`https://api.modrinth.com/v2/project/${modId}/version`);
         if (!versionsResp.ok) throw new Error("Could not fetch versions from Modrinth");
         const versionsData = await versionsResp.json();
 
         const releases: ModRelease[] = versionsData.map((v: any) => ({
-            mcVersions: v.game_versions,
+            mcVersions: new Set(v.game_versions),
             modVersion: v.version_number,
             repository: ModRepositoryName.MODRINTH,
-            loaders: (v.loaders || []).map((l: string) => l as ModLoader),
+            loaders: new Set(v.loaders.map((l: string) => ModLoaderUtil.from(l))),
         }));
 
         return {
-            name: projectData.title || projectData.slug || modId,
+            id: modId,
             releases,
         };
     }
@@ -58,12 +54,12 @@ export class ModrinthRepository implements IRepository {
         const hash = await this.calculateSHA1(modData);
         
         // Get version info using the hash
-        const versionResp = await fetch(`https://api.modrinth.com/v2/version_file/${hash}`);
+        const versionResp = await this.fetchClient(`https://api.modrinth.com/v2/version_file/${hash}`);
         if (!versionResp.ok) return null;
         const versionData = await versionResp.json();
         
         // Get project info using the project ID
-        const projectResp = await fetch(`https://api.modrinth.com/v2/project/${versionData.project_id}`);
+        const projectResp = await this.fetchClient(`https://api.modrinth.com/v2/project/${versionData.project_id}`);
         if (!projectResp.ok) return null;
         const projectData = await projectResp.json();
         

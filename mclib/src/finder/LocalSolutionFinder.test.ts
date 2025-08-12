@@ -84,10 +84,10 @@ describe('SolutionFinder', () => {
     describe('matchConstraints', () => {
         function createRelease(overrides: Partial<ModRelease> = {}): ModRelease {
             return {
-                mcVersions: ['1.16.5', '1.17.1'],
+                mcVersions: new Set(['1.16.5', '1.17.1']),
                 modVersion: '1.0.0',
                 repository: ModRepositoryName.MODRINTH,
-                loaders: [ModLoader.FORGE, ModLoader.FABRIC],
+                loaders: new Set([ModLoader.FORGE, ModLoader.FABRIC]),
                 ...overrides
             };
         }
@@ -106,25 +106,25 @@ describe('SolutionFinder', () => {
 
         describe('loader constraints', () => {
             it('matches when release supports one of the specified loaders', () => {
-                const release = createRelease({ loaders: [ModLoader.FORGE, ModLoader.FABRIC] });
+                const release = createRelease({ loaders: new Set([ModLoader.FORGE, ModLoader.FABRIC]) });
 
-                expect(matchConstraints(release, { loaders: [ModLoader.FORGE] })).toBe(true);
-                expect(matchConstraints(release, { loaders: [ModLoader.FABRIC] })).toBe(true);
-                expect(matchConstraints(release, { loaders: [ModLoader.FORGE, ModLoader.QUILT] })).toBe(true);
+                expect(matchConstraints(release, { loaders: new Set([ModLoader.FORGE]) })).toBe(true);
+                expect(matchConstraints(release, { loaders: new Set([ModLoader.FABRIC]) })).toBe(true);
+                expect(matchConstraints(release, { loaders: new Set([ModLoader.FORGE, ModLoader.QUILT]) })).toBe(true);
             });
 
             it('does not match when release does not support any of the specified loaders', () => {
-                const release = createRelease({ loaders: [ModLoader.FORGE, ModLoader.FABRIC] });
+                const release = createRelease({ loaders: new Set([ModLoader.FORGE, ModLoader.FABRIC]) });
 
-                expect(matchConstraints(release, { loaders: [ModLoader.QUILT] })).toBe(false);
-                expect(matchConstraints(release, { loaders: [ModLoader.NEOFORGE] })).toBe(false);
-                expect(matchConstraints(release, { loaders: [ModLoader.QUILT, ModLoader.NEOFORGE] })).toBe(false);
+                expect(matchConstraints(release, { loaders: new Set([ModLoader.QUILT]) })).toBe(false);
+                expect(matchConstraints(release, { loaders: new Set([ModLoader.NEOFORGE]) })).toBe(false);
+                expect(matchConstraints(release, { loaders: new Set([ModLoader.QUILT, ModLoader.NEOFORGE]) })).toBe(false);
             });
         });
 
         describe('minimal version constraints', () => {
             it('matches when release supports a version greater than or equal to minimal version', () => {
-                const release = createRelease({ mcVersions: ['1.16.5', '1.17.1'] });
+                const release = createRelease({ mcVersions: new Set(['1.16.5', '1.17.1']) });
 
                 expect(matchConstraints(release, { minVersion: '1.16.0' })).toBe(true);
                 expect(matchConstraints(release, { minVersion: '1.16.5' })).toBe(true);
@@ -133,7 +133,7 @@ describe('SolutionFinder', () => {
             });
 
             it('does not match when release does not support a version greater than or equal to minimal version', () => {
-                const release = createRelease({ mcVersions: ['1.16.5', '1.17.1'] });
+                const release = createRelease({ mcVersions: new Set(['1.16.5', '1.17.1']) });
 
                 expect(matchConstraints(release, { minVersion: '1.18.0' })).toBe(false);
             });
@@ -142,41 +142,41 @@ describe('SolutionFinder', () => {
         describe('combined constraints', () => {
             it('matches when release satisfies all constraints', () => {
                 const release = createRelease({
-                    mcVersions: ['1.16.5', '1.17.1'],
-                    loaders: [ModLoader.FORGE, ModLoader.FABRIC]
+                    mcVersions: new Set(['1.16.5', '1.17.1']),
+                    loaders: new Set([ModLoader.FORGE, ModLoader.FABRIC])
                 });
 
                 expect(matchConstraints(release, {
                     maxVersion: '1.16.5',
-                    loaders: [ModLoader.FORGE]
+                    loaders: new Set([ModLoader.FORGE])
                 })).toBe(true);
 
                 expect(matchConstraints(release, {
                     minVersion: '1.16.0',
-                    loaders: [ModLoader.FABRIC]
+                    loaders: new Set([ModLoader.FABRIC])
                 })).toBe(true);
 
                 expect(matchConstraints(release, {
                     minVersion: '1.16.0',
                     maxVersion: '1.17.1',
-                    loaders: [ModLoader.FORGE]
+                    loaders: new Set([ModLoader.FORGE])
                 })).toBe(true);
             });
 
             it('does not match when release fails any constraint', () => {
                 const release = createRelease({
-                    mcVersions: ['1.16.5', '1.17.1'],
-                    loaders: [ModLoader.FORGE, ModLoader.FABRIC]
+                    mcVersions: new Set(['1.16.5', '1.17.1']),
+                    loaders: new Set([ModLoader.FORGE, ModLoader.FABRIC])
                 });
 
                 expect(matchConstraints(release, {
                     maxVersion: '1.15.2',
-                    loaders: [ModLoader.QUILT]
+                    loaders: new Set([ModLoader.QUILT])
                 })).toBe(false);
 
                 expect(matchConstraints(release, {
                     minVersion: '1.18.0',
-                    loaders: [ModLoader.FORGE]
+                    loaders: new Set([ModLoader.FORGE])
                 })).toBe(false);
             });
         });
@@ -190,43 +190,43 @@ describe('SolutionFinder', () => {
             mockRepository = new MockRepository();
 
             const jeiMod: ModAndReleases = {
-                name: 'Just Enough Items',
+                id: 'jei',
                 releases: [
                     {
-                        mcVersions: ['1.17.1', '1.18.1'],
+                        mcVersions: new Set(['1.17.1', '1.18.1']),
                         modVersion: '9.0.0',
                         repository: ModRepositoryName.MODRINTH,
-                        loaders: [ModLoader.FORGE, ModLoader.FABRIC]
+                        loaders: new Set([ModLoader.FORGE, ModLoader.FABRIC])
                     },
                     {
-                        mcVersions: ['1.16.5'],
+                        mcVersions: new Set(['1.16.5']),
                         modVersion: '8.0.0',
                         repository: ModRepositoryName.MODRINTH,
-                        loaders: [ModLoader.FORGE, ModLoader.FABRIC]
+                        loaders: new Set([ModLoader.FORGE, ModLoader.FABRIC])
                     }
                 ]
             };
 
             const dragonsMod: ModAndReleases = {
-                name: 'Ice and Fire: Dragons',
+                id: 'ice-and-fire-dragons',
                 releases: [
                     {
-                        mcVersions: ['1.16.5', '1.17.1'],
+                        mcVersions: new Set(['1.16.5', '1.17.1']),
                         modVersion: '2.0.0',
                         repository: ModRepositoryName.MODRINTH,
-                        loaders: [ModLoader.FORGE]
+                        loaders: new Set([ModLoader.FORGE])
                     },
                     {
-                        mcVersions: ['1.12.2'],
+                        mcVersions: new Set(['1.12.2']),
                         modVersion: '1.0.0',
                         repository: ModRepositoryName.MODRINTH,
-                        loaders: [ModLoader.FORGE]
+                        loaders: new Set([ModLoader.FORGE])
                     },
                     {
-                        mcVersions: ['1.16.5', '1.17.1', '1.18.1'],
+                        mcVersions: new Set(['1.16.5', '1.17.1', '1.18.1']),
                         modVersion: '2.0.0',
                         repository: ModRepositoryName.MODRINTH,
-                        loaders: [ModLoader.FABRIC]
+                        loaders: new Set([ModLoader.FABRIC])
                     }
                 ]
             };
@@ -254,7 +254,7 @@ describe('SolutionFinder', () => {
                 loader: ModLoader.FABRIC
             });
             expect(result.mods).toHaveLength(1);
-            expect(result.mods[0].name).toBe('Ice and Fire: Dragons');
+            expect(result.mods[0].id).toBe('ice-and-fire-dragons');
             expect(result.mods[0].release.modVersion).toBe('2.0.0');
         });
 
@@ -268,13 +268,13 @@ describe('SolutionFinder', () => {
                 loader: ModLoader.FABRIC
             });
             expect(result.mods).toHaveLength(2);
-            const modNames = result.mods.map(mod => mod.name);
-            expect(modNames).toContain('Ice and Fire: Dragons');
-            expect(modNames).toContain('Just Enough Items');
+            const modIds = result.mods.map(mod => mod.id);
+            expect(modIds).toContain('ice-and-fire-dragons');
+            expect(modIds).toContain('jei');
         });
 
         it('should respect loader constraints', async () => {
-            const result = (await solutionFinder.findSolutions(['ice-and-fire-dragons'], { loaders: [ModLoader.FORGE] }))[0];
+            const result = (await solutionFinder.findSolutions(['ice-and-fire-dragons'], { loaders: new Set([ModLoader.FORGE]) }))[0];
             expect(result.mcConfig.loader).toBe(ModLoader.FORGE);
             expect(result.mcConfig.mcVersion).toBe('1.17.1');
             expect(result.mods[0].release.loaders).toContain(ModLoader.FORGE);
@@ -289,7 +289,7 @@ describe('SolutionFinder', () => {
             const constraints: Constraints = {
                 minVersion: '1.12.2',
                 maxVersion: '1.12.2',
-                loaders: [ModLoader.FABRIC]
+                loaders: new Set([ModLoader.FABRIC])
             };
             const result = await solutionFinder.findSolutions(['ice-and-fire-dragons'], constraints, 1);
             expect(result).toHaveLength(0);
@@ -299,12 +299,12 @@ describe('SolutionFinder', () => {
             // Setup second repository
             const secondMockRepo = new MockRepository();
             const secondRepoMod: ModAndReleases = {
-                name: 'Second Repo Mod',
+                id: 'second-repo-mod',
                 releases: [{
-                    mcVersions: ['1.17.1'],
+                    mcVersions: new Set(['1.17.1']),
                     modVersion: '1.0.0',
                     repository: ModRepositoryName.CURSEFORGE,
-                    loaders: [ModLoader.FABRIC]
+                    loaders: new Set([ModLoader.FABRIC])
                 }]
             };
             secondMockRepo.setMod('second-repo-mod', secondRepoMod);
@@ -313,9 +313,9 @@ describe('SolutionFinder', () => {
             const result = (await solutionFinder.findSolutions(['ice-and-fire-dragons', 'second-repo-mod']))[0];
 
             expect(result.mods).toHaveLength(2);
-            const modNames = result.mods.map(mod => mod.name);
-            expect(modNames).toContain('Ice and Fire: Dragons');
-            expect(modNames).toContain('Second Repo Mod');
+            const modIds = result.mods.map(mod => mod.id);
+            expect(modIds).toContain('ice-and-fire-dragons');
+            expect(modIds).toContain('second-repo-mod');
             expect(result.mcConfig.mcVersion).toBe('1.17.1');
             expect(result.mcConfig.loader).toBe(ModLoader.FABRIC);
         });

@@ -1,6 +1,7 @@
 import type { IRepository } from "./IRepository";
-import { ModAndReleases, ModRelease, ModRepositoryName, ModLoader, ModSearchMetadata } from "..";
+import { ModAndReleases, ModRelease, ModRepositoryName, ModLoader, ModSearchMetadata, MCVersion, ModLoaderUtil } from "..";
 import { cf_fingerprint } from 'cf-fingerprint';
+import { logger } from "../logger";
 
 /**
  * Implementation of IRepository for the CurseForge repository.
@@ -20,23 +21,19 @@ export class CurseForgeRepository implements IRepository {
     }
 
     async getModReleases(modId: string): Promise<ModAndReleases> {
-        const modResp = await this.fetchClient(`${CurseForgeRepository.BASE_URL}/mods/${modId}`);
-        if (!modResp.ok) throw new Error("Mod not found on CurseForge");
-        const modData = (await modResp.json()).data;
-
         const filesResp = await this.fetchClient(`${CurseForgeRepository.BASE_URL}/mods/${modId}/files`);
         if (!filesResp.ok) throw new Error("Could not fetch files from CurseForge");
         const filesData = (await filesResp.json()).data;
-        
+
         const releases: ModRelease[] = filesData.map((file: any) => {
-            const mcVersions: string[] = [];
-            const loaders: ModLoader[] = [];
-            for (const d of file.gameVersions || []) {
-                const lower = d.toLowerCase();
-                if (/^[a-z]+$/.test(lower)) {
-                    loaders.push(lower as ModLoader);
+            const mcVersions: Set<MCVersion> = new Set();
+            const loaders: Set<ModLoader> = new Set();
+            for (let gameVersion of file.gameVersions || []) {
+                gameVersion = gameVersion.toLowerCase();
+                if (/^[a-z]+$/.test(gameVersion)) {
+                    loaders.add(ModLoaderUtil.from(gameVersion));
                 } else {
-                    mcVersions.push(lower);
+                    mcVersions.add(gameVersion);
                 }
             }
 
@@ -49,7 +46,7 @@ export class CurseForgeRepository implements IRepository {
         });
 
         return {
-            name: modData.name,
+            id: modId,
             releases,
         };
     }
@@ -78,10 +75,13 @@ export class CurseForgeRepository implements IRepository {
 
     async getByDataHash(modData: Uint8Array): Promise<ModSearchMetadata | null> {
         // Calculate CurseForge fingerprint
+        const start = Date.now();
         const fingerprint: number = cf_fingerprint(modData);
+        const duration = Date.now() - start;
+        logger.debug(`cf_fingerprint(${modData.length} bytes): ${duration}ms`);
 
         // Use the CurseForge API to get file info by fingerprint
-        const resp = await fetch(`${CurseForgeRepository.BASE_URL}/fingerprints`, {
+        const resp = await this.fetchClient(`${CurseForgeRepository.BASE_URL}/fingerprints`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -95,14 +95,14 @@ export class CurseForgeRepository implements IRepository {
             return null;
         }
         const data = (await resp.json()).data;
-        
+
         if (!data.exactMatches || data.exactMatches.length === 0) return null;
 
         const fileMatch = data.exactMatches[0];
         const modId: number = fileMatch.file.modId;
 
         // Get mod info using the mod ID
-        const modResp = await fetch(`${CurseForgeRepository.BASE_URL}/mods/${modId}`);
+        const modResp = await this.fetchClient(`${CurseForgeRepository.BASE_URL}/mods/${modId}`);
         if (!modResp.ok) return null;
         const modInfo = (await modResp.json()).data;
 

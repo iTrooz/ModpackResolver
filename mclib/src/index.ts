@@ -7,6 +7,7 @@ export {
   Solution,
   ModSearchMetadata,
   Constraints,
+  ModLoaderUtil
 } from "./types";
 
 export type {
@@ -21,3 +22,5 @@ export { ModQueryService } from "./ModQueryService";
 
 export { ModrinthRepository, CurseForgeRepository } from "./repos";
 export type { IRepository } from "./repos";
+
+export { LoggerConfig, LogLevel } from "./logger";
