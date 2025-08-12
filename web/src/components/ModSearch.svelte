@@ -1,7 +1,7 @@
 <script lang="ts">
 	import * as m from '$msg';
 	import { ModRepositoryName } from 'mclib';
-	import type { ModSearchMetadata } from 'mclib';
+	import type { ModRepoMetadata } from 'mclib';
 	import { ModSearchList, ToggleButtons } from '$cmpts';
 	import { slide } from 'svelte/transition';
 	import { modQueryService, repositories } from '../config';
@@ -13,9 +13,9 @@
 		add_mod_to_list
 	}: {
 		search_name_input: string;
-		search_results: [ModRepositoryName, ModSearchMetadata][];
+		search_results: [ModRepositoryName, ModRepoMetadata][];
 		is_loading_search: boolean;
-		add_mod_to_list: (mod: ModSearchMetadata) => void;
+		add_mod_to_list: (mod: ModRepoMetadata) => void;
 	} = $props();
 
 	let selected_mod_repo_names: ModRepositoryName[] = $state([]);

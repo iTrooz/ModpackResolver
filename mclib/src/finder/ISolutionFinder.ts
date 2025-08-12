@@ -1,4 +1,4 @@
-import { Constraints, ModAndReleases, Solution } from "..";
+import { Constraints, ModMetadata, ModReleases, Solution } from "..";
 
 export interface ISolutionFinder {
     /**
@@ -9,15 +9,15 @@ export interface ISolutionFinder {
      * @param nbSolutions Max number of solutions to return
      * @returns Array of solutions
      */
-    findSolutions(modIds: string[], constraints?: Constraints, nbSolutions?: number): Promise<Solution[]>;
+    findSolutions(modIds: ModMetadata[], constraints?: Constraints, nbSolutions?: number): Promise<Solution[]>;
 
     /**
      * Resolves releases of mods
      */
-    resolveMods(modIds: string[]): Promise<ModAndReleases[]>;
+    resolveMods(modIds: ModMetadata[]): Promise<ModReleases[]>;
 
     /**
      * Finds the best Minecraft configurations (version + loader) that satisfy all mods
      */
-    resolveSolutions(mods: ModAndReleases[], constraints: Constraints, nbSolution: number): Solution[];
+    resolveSolutions(mods: ModReleases[], constraints: Constraints, nbSolution: number): Solution[];
 }

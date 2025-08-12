@@ -1,13 +1,13 @@
 <script lang="ts">
 	import * as m from '$msg';
-	import type { ModRepositoryName, ModSearchMetadata } from 'mclib';
+	import type { ModRepositoryName, ModRepoMetadata } from 'mclib';
 
 	let {
 		search_results = $bindable(),
 		add_mod_to_list
 	}: {
-		search_results: [ModRepositoryName, ModSearchMetadata][]; // list of (repository, mod search metadata)
-		add_mod_to_list: (mod: ModSearchMetadata) => void;
+		search_results: [ModRepositoryName, ModRepoMetadata][]; // list of (repository, mod search metadata)
+		add_mod_to_list: (mod: ModRepoMetadata) => void;
 	} = $props();
 
 	function humanize_number(input: number): string {

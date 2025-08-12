@@ -1,5 +1,5 @@
 import type { IRepository } from "./IRepository";
-import { ModAndReleases, ModRelease, ModRepositoryName, ModLoader, ModSearchMetadata, MCVersion, ModLoaderUtil } from "..";
+import { ModRepoRelease, ModRepositoryName, ModLoader, ModRepoMetadata, MCVersion, ModLoaderUtil, ModReleases } from "..";
 import { cf_fingerprint } from 'cf-fingerprint';
 import { logger } from "../logger";
 
@@ -20,12 +20,12 @@ export class CurseForgeRepository implements IRepository {
         return null;
     }
 
-    async getModReleases(modId: string): Promise<ModAndReleases> {
+    async getModReleases(modId: string): Promise<ModReleases> {
         const filesResp = await this.fetchClient(`${CurseForgeRepository.BASE_URL}/mods/${modId}/files`);
         if (!filesResp.ok) throw new Error("Could not fetch files from CurseForge");
         const filesData = (await filesResp.json()).data;
 
-        const releases: ModRelease[] = filesData.map((file: any) => {
+        const releases: ModRepoRelease[] = filesData.map((file: any) => {
             const mcVersions: Set<MCVersion> = new Set();
             const loaders: Set<ModLoader> = new Set();
             for (let gameVersion of file.gameVersions || []) {
@@ -42,16 +42,14 @@ export class CurseForgeRepository implements IRepository {
                 modVersion: file.displayName,
                 repository: ModRepositoryName.CURSEFORGE,
                 loaders: loaders,
+                downloadUrl: file.downloadUrl || '',
             })
         });
 
-        return {
-            id: modId,
-            releases,
-        };
+        return releases;
     }
 
-    async searchMods(query: string, maxResults: number): Promise<ModSearchMetadata[]> {
+    async searchMods(query: string, maxResults: number): Promise<ModRepoMetadata[]> {
         const resp = await this.fetchClient(`${CurseForgeRepository.BASE_URL}/mods/search?` + new URLSearchParams({
             // params from PrismLancher
             gameId: "432", // Minecraft game ID
@@ -66,6 +64,7 @@ export class CurseForgeRepository implements IRepository {
         const data = (await resp.json()).data;
         return data.map((mod: any) => ({
             id: mod.id.toString(),
+            repository: ModRepositoryName.CURSEFORGE,
             name: mod.name,
             homepageURL: mod.links.websiteUrl,
             imageURL: mod.logo.url,
@@ -73,7 +72,7 @@ export class CurseForgeRepository implements IRepository {
         }));
     }
 
-    async getByDataHash(modData: Uint8Array): Promise<ModSearchMetadata | null> {
+    async getByDataHash(modData: Uint8Array): Promise<ModRepoMetadata | null> {
         // Calculate CurseForge fingerprint
         const start = Date.now();
         const fingerprint: number = cf_fingerprint(modData);
@@ -108,6 +107,7 @@ export class CurseForgeRepository implements IRepository {
 
         return {
             id: modId.toString(),
+            repository: ModRepositoryName.CURSEFORGE,
             name: modInfo.name,
             homepageURL: modInfo.links.websiteUrl,
             imageURL: modInfo.logo?.url || "",

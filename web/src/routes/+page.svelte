@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
-	import type { Solution, ModSearchMetadata, ModRepositoryName, MCVersion } from 'mclib';
+	import type { Solution, ModRepoMetadata, ModRepositoryName, MCVersion } from 'mclib';
 	import { ModLoader } from 'mclib';
 	import { ModSearch, ModsList, ToggleButtons, MCVersionSelection, FileDropZone } from '$cmpts';
 	import * as m from '$msg';
@@ -8,11 +8,11 @@
 
 	let search_name_input = $state('');
 	let is_loading_search = $state(false);
-	let search_results: [ModRepositoryName, ModSearchMetadata][] = $state([]);
+	let search_results: [ModRepositoryName, ModRepoMetadata][] = $state([]);
 
-	let mod_list_added: ModSearchMetadata[] = $state([]);
+	let mod_list_added: ModRepoMetadata[] = $state([]);
 
-	function add_mod_to_list(mod: ModSearchMetadata): void {
+	function add_mod_to_list(mod: ModRepoMetadata): void {
 		if (!mod_list_added.includes(mod)) {
 			// add mod to list of mods to use
 			mod_list_added.push(mod);
@@ -21,7 +21,7 @@
 		}
 	}
 
-	function remove_mod_from_list(mod: ModSearchMetadata): void {
+	function remove_mod_from_list(mod: ModRepoMetadata): void {
 		const index_mod = mod_list_added.indexOf(mod);
 		if (index_mod > -1) {
 			mod_list_added.splice(index_mod, 1);
@@ -63,10 +63,10 @@
 			error = null;
 			is_loading_mccreator = true;
 
-			let solutions = await config.solutionFinder.findSolutions(mod_list_added.map((mod) => mod.id), {
+			let solutions = await config.solutionFinder.findSolutions(mod_list_added.map(modRepoMeta => [modRepoMeta]), {
 				minVersion: mc_version_range.min,
 				maxVersion: mc_version_range.max,
-				loaders: loaders_selected.length > 0 ? loaders_selected : undefined
+				loaders: loaders_selected.length > 0 ? new Set(loaders_selected) : undefined
 			});
 			mc_results = solutions[0];
 		} catch (err) {
@@ -141,12 +141,12 @@
 
 			<h3 class="mt-4 font-bold">Compatible Mods:</h3>
 			<ul class="ml-6 list-disc">
-				{#each mc_results.mods as mod (mod.release)}
+				{#each mc_results.mods as release (release.downloadUrl)}
 					<li>
-						<strong>{mod.name}</strong>: {mod.release.modVersion}
+						<strong>{release.modMetadata.name}</strong>: {release.modVersion}
 						<ul class="list-circle ml-4 text-sm">
-							<li>Loaders: {mod.release.loaders.join(', ')}</li>
-							<li>MC Versions: {mod.release.mcVersions.join(', ')}</li>
+							<li>Loaders: {Array.from(release.loaders).join(', ')}</li>
+							<li>MC Versions: {Array.from(release.mcVersions).join(', ')}</li>
 						</ul>
 					</li>
 				{/each}

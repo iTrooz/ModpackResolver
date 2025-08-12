@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
-import { program } from '@commander-js/extra-typings';
-import { CurseForgeRepository, LocalSolutionFinder, LoggerConfig, ModLoader, ModQueryService, ModrinthRepository, LogLevel, Constraints, Solution } from 'mclib';
+import { program, Option } from '@commander-js/extra-typings';
+import { CurseForgeRepository, LocalSolutionFinder, LoggerConfig, ModLoader, ModQueryService, ModrinthRepository, LogLevel, Constraints, Solution, ModMetadata, RepositoryUtil, ModRepositoryName, ModRepoMetadata } from 'mclib';
 import { readFileSync } from 'fs';
 import pino from 'pino';
 
@@ -33,17 +33,31 @@ async function fetchWrapper(input: RequestInfo | URL, options?: RequestInit): Pr
   return response;
 }
 
-function getModQueryService() {
-  const repositories = [
-    new ModrinthRepository(fetchWrapper),
-    new CurseForgeRepository(fetchWrapper),
-  ];
+function getModQueryService(selectedRepos?: string[]) {
+  const repoMap = {
+    modrinth: () => new ModrinthRepository(fetchWrapper),
+    curseforge: () => new CurseForgeRepository(fetchWrapper),
+  };
+  let repositories: any[] = [];
+  if (selectedRepos && selectedRepos.length > 0) {
+    for (const repo of selectedRepos) {
+      const factory = repoMap[repo.toLowerCase() as keyof typeof repoMap];
+      if (factory) repositories.push(factory());
+      else {
+        logger.error(`Unknown repository: ${repo}`);
+        process.exit(1);
+      }
+    }
+  } else {
+    repositories = [new ModrinthRepository(fetchWrapper), new CurseForgeRepository(fetchWrapper)];
+  }
   return new ModQueryService(repositories);
 }
 
 interface CliOptions {
   modId?: string[];
   modFile?: string[];
+  exactVersion?: string;
   minVersion?: string;
   maxVersion?: string;
   loader?: string[];
@@ -58,15 +72,35 @@ function validateCliOptions(options: CliOptions) {
   }
 }
 
-async function getModIds(modQueryService: ModQueryService, options: CliOptions): Promise<string[]> {
-  const modIdSet = new Set<string>();
+async function getMods(modQueryService: ModQueryService, options: CliOptions): Promise<ModMetadata[]> {
+  const modsMap = new Map<string, ModMetadata>();
 
   if (options.modId) {
     for (const id of options.modId) {
-      if (modIdSet.has(id)) {
+      let [repoName, modId] = id.split('/');
+      if (!modId) {
+        logger.error(`Invalid mod ID format: ${id}. Expected format is 'repository/modId'.`);
+        continue;
+      }
+
+      let repo = RepositoryUtil.from(repoName as ModRepositoryName, fetch);
+      if (!repo) {
+        logger.error(`Unknown repository: ${repoName}`);
+        continue;
+      }
+
+      let fullId = `${repo.getRepositoryName()}/${modId}`.toLowerCase();
+      if (modsMap.has(fullId)) {
         logger.warn(`Duplicate mod ID from --mod-id: ${id}`);
       } else {
-        modIdSet.add(id);
+        modsMap.set(fullId, [{
+          id,
+          repository: repo.getRepositoryName(),
+          name: id,
+          homepageURL: "",
+          imageURL: "",
+          downloadCount: 0
+        }]);
       }
     }
   }
@@ -81,19 +115,23 @@ async function getModIds(modQueryService: ModQueryService, options: CliOptions):
         logger.debug(`readFileSync(${file}): ${duration}ms`);
 
         // Get metadata
-        let modMetadata = await modQueryService.getModByDataHash(new Uint8Array(modData));
-        if (!modMetadata) {
+        let modMetadatas = await modQueryService.getModByDataHash(new Uint8Array(modData));
+        if (modMetadatas.length === 0) {
           logger.warn(`Could not extract mod ID from file: ${file}`);
           continue;
         }
+        logger.debug(`Extracted ${modMetadatas.length} match in repositories from file: ${file}`);
 
-        // add to set
-        if (modIdSet.has(modMetadata.id)) {
-          logger.warn(`Duplicate mod ID from file: ${modMetadata.id} (file: ${file})`);
-        } else {
-          modIdSet.add(modMetadata.id);
-          logger.info(`Found mod ID ${modMetadata.id} from file: ${file}`);
+        // verify if there are duplicates
+        for (const modMetadata of modMetadatas) {
+          let fullId = `${modMetadata.repository}|${modMetadata.id}`.toLowerCase();
+          if (modsMap.has(fullId)) {
+            logger.warn(`Duplicate mod ID from file: ${modMetadata.id} (file: ${file})`);
+          }
         }
+
+        // add to set (with random key, we don't care anyway)
+        modsMap.set(`|${modMetadatas[0].id}`, modMetadatas);
       } catch (error) {
         logger.error(`Error processing mod file ${file}: ${error}`);
         continue;
@@ -101,12 +139,12 @@ async function getModIds(modQueryService: ModQueryService, options: CliOptions):
     }
   }
 
-  return Array.from(modIdSet);
+  return Array.from(modsMap.values());
 }
 
 async function findSolutions(
   modQueryService: ModQueryService,
-  requestedModIds: string[],
+  requestedMods: ModMetadata[],
   constraints: Constraints,
   nbSolutions: number,
   sinytra: boolean
@@ -114,17 +152,17 @@ async function findSolutions(
   let solutionFinder = new LocalSolutionFinder(modQueryService);
 
   // Resolve mods
-  const mods = await solutionFinder.resolveMods(requestedModIds);
+  const mods = await solutionFinder.resolveMods(requestedMods);
 
   // Sinytra loader injection
   if (sinytra) {
     logger.info('Sinytra mode: Injecting Forge and NeoForge into Fabric-compatible releases...');
     for (const mod of mods) {
-      for (const release of mod.releases) {
+      for (const release of mod) {
         if (release.loaders.has(ModLoader.FABRIC)) {
           release.loaders.add(ModLoader.FORGE);
           release.loaders.add(ModLoader.NEOFORGE);
-          logger.trace(`Injected forge and neoforge into fabric-compatible release: ${mod.id} ${release.modVersion}`);
+          logger.trace(`Injected forge and neoforge into fabric-compatible release: ${release.modMetadata.id} ${release.modVersion}`);
         }
       }
     }
@@ -145,29 +183,31 @@ program
   .description('Find mod versions that match constraints')
   .option('--mod-id <modID...>', 'Mod IDs to include in the modpack')
   .option('--mod-file <path...>', 'Mod IDs to include in the modpack')
+  .addOption(new Option('--exact-version <version>', 'Exact Minecraft version to consider').conflicts(['minVersion', 'maxVersion']))
   .option('--min-version <version>', 'Minimum Minecraft version to consider')
   .option('--max-version <version>', 'Maximum Minecraft version to consider')
   .option('--loader <loader...>', 'Loaders to consider (e.g., forge, fabric)', [])
   .option('-d, --details', 'Include details (e.g. unsupported mods in solutions found)', false)
   .option('-n, --nb-solutions <number>', 'Number of solutions to output', (value) => parseInt(value, 10), 3)
   .option('--sinytra', 'Inject forge and neoforge into fabric-compatible releases', false)
-  .action(async (cliOptions: CliOptions & { sinytra?: boolean }) => {
-    let modQueryService = getModQueryService();
+  .option('-r, --repository <repo...>', 'Repositories to use (modrinth, curseforge)')
+  .action(async (cliOptions: CliOptions & { repository?: string[] }) => {
+    let modQueryService = getModQueryService(cliOptions.repository);
     validateCliOptions(cliOptions);
 
-    const requestedModIds = await getModIds(modQueryService, cliOptions);
-    if (requestedModIds.length === 0) {
+    const requestedMods = await getMods(modQueryService, cliOptions);
+    if (requestedMods.length === 0) {
       logger.error('No valid mod IDs found from provided options.');
       return;
     }
 
-    logger.info(`Searching for solutions with ${requestedModIds.length} mod(s)...`);
+    logger.info(`Searching for solutions with ${requestedMods.length} mod(s)...`);
     const solutions = await findSolutions(
       modQueryService,
-      requestedModIds,
+      requestedMods,
       {
-        minVersion: cliOptions.minVersion,
-        maxVersion: cliOptions.maxVersion,
+        minVersion: cliOptions.exactVersion || cliOptions.minVersion,
+        maxVersion: cliOptions.exactVersion || cliOptions.maxVersion,
         loaders: new Set(cliOptions.loader as ModLoader[]),
       },
       cliOptions.nbSolutions,
@@ -181,13 +221,28 @@ program
 
     logger.info(`Found ${solutions.length} solution(s):`);
     for (const solution of solutions) {
-      logger.info(`- Version: ${solution.mcConfig.mcVersion}, Loader: ${solution.mcConfig.loader}, Mods: ${solution.mods.length}/${requestedModIds.length}`);
-      if (cliOptions.details && solution.mods.length != requestedModIds.length) {
-        let unsupportedMods = requestedModIds.filter(modId => !solution.mods.some(mod => mod.id === modId));
-        logger.info(`  Unsupported mods (${unsupportedMods.length}):`);
-        for (const modId of unsupportedMods) {
-          logger.info(`  - ${modId}`);
+      logger.info(`- Version: ${solution.mcConfig.mcVersion}, Loader: ${solution.mcConfig.loader}, Mods: ${solution.mods.length}/${requestedMods.length}`);
+      if (cliOptions.details && solution.mods.length != requestedMods.length) {
+
+        // Get unsupported mods
+        let unsupportedModsMeta: ModMetadata[] = [];
+        for (const requestedMod of requestedMods) {
+          let hasIncludedRelease = false;
+          for (const release of solution.mods) {
+            // check if we have repo-specific metadata of this mod in our solution
+            if (requestedMod.includes(release.modMetadata)) {
+              hasIncludedRelease = true;
+              break;
+            }
+          }
+          if (!hasIncludedRelease) unsupportedModsMeta.push(requestedMod);
         }
+
+        logger.info(`  Unsupported mods (${unsupportedModsMeta.length}):`);
+        for (const modMeta of unsupportedModsMeta) {
+          logger.info(`  - ${modMeta[0].id} (${modMeta[0].name})`);
+        }
+
       }
     }
     if (!cliOptions.details) {

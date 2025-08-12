@@ -1,4 +1,4 @@
-import { MCConfig, ModAndRelease, ModAndReleases, ModRelease, Solution, Constraints, ISolutionFinder } from "..";
+import { MCConfig, ModRepoRelease, Solution, Constraints, ISolutionFinder, ModMetadata, ModReleases, ModLoader } from "..";
 import { logger } from "../logger";
 import { ModQueryService } from "../ModQueryService";
 
@@ -14,7 +14,7 @@ export class LocalSolutionFinder implements ISolutionFinder {
         this.query = modQueryService;
     }
 
-    async findSolutions(mods: string[], constraints: Constraints = {}, nbSolution: number = 5): Promise<Solution[]> {
+    async findSolutions(mods: ModMetadata[], constraints: Constraints = {}, nbSolution: number = 5): Promise<Solution[]> {
         logger.debug("findSolutions()");
         const resolvedMods = await this.resolveMods(mods);
         const solutions = this.resolveSolutions(resolvedMods, constraints, nbSolution);
@@ -22,21 +22,11 @@ export class LocalSolutionFinder implements ISolutionFinder {
         return solutions;
     }
 
-    resolveSolutions(mods: ModAndReleases[], constraints: Constraints, nbSolution: number): Solution[] {
-        logger.debug({ constraints }, "resolveSolutions(mods=%s)", mods.length);
-
-        // Get flat list of all mod releases
-        const flatReleases = this.getFlatReleases(mods);
-        logger.debug("%s releases after flattening", flatReleases.length);
-
-        // Filter releases based on constraints
-        const matchingReleases = flatReleases.filter(({ release }) =>
-            this.matchConstraints(release, constraints)
-        );
-        logger.debug("%s releases match constraints", matchingReleases.length);
+    resolveSolutions(modsReleases: ModReleases[], constraints: Constraints, nbSolution: number): Solution[] {
+        logger.debug({ constraints }, "resolveSolutions(mods=%s)", modsReleases.length);
 
         // Create config candidates (unique mcVersion + loader combinations)
-        const configCandidates = this.extractConfigCandidates(matchingReleases);
+        const configCandidates = this.extractConfigCandidates(modsReleases.flat(), constraints);
 
         // Sort config candidates in descending order by version
         configCandidates.sort((a, b) => {
@@ -50,30 +40,29 @@ export class LocalSolutionFinder implements ISolutionFinder {
         // Find configs that have compatible releases for each mod
         logger.debug("Iterating over %d config candidates", configCandidates.length);
         for (const config of configCandidates) {
-            const matchingModReleases: ModAndRelease[] = [];
-            const matchedModIds = new Set<string>();
+            // Collect one solution
 
-            for (const {id, release} of matchingReleases) {
-                // Skip if we already found a release for this mod
-                if (matchedModIds.has(id)) continue;
+            const matchingModReleases: ModRepoRelease[] = [];
 
-                // Check if this release matches the current config
-                if (release.mcVersions.has(config.mcVersion) &&
-                    release.loaders.has(config.loader)) {
-                    matchingModReleases.push({
-                        id: id,
-                        release: release
-                    });
-                    matchedModIds.add(id);
+            for (const mod of modsReleases) { // for every mod
+                for (const release of mod) { // for every release for this mod
+                    // Check if this release matches the current config
+                    if (release.mcVersions.has(config.mcVersion) &&
+                        release.loaders.has(config.loader)) {
+                        matchingModReleases.push(release);
+                        // We got a release for this mod, break and go to next mod
+                        break
+                    }
                 }
             }
 
-            // If we found a match for every mod, add this solution
-            logger.trace({ config }, "Found solution with %d/%d matching mods", matchingModReleases.length, mods.length);
+            // Add to solutions list
+            logger.trace({ config }, "Found solution with %d/%d matching mods", matchingModReleases.length, modsReleases.length);
             solutions.push({
                 mcConfig: config,
                 mods: matchingModReleases
             });
+
         }
 
         // Return top 'nbSolution' solutions
@@ -85,30 +74,19 @@ export class LocalSolutionFinder implements ISolutionFinder {
         return solutions;
     }
 
-    async resolveMods(modIds: string[]): Promise<ModAndReleases[]> {
-        logger.debug("resolveMods(mods=%s)", modIds.length);
-        const resolvedMods: ModAndReleases[] = [];
+    async resolveMods(modsMeta: ModMetadata[]): Promise<ModReleases[]> {
+        logger.debug("resolveMods(mods=%s)", modsMeta.length);
+        const resolvedMods: ModReleases[] = [];
 
         let releaseCount = 0;
-        for (const modId of modIds) {
-            const releases = await this.query.getModReleases(modId);
-            releaseCount += releases.releases.length;
+        for (const modMeta of modsMeta) {
+            const releases = await this.query.getModReleasesFromMetadata(modMeta);
+            releaseCount += releases.length;
             resolvedMods.push(releases);
         }
 
-        logger.debug("resolveMods(mods=%s): %s total releases", modIds.length, releaseCount);
+        logger.debug("resolveMods(mods=%s): %s total releases", modsMeta.length, releaseCount);
         return resolvedMods;
-    }
-
-    /**
-     * Flattens a list of mods and their releases into a list of tuples (mod, release)
-     * @param mods List of mods with their releases
-     * @returns Flattened list of (mod, release) pairs
-     */
-    private getFlatReleases(mods: ModAndReleases[]): Array<ModAndRelease> {
-        return mods.flatMap(mod =>
-            mod.releases.map(release => ({ id: mod.id, release }))
-        );
     }
 
     /**
@@ -116,13 +94,19 @@ export class LocalSolutionFinder implements ISolutionFinder {
      * @param releases Flattened list of mod releases
      * @returns List of unique configuration candidates
      */
-    private extractConfigCandidates(releases: Array<ModAndRelease>): MCConfig[] {
+    private extractConfigCandidates(releases: Array<ModRepoRelease>, constraints: Constraints): MCConfig[] {
         const configs: MCConfig[] = [];
         const configSet = new Set<string>();
 
-        for (const { release } of releases) {
+        for (const release of releases) {
             for (const mcVersion of release.mcVersions) {
                 for (const loader of release.loaders) {
+                    // check if it matches constraints
+                    if (!this.loaderMatchConstraints(loader, constraints) || !this.versionMatchConstraints(mcVersion, constraints)) {
+                        continue;
+                    }
+
+                    // Add to config candidates
                     const configKey = `${mcVersion}:${loader}`;
                     if (!configSet.has(configKey)) {
                         configSet.add(configKey);
@@ -135,39 +119,40 @@ export class LocalSolutionFinder implements ISolutionFinder {
         return configs;
     }
 
+    private loaderMatchConstraints(loader: ModLoader, constraints: Constraints): boolean {
+        if (constraints.loaders?.size) {
+            return [...constraints.loaders].some(l => l === loader);
+        }
+        return true;
+    }
+
+    private versionMatchConstraints(version: string, constraints: Constraints): boolean {
+        if (constraints.minVersion && this.compareVersions(version, constraints.minVersion) < 0) {
+            return false;
+        }
+        if (constraints.maxVersion && this.compareVersions(version, constraints.maxVersion) > 0) {
+            return false;
+        }
+        return true;
+    }
+
     /**
      * Check if a mod release matches the current constraints
      * @param release The mod release to check
      * @returns True if the release matches the constraints
      */
-    private matchConstraints(release: ModRelease, constraints: Constraints): boolean {
+    private releaseMatchConstraints(release: ModRepoRelease, constraints: Constraints): boolean {
         logger.trace({ release, constraints }, "matchConstraints()");
 
         // Check loader constraint
-        if (constraints.loaders?.size && ![...constraints.loaders].some(l => release.loaders.has(l))) {
+        if (constraints.loaders?.size && ![...release.loaders].some(l => this.loaderMatchConstraints(l, constraints))) {
             return false;
         }
 
-        // Check minimal version constraint
-        if (constraints.minVersion) {
-            const hasVersionAboveMin = [...release.mcVersions].some(v => {
-                logger.trace({ version: v, minVersion: constraints.minVersion }, "compareVersions()")
-                return this.compareVersions(v, constraints.minVersion as string) >= 0
-            }
-            );
-            if (!hasVersionAboveMin) {
-                return false;
-            }
-        }
-
-        // Check maximal version constraint
-        if (constraints.maxVersion) {
-            const hasVersionBelowMax = [...release.mcVersions].some(v =>
-                this.compareVersions(v, constraints.maxVersion as string) <= 0
-            );
-            if (!hasVersionBelowMax) {
-                return false;
-            }
+        // Check minimal/maximal version constraint
+        const hasMatchingVersion = [...release.mcVersions].some(v => this.versionMatchConstraints(v, constraints));
+        if (!hasMatchingVersion) {
+            return false;
         }
 
         return true;
