@@ -55,7 +55,7 @@ export type ModRepoRelease = {
     /** Download URL for the mod release */
     downloadUrl: string;
 
-    modMetadata: ModRepoMetadata;
+    modMetadata?: ModRepoMetadata;
 };
 
 export type ModMetadata = ModRepoMetadata[];
