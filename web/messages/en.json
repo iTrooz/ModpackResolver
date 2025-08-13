@@ -34,7 +34,42 @@
 		"error_no_mod_added": "No mod was added, can't process if you haven't any mod",
 		"processing_modpack_creator": "Processing...",
 		"error_while_calculating": "Error while processing",
-		"result": "Results",
-		"show_raw_data": "Show Raw Data"
+		"remaining_results": "{nb_remaining} other possibilities",
+		"results": {
+			"compatible_mods": "Compatible mods",
+			"best_config": "Best Minecraft configuration",
+			"mc_version": [
+				{
+					"declarations": ["input count", "local countPlural = count: plural"],
+					"selectors": ["countPlural"],
+					"match": {
+						"countPlural=one": "Minecraft version",
+						"countPlural=other": "Minecraft versions"
+					}
+				}
+			],
+			"loader": [
+				{
+					"declarations": ["input count", "local countPlural = count: plural"],
+					"selectors": ["countPlural"],
+					"match": {
+						"countPlural=one": "Loader",
+						"countPlural=other": "Loaders"
+					}
+				}
+			],
+			"download": "Download",
+			"download_all": [
+				{
+					"declarations": ["input count", "local countPlural = count: plural"],
+					"selectors": ["countPlural"],
+					"match": {
+						"countPlural=one": "Download the mod",
+						"countPlural=other": "Download all mods"
+					}
+				}
+			]
+		},
+		"log_raw_data": "Log raw data in dev tools"
 	}
 }
