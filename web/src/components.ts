@@ -4,3 +4,6 @@ export { default as ModsList } from './components/ModsList.svelte';
 export { default as ToggleButtons } from './components/ToggleButtons.svelte';
 export { default as FileDropZone } from './components/FileDropZone.svelte';
 export { default as MCVersionSelection } from './components/MCVersionSelection.svelte';
+export { default as ReleasesResult } from './components/ReleasesResult.svelte';
+export { default as ModResultsList } from './components/ModResultsList.svelte';
+export { default as ReleasesResultCarousel } from './components/ReleaseResultCarousel.svelte';

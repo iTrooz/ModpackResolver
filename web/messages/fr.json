@@ -34,7 +34,42 @@
 		"error_no_mod_added": "Aucun mod n'a été ajouté, exécution impossible s'il n'y a pas de mod",
 		"processing_modpack_creator": "Calcul...",
 		"error_while_calculating": "Erreur pendant processus",
-		"result": "Résultats",
-		"show_raw_data": "Afficher les données brutes"
+		"remaining_results": "{nb_remaining} autres possibilités",
+		"results": {
+			"compatible_mods": "Mods compatibles",
+			"best_config": "Meilleure configuration Minecraft",
+			"mc_version": [
+				{
+					"declarations": ["input count", "local countPlural = count: plural"],
+					"selectors": ["countPlural"],
+					"match": {
+						"countPlural=one": "Version Minecraft",
+						"countPlural=other": "Versions Minecraft"
+					}
+				}
+			],
+			"loader": [
+				{
+					"declarations": ["input count", "local countPlural = count: plural"],
+					"selectors": ["countPlural"],
+					"match": {
+						"countPlural=one": "Loader",
+						"countPlural=other": "Loaders"
+					}
+				}
+			],
+			"download": "Télécharger",
+			"download_all": [
+				{
+					"declarations": ["input count", "local countPlural = count: plural"],
+					"selectors": ["countPlural"],
+					"match": {
+						"countPlural=one": "Télécharger le mod",
+						"countPlural=other": "Télécharger tous les mods"
+					}
+				}
+			]
+		},
+		"log_raw_data": "Afficher les données brutes dans les outils de développeur"
 	}
 }

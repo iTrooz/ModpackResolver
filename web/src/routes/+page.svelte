@@ -2,7 +2,14 @@
 	import { slide } from 'svelte/transition';
 	import type { Solution, ModRepoMetadata, ModRepositoryName, MCVersion } from 'mclib';
 	import { ModLoader } from 'mclib';
-	import { ModSearch, ModsList, ToggleButtons, MCVersionSelection, FileDropZone } from '$cmpts';
+	import {
+		ModSearch,
+		ModsList,
+		ToggleButtons,
+		MCVersionSelection,
+		FileDropZone,
+		ReleasesResult
+	} from '$cmpts';
 	import * as m from '$msg';
 	import * as config from '../config';
 
@@ -47,8 +54,7 @@
 		});
 	});
 
-	let mc_results: Solution | null = $state(null);
-	let show_raw_data = $state(false);
+	let mc_results: Solution[] | null = $state(null);
 
 	let is_loading_mccreator = $state(false);
 	let error: string | null = $state(null);
@@ -63,12 +69,14 @@
 			error = null;
 			is_loading_mccreator = true;
 
-			let solutions = await config.solutionFinder.findSolutions(mod_list_added.map(modRepoMeta => [modRepoMeta]), {
-				minVersion: mc_version_range.min,
-				maxVersion: mc_version_range.max,
-				loaders: loaders_selected.length > 0 ? new Set(loaders_selected) : undefined
-			});
-			mc_results = solutions[0];
+			mc_results = await config.solutionFinder.findSolutions(
+				mod_list_added.map((modRepoMeta) => [modRepoMeta]),
+				{
+					minVersion: mc_version_range.min,
+					maxVersion: mc_version_range.max,
+					loaders: loaders_selected.length > 0 ? new Set(loaders_selected) : undefined
+				}
+			);
 		} catch (err) {
 			if (err instanceof Error) {
 				error = err.message;
@@ -134,30 +142,7 @@
 		{:else if is_loading_mccreator}
 			<p>{m['runner.processing_modpack_creator']()}</p>
 		{:else if mc_results}
-			<h2>{m['runner.result']()}:</h2>
-			<h3 class="font-bold">Best Minecraft Configuration:</h3>
-			<p>Version: {mc_results.mcConfig.mcVersion}</p>
-			<p>Loader: {mc_results.mcConfig.loader}</p>
-
-			<h3 class="mt-4 font-bold">Compatible Mods:</h3>
-			<ul class="ml-6 list-disc">
-				{#each mc_results.mods as release (release.downloadUrl)}
-					<li>
-						<strong>{release.modMetadata.name}</strong>: {release.modVersion}
-						<ul class="list-circle ml-4 text-sm">
-							<li>Loaders: {Array.from(release.loaders).join(', ')}</li>
-							<li>MC Versions: {Array.from(release.mcVersions).join(', ')}</li>
-						</ul>
-					</li>
-				{/each}
-			</ul>
-
-			<input type="checkbox" bind:checked={show_raw_data} name="show_raw_data" />
-			<label for="show_raw_data">{m['runner.show_raw_data']()}</label>
-
-			{#if show_raw_data}
-				<pre>{JSON.stringify(mc_results, null, 2)}</pre>
-			{/if}
+			<ReleasesResult results={mc_results} />
 		{/if}
 	</section>
 {/if}
