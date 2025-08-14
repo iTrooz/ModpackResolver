@@ -1,32 +1,32 @@
 * {
-    /* GREY */
-    --grey-light-2: hsla(120, 56%, 96%, 1);
-    --grey-light-1: hsla(120, 15%, 86%, 1);
-    --grey: hsla(120, 2%, 47%, 1);
-    --grey-dark-1: hsla(120, 5%, 22%, 1);
-    --grey-dark-2: hsla(120, 3%, 13%, 1);
-    /* GREEN */
-    --green-light-2: hsla(94, 78%, 87%, 1);
-    --green-light-1: hsla(94, 59%, 70%, 1);
-    --green: hsla(94, 39%, 48%, 1);
-    --green-dark-1: hsla(96, 72%, 19%, 1);
-    --green-dark-2: hsla(96, 93%, 11%, 1);
-    /* ORANGE */
-    --orange-light-2: hsla(37, 78%, 89%, 1);
-    --orange-light-1: hsla(36, 82%, 72%, 1);
-    --orange: hsla(38, 62%, 55%, 1);
-    --orange-dark-1: hsla(38, 68%, 34%, 1);
-    --orange-dark-2: hsla(38, 88%, 17%, 1);
-    /* RED */
-    --red-light-2: hsla(8, 69%, 91%, 1);
-    --red-light-1: hsla(9, 74%, 73%, 1);
-    --red: hsla(9, 56%, 53%, 1);
-    --red-dark-1: hsla(9, 75%, 22%, 1);
-    --red-dark-2: hsla(9, 90%, 12%, 1);
-    /* BLUE */
-    --blue-light-2: hsla(213, 73%, 91%, 1);
-    --blue-light-1: hsla(212, 90%, 72%, 1);
-    --blue: hsla(212, 70%, 55%, 1);
-    --blue-dark-1: hsla(212, 82%, 30%, 1);
-    --blue-dark-2: hsla(212, 94%, 14%, 1);
+	/* GREY */
+	--grey-light-2: hsla(120, 56%, 96%, 1);
+	--grey-light-1: hsla(120, 15%, 86%, 1);
+	--grey: hsla(120, 2%, 47%, 1);
+	--grey-dark-1: hsla(120, 5%, 22%, 1);
+	--grey-dark-2: hsla(120, 3%, 13%, 1);
+	/* GREEN */
+	--green-light-2: hsla(94, 78%, 87%, 1);
+	--green-light-1: hsla(94, 59%, 70%, 1);
+	--green: hsla(94, 39%, 48%, 1);
+	--green-dark-1: hsla(96, 72%, 19%, 1);
+	--green-dark-2: hsla(96, 93%, 11%, 1);
+	/* ORANGE */
+	--orange-light-2: hsla(37, 78%, 89%, 1);
+	--orange-light-1: hsla(36, 82%, 72%, 1);
+	--orange: hsla(38, 62%, 55%, 1);
+	--orange-dark-1: hsla(38, 68%, 34%, 1);
+	--orange-dark-2: hsla(38, 88%, 17%, 1);
+	/* RED */
+	--red-light-2: hsla(8, 69%, 91%, 1);
+	--red-light-1: hsla(9, 74%, 73%, 1);
+	--red: hsla(9, 56%, 53%, 1);
+	--red-dark-1: hsla(9, 75%, 22%, 1);
+	--red-dark-2: hsla(9, 90%, 12%, 1);
+	/* BLUE */
+	--blue-light-2: hsla(213, 73%, 91%, 1);
+	--blue-light-1: hsla(212, 90%, 72%, 1);
+	--blue: hsla(212, 70%, 55%, 1);
+	--blue-dark-1: hsla(212, 82%, 30%, 1);
+	--blue-dark-2: hsla(212, 94%, 14%, 1);
 }
