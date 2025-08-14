@@ -42,8 +42,12 @@ export type MCConfig = {
     loader: ModLoader;
 };
 
-/** Represents a release of a mod */
-export type ModRepoRelease = {
+/** Represents a release of a mod (a release is tied to a repository !) */
+export type ModRepoRelease = RawModRepoRelease & {
+    /** Repository-specific metadata about the mod itself*/
+    modMetadata: ModRepoMetadata
+};
+export type RawModRepoRelease = {
     /** List of Minecraft versions compatible with this release */
     mcVersions: Set<MCVersion>;
     /** Mod version */
@@ -54,8 +58,6 @@ export type ModRepoRelease = {
     loaders: Set<ModLoader>;
     /** Download URL for the mod release */
     downloadUrl: string;
-
-    modMetadata?: ModRepoMetadata;
 };
 
 export type ModMetadata = ModRepoMetadata[];

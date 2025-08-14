@@ -279,7 +279,7 @@ describe('SolutionFinder', () => {
                 loader: ModLoader.FABRIC
             });
             expect(result.mods).toHaveLength(1);
-            expect(result.mods[0].modMetadata!.id).toBe('ice-and-fire-dragons');
+            expect(result.mods[0].modMetadata.id).toBe('ice-and-fire-dragons');
             expect(result.mods[0].modVersion).toBe('2.0.0');
         });
 

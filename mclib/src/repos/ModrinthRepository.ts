@@ -1,5 +1,5 @@
 import type { IRepository } from "./IRepository";
-import { ModRepoRelease, ModRepositoryName, ModRepoMetadata, ModLoaderUtil, ModReleases } from "..";
+import { ModRepositoryName, ModRepoMetadata, ModLoaderUtil, RawModRepoRelease } from "..";
 
 export class ModrinthRepository implements IRepository {
 
@@ -17,7 +17,7 @@ export class ModrinthRepository implements IRepository {
         return data.project_id || null;
     }
 
-    async getModReleases(modId: string): Promise<ModReleases> {
+    async getModReleases(modId: string): Promise<RawModRepoRelease[]> {
         type Data = Array<{
             game_versions: string[];
             version_number: string;
@@ -31,7 +31,7 @@ export class ModrinthRepository implements IRepository {
         if (!versionsResp.ok) throw new Error("Could not fetch versions from Modrinth");
         const jsonResp: Data = await versionsResp.json();
 
-        const releases: ModRepoRelease[] = jsonResp.map(file => {
+        const releases: RawModRepoRelease[] = jsonResp.map(file => {
             const mcVersions = new Set(file.game_versions);
             const loaders = new Set(file.loaders.map(ModLoaderUtil.from));
             return {
