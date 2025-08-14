@@ -1,5 +1,5 @@
 import type { IRepository } from "./IRepository";
-import { ModRepoRelease, ModRepositoryName, ModLoader, ModRepoMetadata, MCVersion, ModLoaderUtil, ModReleases } from "..";
+import { RawModRepoRelease, ModRepositoryName, ModLoader, ModRepoMetadata, MCVersion, ModLoaderUtil } from "..";
 import { cf_fingerprint } from 'cf-fingerprint';
 import { logger } from "../logger";
 
@@ -20,7 +20,7 @@ export class CurseForgeRepository implements IRepository {
         return null;
     }
 
-    async getModReleases(modId: string): Promise<ModReleases> {
+    async getModReleases(modId: string): Promise<RawModRepoRelease[]> {
         type Data = {
             data: {
                 displayName: string;
@@ -33,7 +33,7 @@ export class CurseForgeRepository implements IRepository {
         if (!filesResp.ok) throw new Error("Could not fetch files from CurseForge");
         const jsonResp: Data = await filesResp.json();
 
-        const releases: ModRepoRelease[] = jsonResp.data.map(file => {
+        const releases: RawModRepoRelease[] = jsonResp.data.map(file => {
             const mcVersions: Set<MCVersion> = new Set();
             const loaders: Set<ModLoader> = new Set();
             for (let gameVersion of file.gameVersions || []) {

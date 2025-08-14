@@ -76,11 +76,9 @@ export class ModQueryService {
             }
             // Try to get releases for this mod ID
             try {
-                const repoReleases = await repo.getModReleases(modRepoMeta.id);
+                const rawRepoReleases = await repo.getModReleases(modRepoMeta.id);
                 // Attach the metadata to the release
-                repoReleases.forEach(release => {
-                    release.modMetadata = modRepoMeta;
-                });
+                const repoReleases = rawRepoReleases.map(release => ({ ...release, modMetadata: modRepoMeta }));
                 releases.push(...repoReleases);
             } catch (error) {
                 logger.error("Error fetching mod releases for %s from %s: %s", modRepoMeta.id, repo.getRepositoryName(), error);

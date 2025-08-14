@@ -14,6 +14,7 @@ export {
 
 export type {
   MCConfig,
+  RawModRepoRelease,
   ModRepoRelease,
   MCVersion,
   ModReleases

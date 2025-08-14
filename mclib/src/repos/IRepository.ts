@@ -1,4 +1,4 @@
-import type { ModReleases, ModRepoMetadata, ModRepositoryName } from "..";
+import type { ModRepoMetadata, ModRepositoryName, RawModRepoRelease } from "..";
 
 /**
  * Interface for a mod repository
@@ -16,7 +16,7 @@ export interface IRepository {
      * @param modId The ID of the mod.
      * @returns A promise resolving to an array of mod releases.
      */
-    getModReleases(modId: string): Promise<ModReleases>;
+    getModReleases(modId: string): Promise<RawModRepoRelease[]>;
 
     /**
      * Search for mods by a query string.
