@@ -11,7 +11,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "bunx vitest run"
+    "test": "bunx vitest run",
+    "lint": "eslint ."
   },
   "type": "module",
   "types": "dist/index.d.ts",

@@ -22,8 +22,8 @@ jobs:
       
       - name: Lint code
         run: |
-          (cd mclib && bunx eslint .)
-          (cd web && bunx eslint .)
+          (cd mclib && bun run lint)
+          (cd web && bun run lint)
 
       - name: build CLI
         run: cd cli && bun run build
