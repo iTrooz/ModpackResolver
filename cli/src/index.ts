@@ -89,12 +89,15 @@ async function getMods(modQueryService: ModQueryService, options: CliOptions): P
         continue;
       }
 
+      // Rebuild mod ID to ensure user input doesn't mess things up
       let fullId = `${repo.getRepositoryName()}/${modId}`.toLowerCase();
+
+      // Add mod to map
       if (modsMap.has(fullId)) {
         logger.warn(`Duplicate mod ID from --mod-id: ${id}`);
       } else {
         modsMap.set(fullId, [{
-          id,
+          id: modId,
           repository: repo.getRepositoryName(),
           name: id,
           homepageURL: "",
