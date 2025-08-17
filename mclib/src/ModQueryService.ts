@@ -10,14 +10,9 @@ export class ModQueryService {
     }
 
     async getMinecraftVersions(): Promise<MCVersion[]> {
-        try {
-            const response = await fetch("https://mc-versions-api.net/api/java");
-            const data = await response.json();
-            return data.result.reverse();
-        } catch (error) {
-            console.error("Failed to fetch Minecraft versions:", error);
-            return ["error"];
-        }
+        const response = await fetch("https://mc-versions-api.net/api/java");
+        const data = await response.json();
+        return data.result.reverse();
     }
 
     /**
