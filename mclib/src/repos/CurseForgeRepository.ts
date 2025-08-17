@@ -3,6 +3,15 @@ import { RawModRepoRelease, ModRepositoryName, ModLoader, ModRepoMetadata, MCVer
 import { cf_fingerprint } from 'cf-fingerprint';
 import { logger } from "../logger";
 
+// Translation map for Curseforge modloader IDs
+// Source: https://docs.curseforge.com/rest-api/#tocS_ModLoaderType
+const LOADERS: { [key: number]: ModLoader } = {
+    1: ModLoader.FORGE,
+    4: ModLoader.FABRIC,
+    5: ModLoader.QUILT,
+    6: ModLoader.NEOFORGE
+}
+
 /**
  * Implementation of IRepository for the CurseForge repository.
  */
@@ -21,37 +30,22 @@ export class CurseForgeRepository implements IRepository {
     }
 
     async getModReleases(modId: string): Promise<RawModRepoRelease[]> {
-        type Data = {
-            data: {
-                displayName: string;
-                gameVersions: string[];
-                downloadUrl: string;
-            }[];
-        };
+        const modInfo = await this.fetchModInfo(Number(modId));
+        if (!modInfo || !modInfo.latestFilesIndexes) return [];
 
-        const filesResp = await this.fetchClient(`${CurseForgeRepository.BASE_URL}/mods/${modId}/files`);
-        if (!filesResp.ok) throw new Error("Could not fetch files from CurseForge");
-        const jsonResp: Data = await filesResp.json();
-
-        const releases: RawModRepoRelease[] = jsonResp.data.map(file => {
+        const releases: RawModRepoRelease[] = modInfo.latestFilesIndexes.map(file => {
             const mcVersions: Set<MCVersion> = new Set();
             const loaders: Set<ModLoader> = new Set();
-            for (let gameVersion of file.gameVersions || []) {
-                gameVersion = gameVersion.toLowerCase();
-                if (/^[a-z]+$/.test(gameVersion)) {
-                    loaders.add(ModLoaderUtil.from(gameVersion));
-                } else {
-                    mcVersions.add(gameVersion);
-                }
-            }
+            if (file.gameVersion) mcVersions.add(file.gameVersion);
+            if (file.modLoader && LOADERS[file.modLoader]) loaders.add(LOADERS[file.modLoader]);
 
-            return ({
+            return {
                 mcVersions: mcVersions,
-                modVersion: file.displayName,
+                modVersion: file.filename,
                 repository: ModRepositoryName.CURSEFORGE,
                 loaders: loaders,
-                downloadUrl: file.downloadUrl || '',
-            })
+                downloadUrl: '', // No downloadUrl in latestFilesIndexes, could be fetched if needed
+            };
         });
 
         return releases;
@@ -95,6 +89,12 @@ export class CurseForgeRepository implements IRepository {
         }));
     }
 
+    private async fetchModInfo(modId: number): Promise<ModInfoData | null> {
+        const modResp = await this.fetchClient(`${CurseForgeRepository.BASE_URL}/mods/${modId}`);
+        if (!modResp.ok) return null;
+        return (await modResp.json()).data as ModInfoData;
+    }
+
     async getByDataHash(modData: Uint8Array): Promise<ModRepoMetadata | null> {
         // Calculate CurseForge fingerprint
         const start = Date.now();
@@ -124,9 +124,8 @@ export class CurseForgeRepository implements IRepository {
         const modId: number = fileMatch.file.modId;
 
         // Get mod info using the mod ID
-        const modResp = await this.fetchClient(`${CurseForgeRepository.BASE_URL}/mods/${modId}`);
-        if (!modResp.ok) return null;
-        const modInfo = (await modResp.json()).data;
+        const modInfo = await this.fetchModInfo(modId);
+        if (!modInfo) return null;
 
         return {
             id: modId.toString(),
@@ -142,3 +141,21 @@ export class CurseForgeRepository implements IRepository {
         return ModRepositoryName.CURSEFORGE;
     }
 }
+
+type ModInfoData = {
+    id: number;
+    name: string;
+    links: {
+        websiteUrl: string;
+    };
+    logo?: {
+        url?: string;
+    };
+    downloadCount?: number;
+    latestFilesIndexes?: {
+        gameVersion: string;
+        fileId: number;
+        filename: string;
+        modLoader?: number;
+    }[];
+};
