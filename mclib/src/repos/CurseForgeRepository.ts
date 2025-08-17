@@ -1,5 +1,5 @@
 import type { IRepository } from "./IRepository";
-import { RawModRepoRelease, ModRepositoryName, ModLoader, ModRepoMetadata, MCVersion, ModLoaderUtil } from "..";
+import { RawModRepoRelease, ModRepositoryName, ModLoader, ModRepoMetadata, MCVersion } from "..";
 import { cf_fingerprint } from 'cf-fingerprint';
 import { logger } from "../logger";
 
