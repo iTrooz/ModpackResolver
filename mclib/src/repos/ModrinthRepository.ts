@@ -61,8 +61,9 @@ export class ModrinthRepository implements IRepository {
         const jsonResp: Data = await resp.json();
 
         return jsonResp.hits.map(hit => ({
-            id: hit.slug,
             repository: ModRepositoryName.MODRINTH,
+            id: hit.slug,
+            slug: hit.slug,
             name: hit.title,
             homepageURL: "https://modrinth.com/mod/" + hit.slug,
             imageURL: hit.icon_url || "",
@@ -85,8 +86,9 @@ export class ModrinthRepository implements IRepository {
         const projectData = await projectResp.json();
 
         return {
-            id: projectData.slug,
             repository: ModRepositoryName.MODRINTH,
+            id: projectData.slug,
+            slug: projectData.slug,
             name: projectData.title,
             homepageURL: "https://modrinth.com/mod/" + projectData.slug,
             imageURL: projectData.icon_url || "",

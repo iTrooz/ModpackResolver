@@ -70,8 +70,9 @@ export class ModMetadataUtil {
 
 /** Represents metadata for a mod search result, for a given repository */
 export type ModRepoMetadata = {
-    id: string;
     repository: ModRepositoryName;
+    id: string;
+    slug: string;
     name: string; // user-facing name
     homepageURL: string;
     imageURL: string;
