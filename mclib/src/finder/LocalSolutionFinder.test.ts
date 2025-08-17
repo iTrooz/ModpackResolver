@@ -67,8 +67,9 @@ function releaseMatchConstraints(
 // Helper to create test ModRepoMetadata
 function newTestMetadata(id: string, repository: ModRepositoryName): ModRepoMetadata {
     return {
-        id,
         repository,
+        id,
+        slug: id,
         name: id,
         homepageURL: '',
         imageURL: '',

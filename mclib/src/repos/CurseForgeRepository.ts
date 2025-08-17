@@ -55,6 +55,7 @@ export class CurseForgeRepository implements IRepository {
         type Data = {
             data: {
                 id: number;
+                slug: string;
                 name: string;
                 links: {
                     websiteUrl: string;
@@ -80,8 +81,9 @@ export class CurseForgeRepository implements IRepository {
         const jsonResp: Data = (await resp.json());
 
         return jsonResp.data.map(mod => ({
-            id: mod.id.toString(),
             repository: ModRepositoryName.CURSEFORGE,
+            id: mod.id.toString(),
+            slug: mod.slug,
             name: mod.name,
             homepageURL: mod.links.websiteUrl,
             imageURL: mod.logo.url,
@@ -128,8 +130,9 @@ export class CurseForgeRepository implements IRepository {
         if (!modInfo) return null;
 
         return {
-            id: modId.toString(),
             repository: ModRepositoryName.CURSEFORGE,
+            id: modId.toString(),
+            slug: modInfo.slug,
             name: modInfo.name,
             homepageURL: modInfo.links.websiteUrl,
             imageURL: modInfo.logo?.url || "",
@@ -144,6 +147,7 @@ export class CurseForgeRepository implements IRepository {
 
 type ModInfoData = {
     id: number;
+    slug: string;
     name: string;
     links: {
         websiteUrl: string;

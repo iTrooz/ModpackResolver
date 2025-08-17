@@ -76,10 +76,10 @@ async function getMods(modQueryService: ModQueryService, options: CliOptions): P
   const modsMap = new Map<string, ModMetadata>();
 
   if (options.modId) {
-    for (const id of options.modId) {
-      let [repoName, modId] = id.split('/');
+    for (const repoAndId of options.modId) {
+      let [repoName, modId] = repoAndId.split('/');
       if (!modId) {
-        logger.error(`Invalid mod ID format: ${id}. Expected format is 'repository/modId'.`);
+        logger.error(`Invalid mod ID format: ${repoAndId}. Expected format is 'repository/modId'.`);
         continue;
       }
 
@@ -94,12 +94,13 @@ async function getMods(modQueryService: ModQueryService, options: CliOptions): P
 
       // Add mod to map
       if (modsMap.has(fullId)) {
-        logger.warn(`Duplicate mod ID from --mod-id: ${id}`);
+        logger.warn(`Duplicate mod ID from --mod-id: ${repoAndId}`);
       } else {
         modsMap.set(fullId, [{
-          id: modId,
           repository: repo.getRepositoryName(),
-          name: id,
+          id: modId,
+          slug: repoAndId,
+          name: repoAndId,
           homepageURL: "",
           imageURL: "",
           downloadCount: 0
@@ -243,7 +244,7 @@ program
 
         logger.info(`  Unsupported mods (${unsupportedModsMeta.length}):`);
         for (const modMeta of unsupportedModsMeta) {
-          logger.info(`  - ${modMeta[0].id} (${modMeta[0].name})`);
+          logger.info(`  - ${modMeta[0].slug} (${modMeta[0].name})`);
         }
 
       }
