@@ -1,7 +1,7 @@
-import { type MCVersion, type ModRepositoryName, type ModRepoMetadata, type IRepository, type ModMetadata, type ModReleases, ModMetadataUtil } from ".";
-import { logger } from "./logger";
+import { type MCVersion, type ModRepositoryName, type ModRepoMetadata, type IRepository, type ModMetadata, type ModReleases, ModMetadataUtil, IModQueryService } from "..";
+import { logger } from "../logger";
 
-export class ModQueryService {
+export class ModQueryService implements IModQueryService {
 
     private repositories: IRepository[];
 

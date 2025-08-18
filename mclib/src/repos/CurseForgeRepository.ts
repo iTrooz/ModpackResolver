@@ -140,6 +140,10 @@ export class CurseForgeRepository implements IRepository {
         };
     }
 
+    async hashModData(modData: Uint8Array): Promise<string> {
+        return cf_fingerprint(modData).toString();
+    }
+
     getRepositoryName(): ModRepositoryName {
         return ModRepositoryName.CURSEFORGE;
     }

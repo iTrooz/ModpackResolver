@@ -106,6 +106,10 @@ export class ModrinthRepository implements IRepository {
         };
     }
 
+    async hashModData(modData: Uint8Array): Promise<string> {
+        return await this.calculateSHA1(modData);
+    }
+
     private async calculateSHA1(data: Uint8Array): Promise<string> {
         const hashBuffer = await crypto.subtle.digest('SHA-1', toArrayBuffer(data.buffer));
         const hashArray = Array.from(new Uint8Array(hashBuffer));

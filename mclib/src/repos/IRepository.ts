@@ -36,4 +36,11 @@ export interface IRepository {
      * Returns the repository name (ModRepositoryName enum value)
      */
     getRepositoryName(): ModRepositoryName;
+
+    /**
+     * Get the hash of the mod data.
+     * @param modData The mod file data as bytes.
+     * @returns The hash of the mod data.
+     */
+    hashModData(modData: Uint8Array): Promise<string>;
 }
