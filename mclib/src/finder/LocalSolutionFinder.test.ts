@@ -41,13 +41,12 @@ class MockRepository implements IRepository {
     }
 
     async hashModData(modData: Uint8Array): Promise<string> {
-        return Array.from(modData.slice(0, 8)).join('-'); // Simple hash for testing
+        // For testing, we'll use a simple key based on the first few bytes
+        return Array.from(modData.slice(0, 8)).join('-');
     }
 
-    async getByDataHash(modData: Uint8Array): Promise<ModRepoMetadata | null> {
-        // For testing, we'll use a simple key based on the first few bytes
-        const key = await this.hashModData(modData);
-        return this.dataHashes[key] || null;
+    async getByDataHash(hash: string): Promise<ModRepoMetadata | null> {
+        return this.dataHashes[hash] || null;
     }
 
     getRepositoryName(): ModRepositoryName {

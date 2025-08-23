@@ -88,7 +88,7 @@ export class ModQueryService implements IModQueryService {
         for (const repo of this.repositories) {
             logger.debug("getModByDataHash(size = %s, %s)", modData.length, repo.getRepositoryName())
             try {
-                const result = await repo.getByDataHash(modData);
+                const result = await repo.getByDataHash(await repo.hashModData(modData));
                 if (result) {
                     logger.debug("getModByDataHash(size = %s, %s) = %s (%s)", modData.length, repo.getRepositoryName(), result.id, result.name);
                     results.push(result);

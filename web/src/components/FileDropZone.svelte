@@ -70,7 +70,7 @@
 			// Try to identify the mod using each repository
 			for (const repo of repositories) {
 				try {
-					const modInfo = await repo.getByDataHash(modData);
+					const modInfo = await repo.getByDataHash(await repo.hashModData(modData));
 					if (modInfo) {
 						console.log(`Found mod: ${modInfo.name} from ${repo.getRepositoryName()}`);
 						add_mod_to_list(modInfo);

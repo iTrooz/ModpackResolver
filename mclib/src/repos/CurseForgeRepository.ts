@@ -97,13 +97,7 @@ export class CurseForgeRepository implements IRepository {
         return (await modResp.json()).data as ModInfoData;
     }
 
-    async getByDataHash(modData: Uint8Array): Promise<ModRepoMetadata | null> {
-        // Calculate CurseForge fingerprint
-        const start = Date.now();
-        const fingerprint: number = cf_fingerprint(modData);
-        const duration = Date.now() - start;
-        logger.debug(`cf_fingerprint(${modData.length} bytes): ${duration}ms`);
-
+    async getByDataHash(hash: string): Promise<ModRepoMetadata | null> {
         // Use the CurseForge API to get file info by fingerprint
         const resp = await this.fetchClient(`${CurseForgeRepository.BASE_URL}/fingerprints`, {
             method: 'POST',
@@ -111,7 +105,7 @@ export class CurseForgeRepository implements IRepository {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                fingerprints: [fingerprint]
+                fingerprints: [parseInt(hash)]
             })
         });
 
@@ -141,7 +135,11 @@ export class CurseForgeRepository implements IRepository {
     }
 
     async hashModData(modData: Uint8Array): Promise<string> {
-        return cf_fingerprint(modData).toString();
+        const start = Date.now();
+        const fingerprint: number = cf_fingerprint(modData);
+        const duration = Date.now() - start;
+        logger.debug(`cf_fingerprint(${modData.length} bytes): ${duration}ms`);
+        return fingerprint.toString();
     }
 
     getRepositoryName(): ModRepositoryName {
