@@ -64,19 +64,34 @@ app.post('/getModReleasesFromMetadata', async (req: Request, res: Response) => {
     try {
         const { modMeta } = req.body;
         const releases = await modQueryService.getModReleasesFromMetadata(modMeta);
-        res.json(releases);
+
+        // Transform sets to arrays for JSON serialization
+        let jsonReleases= [];
+        for (let release of releases) {
+            let jsonRelease = {...release, mcVersions: Array.from(release.mcVersions), loaders: Array.from(release.loaders)};
+            jsonReleases.push(jsonRelease);
+        }
+
+        res.json(jsonReleases);
     } catch (err) {
         res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
     }
 });
 
+type GetModByDataHashRequest = {
+    hash: string,
+    repository: string
+};
 app.post('/getModByDataHash', async (req: Request, res: Response) => {
     try {
-        const { modData } = req.body;
-        // modData should be a base64 string, decode to Uint8Array
-        const buffer = Buffer.from(modData, 'base64');
-        const results = await modQueryService.getModByDataHash(new Uint8Array(buffer));
-        res.json(results);
+        const body: GetModByDataHashRequest = req.body;
+        for (const repo of repositories) {
+            if (repo.getRepositoryName() === body.repository) {
+                const result = await repo.getByDataHash(body.hash);
+                return res.json(result);
+            }
+        }
+        res.json(null);
     } catch (err) {
         res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
     }

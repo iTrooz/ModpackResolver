@@ -38,7 +38,13 @@ export class RemoteModQueryService implements IModQueryService {
     }
 
     async getModReleasesFromMetadata(modMeta: ModMetadata): Promise<ModReleases> {
-        return this.callEndpoint("getModReleasesFromMetadata", { modMeta });
+        let releases = await this.callEndpoint("getModReleasesFromMetadata", { modMeta });
+        // Convert arrays back to sets
+        for (let release of releases) {
+            release.mcVersions = new Set(release.mcVersions);
+            release.loaders = new Set(release.loaders);
+        }
+        return releases;
     }
 
     async getModByDataHash(modData: Uint8Array): Promise<ModMetadata> {
