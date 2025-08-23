@@ -62,7 +62,7 @@ jobs:
       if: github.event.repository.fork == false && github.ref_name == 'main'
       with:
         context: .
-        file: backend.Containerfile
+        file: backend/backend.Containerfile
         push: true
         cache-from: type=gha
         cache-to: type=gha,mode=max

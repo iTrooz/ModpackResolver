@@ -1,0 +1,32 @@
+services:
+  app:
+    container_name: modpackcreator-backend
+    image: ghcr.io/itrooz/modpackcreator/backend:latest
+    build:
+      context: ..
+      dockerfile: backend/backend.Containerfile
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.10'
+          memory: 128M
+
+  sidecar:
+    image: none.local/anythingispwa-sidecar:latest
+    pull_policy: never
+    build:
+      context: .
+      dockerfile: sidecar.Dockerfile
+    environment:
+      - TC_RATE=500kbit
+      - TC_BURST=500kbit
+      - TC_LATENCY=400ms
+    network_mode: service:app
+    cap_add:
+      - NET_ADMIN
