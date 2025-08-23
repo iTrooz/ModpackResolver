@@ -1,7 +1,6 @@
 import express, { Request, Response } from 'express';
-import { ModRepositoryName, type IRepository, ModRepoMetadata, ModQueryService } from 'mclib';
+import { type IRepository, ModQueryService } from 'mclib';
 import { CurseForgeRepository, ModrinthRepository } from 'mclib';
-import { repositoryRouter } from './repo';
 
 const app = express();
 const port = 3000;
@@ -12,9 +11,6 @@ app.use(express.json());
 app.get('/', (_, res) => {
     res.send('Hello, world!');
 });
-
-// Mount the repository router under /repositories/:repository
-app.use('/repositories/:repository', repositoryRouter);
 
 const repositories: IRepository[] = [
     new CurseForgeRepository(fetch),
