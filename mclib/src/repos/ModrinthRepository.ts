@@ -1,6 +1,16 @@
 import type { IRepository } from "./IRepository";
 import { ModRepositoryName, ModRepoMetadata, ModLoaderUtil, RawModRepoRelease } from "..";
 
+// https://devblogs.microsoft.com/typescript/announcing-typescript-5-9-rc/#notable-behavioral-changes
+function toArrayBuffer(buf: ArrayBufferLike): ArrayBuffer {
+  if (buf instanceof ArrayBuffer) return buf;
+  // SharedArrayBuffer → copy into a new ArrayBuffer
+  const copy = new Uint8Array(buf.byteLength);
+  copy.set(new Uint8Array(buf));
+  return copy.buffer;
+}
+
+
 export class ModrinthRepository implements IRepository {
 
     private fetchClient: typeof fetch;
@@ -97,7 +107,7 @@ export class ModrinthRepository implements IRepository {
     }
 
     private async calculateSHA1(data: Uint8Array): Promise<string> {
-        const hashBuffer = await crypto.subtle.digest('SHA-1', data);
+        const hashBuffer = await crypto.subtle.digest('SHA-1', toArrayBuffer(data.buffer));
         const hashArray = Array.from(new Uint8Array(hashBuffer));
         return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
