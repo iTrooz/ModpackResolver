@@ -20,5 +20,9 @@ export const repositories = [
 	new ModrinthRepository(fetchClient),
 	new CurseForgeRepository(fetchClient)
 ];
-export const modQueryService: IModQueryService = new RemoteModQueryService(fetchClient, 'https://your-server-url', repositories);
+export const modQueryService: IModQueryService = new RemoteModQueryService(
+	fetchClient,
+	'https://your-server-url',
+	repositories
+);
 export const solutionFinder: ISolutionFinder = new LocalSolutionFinder(modQueryService);
