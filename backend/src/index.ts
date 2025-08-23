@@ -1,13 +1,25 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 import { type IRepository, ModQueryService } from 'mclib';
 import { CurseForgeRepository, ModrinthRepository } from 'mclib';
+import type { Request, Response, NextFunction } from 'express';
 
 const app = express();
 const port = 3000;
 
+function loggerMiddleware(req: Request, res: Response, next: NextFunction) {
+    const { method, url } = req;
+    const start = Date.now();
+    res.on('finish', () => {
+        const status = res.statusCode;
+        const duration = Date.now() - start;
+        console.log(`${status} ${method} ${url} (${duration}ms)`);
+    });
+    next();
+}
+
 // Middleware to parse JSON bodies
 app.use(express.json());
-
+app.use(loggerMiddleware);
 app.get('/', (_, res) => {
     res.send('Hello, world!');
 });
