@@ -5,8 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "bun --hot run src/index.ts",
-    "proxy-dev": "HTTP_PROXY=http://127.0.0.1:8080 HTTPS_PROXY=http://127.0.0.1:8080 bun run dev",
-    "build": "tsc --build"
+    "build": "tsc --build",
+    "opt:proxy": "HTTP_PROXY=http://127.0.0.1:8080 HTTPS_PROXY=http://127.0.0.1:8080"
   },
   "dependencies": {
     "@types/express": "^5.0.3",
