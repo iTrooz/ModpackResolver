@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "declaration": true,
+    "outDir": "dist",
+    "module": "ESNext",
+    "target": "ES6",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "lib": [
+      "esnext"
+    ]
+  },
+  "include": [
+    "src"
+  ],
+  "references": [
+    {
+      "path": "../mclib"
+    }
+  ]
+}

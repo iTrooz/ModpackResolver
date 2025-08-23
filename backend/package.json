@@ -1,0 +1,19 @@
+{
+  "name": "backend",
+  "module": "src/index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "bun --hot run src/index.ts",
+    "build": "tsc --build",
+    "opt:proxy": "HTTP_PROXY=http://127.0.0.1:8080 HTTPS_PROXY=http://127.0.0.1:8080"
+  },
+  "dependencies": {
+    "@types/express": "^5.0.3",
+    "express": "^5.1.0",
+    "mclib": "workspace:*"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}

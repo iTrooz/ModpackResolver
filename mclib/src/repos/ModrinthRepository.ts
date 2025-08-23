@@ -81,10 +81,7 @@ export class ModrinthRepository implements IRepository {
         }));
     }
 
-    async getByDataHash(modData: Uint8Array): Promise<ModRepoMetadata | null> {
-        // Calculate SHA-1 hash of the mod data for Modrinth
-        const hash = await this.calculateSHA1(modData);
-
+    async getByDataHash(hash: string): Promise<ModRepoMetadata | null> {
         // Get version info using the hash
         const versionResp = await this.fetchClient(`https://api.modrinth.com/v2/version_file/${hash}`);
         if (!versionResp.ok) return null;
@@ -104,6 +101,10 @@ export class ModrinthRepository implements IRepository {
             imageURL: projectData.icon_url || "",
             downloadCount: projectData.downloads || 0
         };
+    }
+
+    async hashModData(modData: Uint8Array): Promise<string> {
+        return await this.calculateSHA1(modData);
     }
 
     private async calculateSHA1(data: Uint8Array): Promise<string> {

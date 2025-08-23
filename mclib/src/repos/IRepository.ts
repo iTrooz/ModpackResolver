@@ -27,13 +27,20 @@ export interface IRepository {
 
     /**
      * Get mod information by file hash/fingerprint from mod file bytes.
-     * @param modData The complete mod file data as bytes.
+     * @param hash The hash provided by hashModData().
      * @returns A promise resolving to mod search metadata, or null if not found.
      */
-    getByDataHash(modData: Uint8Array): Promise<ModRepoMetadata | null>;
+    getByDataHash(hash: string): Promise<ModRepoMetadata | null>;
 
     /**
      * Returns the repository name (ModRepositoryName enum value)
      */
     getRepositoryName(): ModRepositoryName;
+
+    /**
+     * Get the hash of the mod data.
+     * @param modData The mod file data as bytes.
+     * @returns The hash of the mod data.
+     */
+    hashModData(modData: Uint8Array): Promise<string>;
 }

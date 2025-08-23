@@ -21,7 +21,8 @@ export default defineConfig([
           "varsIgnorePattern": "^_",
           "ignoreRestSiblings": true
         }
-      ]
+      ],
+      "@typescript-eslint/no-namespace": "off"
     }
   }
 

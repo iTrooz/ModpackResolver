@@ -1,0 +1,12 @@
+import { MCVersion, ModMetadata, ModReleases, ModRepoMetadata, ModRepositoryName } from "../types";
+
+export interface IModQueryService {
+    getMinecraftVersions(): Promise<MCVersion[]>;
+    searchMods(
+        query: string,
+        specifiedRepos: ModRepositoryName[],
+        maxResults: number,
+    ): Promise<Array<[ModRepositoryName, ModRepoMetadata]>>;
+    getModReleasesFromMetadata(modMeta: ModMetadata): Promise<ModReleases>;
+    getModByDataHash(modData: Uint8Array): Promise<ModMetadata>;
+}

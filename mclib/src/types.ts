@@ -9,6 +9,17 @@ export enum ModRepositoryName {
     CUSTOM = "custom"
 }
 
+export namespace ModRepositoryName {
+    export function get(name: string): ModRepositoryName | null {
+        for (const value of Object.values(ModRepositoryName)) {
+            if (value === name.toLowerCase()) {
+                return value as ModRepositoryName;
+            }
+        }
+        return null;
+    }
+}
+
 export enum ModSourceType {
     ID = "id"
 }

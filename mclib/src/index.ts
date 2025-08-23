@@ -12,6 +12,8 @@ export {
   ModLoaderUtil
 } from "./types";
 
+export {  } from "./repos/utils";
+
 export type {
   MCConfig,
   RawModRepoRelease,
@@ -20,9 +22,11 @@ export type {
   ModReleases
 } from "./types";
 
-export { ModQueryService } from "./ModQueryService";
+export { ModQueryService } from "./query/ModQueryService";
 
 export { ModrinthRepository, CurseForgeRepository, RepositoryUtil } from "./repos";
 export type { IRepository } from "./repos";
 
 export { LoggerConfig, LogLevel } from "./logger";
+
+export { RemoteModQueryService, IModQueryService } from "./query";

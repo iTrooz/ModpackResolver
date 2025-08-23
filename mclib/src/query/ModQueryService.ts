@@ -1,7 +1,7 @@
-import { type MCVersion, type ModRepositoryName, type ModRepoMetadata, type IRepository, type ModMetadata, type ModReleases, ModMetadataUtil } from ".";
-import { logger } from "./logger";
+import { type MCVersion, type ModRepositoryName, type ModRepoMetadata, type IRepository, type ModMetadata, type ModReleases, ModMetadataUtil, IModQueryService } from "..";
+import { logger } from "../logger";
 
-export class ModQueryService {
+export class ModQueryService implements IModQueryService {
 
     private repositories: IRepository[];
 
@@ -10,14 +10,9 @@ export class ModQueryService {
     }
 
     async getMinecraftVersions(): Promise<MCVersion[]> {
-        try {
-            const response = await fetch("https://mc-versions-api.net/api/java");
-            const data = await response.json();
-            return data.result.reverse();
-        } catch (error) {
-            console.error("Failed to fetch Minecraft versions:", error);
-            return ["error"];
-        }
+        const response = await fetch("https://mc-versions-api.net/api/java");
+        const data = await response.json();
+        return data.result.reverse();
     }
 
     /**
@@ -93,7 +88,7 @@ export class ModQueryService {
         for (const repo of this.repositories) {
             logger.debug("getModByDataHash(size = %s, %s)", modData.length, repo.getRepositoryName())
             try {
-                const result = await repo.getByDataHash(modData);
+                const result = await repo.getByDataHash(await repo.hashModData(modData));
                 if (result) {
                     logger.debug("getModByDataHash(size = %s, %s) = %s (%s)", modData.length, repo.getRepositoryName(), result.id, result.name);
                     results.push(result);

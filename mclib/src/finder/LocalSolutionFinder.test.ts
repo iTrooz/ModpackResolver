@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { LocalSolutionFinder, ModLoader, ModRepositoryName, type ModRepoRelease, ModRepoMetadata, Constraints, Solution, ModReleases } from '..';
 import type { IRepository } from '../repos/IRepository';
-import { ModQueryService } from '../ModQueryService';
+import { ModQueryService } from '../query/ModQueryService';
 
 class MockRepository implements IRepository {
     private mods: Record<string, ModReleases> = {};
@@ -40,10 +40,13 @@ class MockRepository implements IRepository {
         throw new Error('Method not implemented.');
     }
 
-    async getByDataHash(modData: Uint8Array): Promise<ModRepoMetadata | null> {
+    async hashModData(modData: Uint8Array): Promise<string> {
         // For testing, we'll use a simple key based on the first few bytes
-        const key = Array.from(modData.slice(0, 8)).join('-');
-        return this.dataHashes[key] || null;
+        return Array.from(modData.slice(0, 8)).join('-');
+    }
+
+    async getByDataHash(hash: string): Promise<ModRepoMetadata | null> {
+        return this.dataHashes[hash] || null;
     }
 
     getRepositoryName(): ModRepositoryName {

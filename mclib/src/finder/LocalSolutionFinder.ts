@@ -1,6 +1,5 @@
-import { MCConfig, ModRepoRelease, Solution, Constraints, ISolutionFinder, ModMetadata, ModReleases, ModLoader } from "..";
+import { MCConfig, ModRepoRelease, Solution, Constraints, ISolutionFinder, ModMetadata, ModReleases, ModLoader, IModQueryService } from "..";
 import { logger } from "../logger";
-import { ModQueryService } from "../ModQueryService";
 
 /**
  * SolutionFinder Class
@@ -8,9 +7,9 @@ import { ModQueryService } from "../ModQueryService";
  * mod loaders, and checking for incompatibilities between mods.
  */
 export class LocalSolutionFinder implements ISolutionFinder {
-    private query: ModQueryService;
+    private query: IModQueryService;
 
-    constructor(modQueryService: ModQueryService) {
+    constructor(modQueryService: IModQueryService) {
         this.query = modQueryService;
     }
 

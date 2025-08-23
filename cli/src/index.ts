@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 import { program, Option } from '@commander-js/extra-typings';
-import { CurseForgeRepository, LocalSolutionFinder, LoggerConfig, ModLoader, ModQueryService, ModrinthRepository, LogLevel, Constraints, Solution, ModMetadata, RepositoryUtil, ModRepositoryName, ModRepoMetadata } from 'mclib';
+import { CurseForgeRepository, LocalSolutionFinder, LoggerConfig, ModLoader, ModQueryService, ModrinthRepository, LogLevel, Constraints, Solution, ModMetadata, RepositoryUtil, ModRepositoryName, ModRepoMetadata, RemoteModQueryService, IModQueryService, IRepository } from 'mclib';
 import { readFileSync } from 'fs';
 import pino from 'pino';
 
@@ -34,6 +34,9 @@ async function fetchWrapper(input: RequestInfo | URL, options?: RequestInit): Pr
 }
 
 function getModQueryService(selectedRepos?: string[]) {
+  return new RemoteModQueryService(fetchWrapper, "http://127.0.0.1:3000", getRepositories(selectedRepos));
+}
+function getRepositories(selectedRepos?: string[]): IRepository[] {
   const repoMap = {
     modrinth: () => new ModrinthRepository(fetchWrapper),
     curseforge: () => new CurseForgeRepository(fetchWrapper),
@@ -51,7 +54,7 @@ function getModQueryService(selectedRepos?: string[]) {
   } else {
     repositories = [new ModrinthRepository(fetchWrapper), new CurseForgeRepository(fetchWrapper)];
   }
-  return new ModQueryService(repositories);
+  return repositories;
 }
 
 interface CliOptions {
@@ -72,7 +75,7 @@ function validateCliOptions(options: CliOptions) {
   }
 }
 
-async function getMods(modQueryService: ModQueryService, options: CliOptions): Promise<ModMetadata[]> {
+async function getMods(modQueryService: IModQueryService, options: CliOptions): Promise<ModMetadata[]> {
   const modsMap = new Map<string, ModMetadata>();
 
   if (options.modId) {
@@ -147,7 +150,7 @@ async function getMods(modQueryService: ModQueryService, options: CliOptions): P
 }
 
 async function findSolutions(
-  modQueryService: ModQueryService,
+  modQueryService: IModQueryService,
   requestedMods: ModMetadata[],
   constraints: Constraints,
   nbSolutions: number,
