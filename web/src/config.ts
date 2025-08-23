@@ -27,14 +27,10 @@ declare const CONFIG_BACKEND_URL: string;
 function getModQueryService(): IModQueryService {
 	if (CONFIG_BACKEND_URL) {
 		logger.info('Using remote mod query service at ' + CONFIG_BACKEND_URL);
-		return new RemoteModQueryService(
-			fetchClient,
-			'https://your-server-url',
-			repositories
-		);
+		return new RemoteModQueryService(fetchClient, 'https://your-server-url', repositories);
 	} else {
 		logger.info('Using local mod query service');
-		return new ModQueryService(repositories);	
+		return new ModQueryService(repositories);
 	}
 }
 export const modQueryService = getModQueryService();
