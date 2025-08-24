@@ -13,6 +13,7 @@
   "dependencies": {
     "@types/express": "^5.0.3",
     "express": "^5.1.0",
+    "lru-cache": "^11.1.0",
     "mclib": "workspace:*"
   },
   "peerDependencies": {

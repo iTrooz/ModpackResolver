@@ -3,6 +3,8 @@ import { type IRepository, LocalModQueryService } from 'mclib';
 import { CurseForgeRepository, ModrinthRepository } from 'mclib';
 import type { Request, Response, NextFunction } from 'express';
 
+import { cache, cachedFetch, TTL } from './cache'
+
 const app = express();
 const port = 3000;
 
@@ -36,8 +38,8 @@ app.get('/', (_, res) => {
 });
 
 const repositories: IRepository[] = [
-    new CurseForgeRepository(fetch),
-    new ModrinthRepository(fetch)
+    new CurseForgeRepository(cachedFetch),
+    new ModrinthRepository(cachedFetch)
 ];
 const modQueryService = new LocalModQueryService(repositories);
 
@@ -105,6 +107,15 @@ app.post('/getModById', async (req: Request, res: Response) => {
     } catch (err) {
         res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
     }
+});
+
+app.get("/cache-info", async (_, res) => {
+  res.json({
+    size: cache.size,              // # of entries
+    maxSize: cache.maxSize,        // max allowed
+    calculatedSize: cache.calculatedSize, // total bytes used
+    TTL: TTL
+  });
 });
 
 app.listen(port, () => {
