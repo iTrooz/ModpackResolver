@@ -1,10 +1,10 @@
-ModpackCreator
+ModpackResolver
 ===
 
 This project allows you to quickly visualize which versions of Minecraft to use for a given set of mods.  
 Select the mods you would like to use, and the tool will list Minecraft versions with the highest compatibility (= with the most mods available).
 
-Use it at https://itrooz.github.io/ModpackCreator
+Use it at https://itrooz.github.io/ModpackResolver
 
 # Authors
 - Frontend: [ZeKap](https://github.com/ZeKap)

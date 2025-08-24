@@ -43,7 +43,7 @@ function fetchMainDecorator(fetchFunc: typeof fetch): typeof fetch {
         const options: RequestInit = { ...init };
         options.headers = {
             ...(init && init.headers ? init.headers : {}),
-            'User-Agent': 'github.com/iTrooz/ModpackCreator/backend v' + pkg.version
+            'User-Agent': 'github.com/iTrooz/ModpackResolver/backend v' + pkg.version
         };
         return fetchFunc(input, options);
     };

@@ -13,7 +13,7 @@ declare const __APP_VERSION__: string;
 export const fetchClient = (url: any, init: RequestInit = {}) => {
 	init['headers'] = {
 		...init['headers'],
-		'User-Agent': 'github.com/iTrooz/ModpackCreator/frontend v' + __APP_VERSION__
+		'User-Agent': 'github.com/iTrooz/ModpackResolver/frontend v' + __APP_VERSION__
 	};
 	return fetch(url, init);
 };

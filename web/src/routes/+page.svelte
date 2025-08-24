@@ -56,10 +56,10 @@
 
 	let mc_results: Solution[] | null = $state(null);
 
-	let is_loading_mccreator = $state(false);
+	let is_loading_mcresolver = $state(false);
 	let error: string | null = $state(null);
 
-	async function runModpackCreator() {
+	async function runModpackResolver() {
 		try {
 			if (mod_list_added.length < 1) {
 				throw new Error(m['runner.error_no_mod_added']());
@@ -67,7 +67,7 @@
 			// Reset state
 			mc_results = null;
 			error = null;
-			is_loading_mccreator = true;
+			is_loading_mcresolver = true;
 
 			mc_results = await config.solutionFinder.findSolutions(
 				mod_list_added.map((modRepoMeta) => [modRepoMeta]),
@@ -85,7 +85,7 @@
 			}
 			console.error(err);
 		} finally {
-			is_loading_mccreator = false;
+			is_loading_mcresolver = false;
 		}
 	}
 </script>
@@ -124,23 +124,23 @@
 </section>
 
 <button
-	id="run_modpack_creator"
-	onclick={runModpackCreator}
-	disabled={is_loading_mccreator || mod_list_added.length < 1}
+	id="run_modpack_resolver"
+	onclick={runModpackResolver}
+	disabled={is_loading_mcresolver || mod_list_added.length < 1}
 >
-	{#if is_loading_mccreator}
-		{m['runner.processing_modpack_creator']()}
+	{#if is_loading_mcresolver}
+		{m['runner.processing_modpack_resolver']()}
 	{:else}
-		{m['runner.run_modpack_creator']()}
+		{m['runner.run_modpack_resolver']()}
 	{/if}
 </button>
 
-{#if error || is_loading_mccreator || mc_results}
+{#if error || is_loading_mcresolver || mc_results}
 	<section transition:slide={{ axis: 'y', duration: 200 }}>
 		{#if error}
 			<p>{m['runner.error_while_calculating']()}: {error}</p>
-		{:else if is_loading_mccreator}
-			<p>{m['runner.processing_modpack_creator']()}</p>
+		{:else if is_loading_mcresolver}
+			<p>{m['runner.processing_modpack_resolver']()}</p>
 		{:else if mc_results}
 			<ReleasesResult results={mc_results} />
 		{/if}
@@ -157,7 +157,7 @@
 		padding: 2rem;
 		border: solid 1px var(--grey-dark-1);
 	}
-	button#run_modpack_creator {
+	button#run_modpack_resolver {
 		color: var(--grey-dark-2);
 		background-color: var(--green);
 		border: solid 2px var(--green);

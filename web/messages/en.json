@@ -1,7 +1,7 @@
 {
 	"$schema": "https://inlang.com/schema/inlang-message-format",
 	"about": {
-		"name": "Modpack Creator",
+		"name": "Modpack Resolver",
 		"github_link": "Go to GitHub repo"
 	},
 	"add_mods": {
@@ -30,9 +30,9 @@
 		"reset_toggle_group": "Reset"
 	},
 	"runner": {
-		"run_modpack_creator": "Run Modpack Creator",
+		"run_modpack_resolver": "Run Modpack Resolver",
 		"error_no_mod_added": "No mod was added, can't process if you haven't any mod",
-		"processing_modpack_creator": "Processing...",
+		"processing_modpack_resolver": "Processing...",
 		"error_while_calculating": "Error while processing",
 		"remaining_results": "{nb_remaining} other possibilities",
 		"results": {

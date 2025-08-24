@@ -65,7 +65,7 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
         tags: |
-          ghcr.io/itrooz/modpackcreator/backend:latest
+          ghcr.io/itrooz/modpackresolver/backend:latest
 
   upload_pages:
     name: Deploy to GitHub Pages

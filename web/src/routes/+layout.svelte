@@ -5,11 +5,11 @@
 </script>
 
 <header>
-	<a href="{base}/" class="default-color">ModpackCreator</a>
+	<a href="{base}/" class="default-color">ModpackResolver</a>
 	<!-- <div style="display: flex; gap: 1rem;">
 		<a href="/about" class="default-color">About</a>
 	</div> -->
-	<a href="https://github.com/iTrooz/ModpackCreator" title={m['about.github_link']()}></a>
+	<a href="https://github.com/iTrooz/ModpackResolver" title={m['about.github_link']()}></a>
 </header>
 
 <div class="main-container">

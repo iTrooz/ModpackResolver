@@ -1,5 +1,5 @@
 {
-    "name": "modpackcreator",
+    "name": "modpackresolver",
     "type": "module",
     "workspaces": [
         "backend",
