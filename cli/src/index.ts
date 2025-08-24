@@ -66,14 +66,17 @@ function getRepositories(selectedRepos?: string[]): IRepository[] {
 interface CliOptions {
   modId?: string[];
   modFile?: string[];
+  sinytra: boolean;
+
   exactVersion?: string;
   minVersion?: string;
   maxVersion?: string;
   loader?: string[];
+  
   details: boolean;
-  nbSolutions: number;
-  sinytra: boolean;
+  repository?: string[];
   remote?: string;
+  nbSolutions: number;
 }
 
 function validateCliOptions(options: CliOptions) {
@@ -206,7 +209,7 @@ program
   .option('--sinytra', 'Inject forge and neoforge into fabric-compatible releases', false)
   .option('-r, --repository <repo...>', 'Repositories to use (modrinth, curseforge)')
   .option('--remote <url>', 'Remote server URL to query mods', '')
-  .action(async (cliOptions: CliOptions & { repository?: string[] }) => {
+  .action(async (cliOptions: CliOptions) => {
     const modQueryService = getModQueryService(cliOptions.repository, cliOptions.remote);
     validateCliOptions(cliOptions);
 
