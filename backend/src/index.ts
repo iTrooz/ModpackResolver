@@ -41,12 +41,15 @@ app.use('/', router);
 app.get('/', (_, res) => {
     res.send('Hello, world!');
 });
-app.get("/cache-info", async (_, res) => {
+app.get("/info", async (_, res) => {
   res.json({
-    size: cache.size,              // # of entries
-    maxSize: cache.maxSize,        // max allowed
-    calculatedSize: cache.calculatedSize, // total bytes used
-    TTL: TTL
+    version: pkg.version,
+    cache: {
+        size: cache.size,              // # of entries
+        maxSize: cache.maxSize,        // max allowed
+        calculatedSize: cache.calculatedSize, // total bytes used
+        TTL: TTL
+    },
   });
 });
 
