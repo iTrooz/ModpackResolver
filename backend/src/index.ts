@@ -1,14 +1,15 @@
 import express from 'express';
 import { type IRepository, LocalModQueryService } from 'mclib';
 import { CurseForgeRepository, ModrinthRepository } from 'mclib';
-import type { Request, Response, NextFunction } from 'express';
+import type { Request, Response as ExpressResponse, NextFunction } from 'express';
 
-import { cache, cachedFetch, TTL } from './cache'
+import { cache, cachedFetchDecorator, TTL } from './cache'
+import pkg from '../package.json';
 
 const app = express();
 const port = 3000;
 
-function loggerMiddleware(req: Request, res: Response, next: NextFunction) {
+function loggerMiddleware(req: Request, res: ExpressResponse, next: NextFunction) {
     const { method, url } = req;
     const start = Date.now();
     let responseBody: any;
@@ -37,13 +38,27 @@ app.get('/', (_, res) => {
     res.send('Hello, world!');
 });
 
+function fetchMainDecorator(fetchFunc: typeof fetch): typeof fetch {
+    return (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+        const options: RequestInit = { ...init };
+        options.headers = {
+            ...(init && init.headers ? init.headers : {}),
+            'User-Agent': 'github.com/iTrooz/ModpackCreator/backend v' + pkg.version
+        };
+        return fetchFunc(input, options);
+    };
+}
+
+const fetchFunction = cachedFetchDecorator(fetchMainDecorator(fetch));
+
+
 const repositories: IRepository[] = [
-    new CurseForgeRepository(cachedFetch),
-    new ModrinthRepository(cachedFetch)
+    new CurseForgeRepository(fetchFunction),
+    new ModrinthRepository(fetchFunction)
 ];
 const modQueryService = new LocalModQueryService(repositories);
 
-app.post('/getMinecraftVersions', async (_: Request, res: Response) => {
+app.post('/getMinecraftVersions', async (_: Request, res: ExpressResponse) => {
     try {
         const versions = await modQueryService.getMinecraftVersions();
         res.json(versions);
@@ -52,7 +67,7 @@ app.post('/getMinecraftVersions', async (_: Request, res: Response) => {
     }
 });
 
-app.post('/searchMods', async (req: Request, res: Response) => {
+app.post('/searchMods', async (req: Request, res: ExpressResponse) => {
     try {
         const { query, specifiedRepos = [], maxResults = 10 } = req.body;
         const results = await modQueryService.searchMods(query, specifiedRepos, maxResults);
@@ -62,7 +77,7 @@ app.post('/searchMods', async (req: Request, res: Response) => {
     }
 });
 
-app.post('/getModReleasesFromMetadata', async (req: Request, res: Response) => {
+app.post('/getModReleasesFromMetadata', async (req: Request, res: ExpressResponse) => {
     try {
         const { modMeta } = req.body;
         const releases = await modQueryService.getModReleasesFromMetadata(modMeta);
@@ -84,7 +99,7 @@ type GetModByDataHashRequest = {
     hash: string,
     repository: string
 };
-app.post('/getModByDataHash', async (req: Request, res: Response) => {
+app.post('/getModByDataHash', async (req: Request, res: ExpressResponse) => {
     try {
         const body: GetModByDataHashRequest = req.body;
         for (const repo of repositories) {
@@ -99,7 +114,7 @@ app.post('/getModByDataHash', async (req: Request, res: Response) => {
     }
 });
 
-app.post('/getModById', async (req: Request, res: Response) => {
+app.post('/getModById', async (req: Request, res: ExpressResponse) => {
     try {
         const { modId, specifiedRepos = [] } = req.body;
         const results = await modQueryService.searchMods(modId, specifiedRepos, 1);

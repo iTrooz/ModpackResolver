@@ -12,26 +12,29 @@ export const cache = new LRUCache<string, {size: number, resp: Response}>({
   ttl: TTL,
 });
 
-export async function cachedFetch(input: RequestInfo | URL, options?: RequestInit): Promise<Response> {
-  const key = JSON.stringify({ input, ...options });
 
-  const cached = cache.get(key);
-  if (cached) {
-    // Return a fresh clone, so caller can consume it
-    return cached.resp.clone();
+export function cachedFetchDecorator(fetchFunc: typeof fetch): typeof fetch {
+  return async function cachedFetch(input: RequestInfo | URL, options?: RequestInit): Promise<Response> {
+    const key = JSON.stringify({ input, ...options });
+
+    const cached = cache.get(key);
+    if (cached) {
+      // Return a fresh clone, so caller can consume it
+      return cached.resp.clone();
+    }
+
+    const res = await fetchFunc(input, options);
+    const buf = Buffer.from(await res.arrayBuffer());
+    const clone = new Response(buf, {
+      status: res.status,
+      headers: res.headers,
+    });
+
+    cache.set(key, {size: buf.length, resp: clone});
+
+    return new Response(buf, {
+      status: res.status,
+      headers: res.headers,
+    });
   }
-
-  const res = await fetch(input, options);
-  const buf = Buffer.from(await res.arrayBuffer());
-  const clone = new Response(buf, {
-    status: res.status,
-    headers: res.headers,
-  });
-
-  cache.set(key, {size: buf.length, resp: clone});
-
-  return new Response(buf, {
-    status: res.status,
-    headers: res.headers,
-  });
 }

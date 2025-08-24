@@ -2,6 +2,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "declaration": true,
+    "resolveJsonModule": true,
     "outDir": "dist",
     "module": "ESNext",
     "target": "ES6",

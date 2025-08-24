@@ -2,6 +2,7 @@
   "name": "backend",
   "module": "src/index.ts",
   "type": "module",
+	"version": "0.0.1",
   "private": true,
   "scripts": {
     "dev": "bun --hot run src/index.ts",
