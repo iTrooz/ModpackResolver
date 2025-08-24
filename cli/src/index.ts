@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 import { program, Option } from '@commander-js/extra-typings';
-import { CurseForgeRepository, LocalSolutionFinder, LoggerConfig, ModLoader, ModrinthRepository, LogLevel, Constraints, Solution, ModMetadata, RepositoryUtil, ModRepositoryName, RemoteModQueryService, IModQueryService, IRepository } from 'mclib';
+import { CurseForgeRepository, LocalSolutionFinder, LoggerConfig, ModLoader, ModrinthRepository, LogLevel, Constraints, Solution, ModMetadata, RepositoryUtil, ModRepositoryName, RemoteModQueryService, IModQueryService, IRepository, LocalModQueryService } from 'mclib';
 import { readFileSync } from 'fs';
 import pino from 'pino';
 
@@ -33,8 +33,14 @@ async function fetchWrapper(input: RequestInfo | URL, options?: RequestInit): Pr
   return response;
 }
 
-function getModQueryService(selectedRepos?: string[]) {
-  return new RemoteModQueryService(fetchWrapper, "http://127.0.0.1:3000", getRepositories(selectedRepos));
+function getModQueryService(selectedRepos?: string[], remoteUrl?: string) {
+  if (remoteUrl) {
+    logger.info(`Using remote mod query service at ${remoteUrl}`);
+    return new RemoteModQueryService(fetchWrapper, remoteUrl, getRepositories(selectedRepos));
+  } else {
+    logger.info('Using local mod query service');
+    return new LocalModQueryService(getRepositories(selectedRepos));
+  }
 }
 function getRepositories(selectedRepos?: string[]): IRepository[] {
   const repoMap = {
@@ -67,6 +73,7 @@ interface CliOptions {
   details: boolean;
   nbSolutions: number;
   sinytra: boolean;
+  remote?: string;
 }
 
 function validateCliOptions(options: CliOptions) {
@@ -198,8 +205,9 @@ program
   .option('-n, --nb-solutions <number>', 'Number of solutions to output', (value) => parseInt(value, 10), 3)
   .option('--sinytra', 'Inject forge and neoforge into fabric-compatible releases', false)
   .option('-r, --repository <repo...>', 'Repositories to use (modrinth, curseforge)')
+  .option('--remote <url>', 'Remote server URL to query mods', '')
   .action(async (cliOptions: CliOptions & { repository?: string[] }) => {
-    const modQueryService = getModQueryService(cliOptions.repository);
+    const modQueryService = getModQueryService(cliOptions.repository, cliOptions.remote);
     validateCliOptions(cliOptions);
 
     const requestedMods = await getMods(modQueryService, cliOptions);
