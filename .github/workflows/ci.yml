@@ -27,9 +27,11 @@ jobs:
         run: bun run build
 
       - name: Build website
+        env:
+          BACKEND_URL: https://backend-modpackresolver.itrooz.fr
         run: cd web && bun run build
 
-      - name: Upload Artifacts
+      - name: Upload website artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: 'web/build/'
