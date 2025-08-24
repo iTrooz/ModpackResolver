@@ -1,5 +1,5 @@
 import express from 'express';
-import { type IRepository, ModQueryService } from 'mclib';
+import { type IRepository, LocalModQueryService } from 'mclib';
 import { CurseForgeRepository, ModrinthRepository } from 'mclib';
 import type { Request, Response, NextFunction } from 'express';
 
@@ -39,7 +39,7 @@ const repositories: IRepository[] = [
     new CurseForgeRepository(fetch),
     new ModrinthRepository(fetch)
 ];
-const modQueryService = new ModQueryService(repositories);
+const modQueryService = new LocalModQueryService(repositories);
 
 app.post('/getMinecraftVersions', async (req: Request, res: Response) => {
     try {

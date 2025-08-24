@@ -22,7 +22,7 @@ export type {
   ModReleases
 } from "./types";
 
-export { ModQueryService } from "./query/ModQueryService";
+export { LocalModQueryService } from "./query/LocalModQueryService";
 
 export { ModrinthRepository, CurseForgeRepository, RepositoryUtil } from "./repos";
 export type { IRepository } from "./repos";

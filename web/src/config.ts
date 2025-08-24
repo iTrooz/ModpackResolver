@@ -3,7 +3,7 @@ import {
 	CurseForgeRepository,
 	RemoteModQueryService,
 	LocalSolutionFinder,
-	ModQueryService
+	LocalModQueryService
 } from 'mclib';
 import type { ISolutionFinder, IModQueryService } from 'mclib';
 import { logger } from 'mclib/dist/logger';
@@ -30,7 +30,7 @@ function getModQueryService(): IModQueryService {
 		return new RemoteModQueryService(fetchClient, 'https://your-server-url', repositories);
 	} else {
 		logger.info('Using local mod query service');
-		return new ModQueryService(repositories);
+		return new LocalModQueryService(repositories);
 	}
 }
 export const modQueryService = getModQueryService();

@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 import { program, Option } from '@commander-js/extra-typings';
-import { CurseForgeRepository, LocalSolutionFinder, LoggerConfig, ModLoader, ModQueryService, ModrinthRepository, LogLevel, Constraints, Solution, ModMetadata, RepositoryUtil, ModRepositoryName, ModRepoMetadata, RemoteModQueryService, IModQueryService, IRepository } from 'mclib';
+import { CurseForgeRepository, LocalSolutionFinder, LoggerConfig, ModLoader, ModrinthRepository, LogLevel, Constraints, Solution, ModMetadata, RepositoryUtil, ModRepositoryName, ModRepoMetadata, RemoteModQueryService, IModQueryService, IRepository } from 'mclib';
 import { readFileSync } from 'fs';
 import pino from 'pino';
 

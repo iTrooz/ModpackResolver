@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { LocalSolutionFinder, ModLoader, ModRepositoryName, type ModRepoRelease, ModRepoMetadata, Constraints, Solution, ModReleases } from '..';
 import type { IRepository } from '../repos/IRepository';
-import { ModQueryService } from '../query/ModQueryService';
+import { LocalModQueryService } from '../query/LocalModQueryService';
 
 class MockRepository implements IRepository {
     private mods: Record<string, ModReleases> = {};
@@ -55,7 +55,7 @@ class MockRepository implements IRepository {
 }
 
 const getSolutionFinder = (repositories: IRepository[]): LocalSolutionFinder => {
-    return new LocalSolutionFinder(new ModQueryService(repositories));
+    return new LocalSolutionFinder(new LocalModQueryService(repositories));
 };
 
 // Helper to test release constraints using the public API
