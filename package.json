@@ -8,7 +8,7 @@
         "web"
     ],
     "scripts": {
-        "lint": "set -xe; (cd cli && bun run lint) && (cd mclib && bun run lint) && (cd web && bun run lint)",
+        "lint": "set -xe; (cd backend && bun run lint) && (cd cli && bun run lint) && (cd mclib && bun run lint) && (cd web && bun run lint)",
         "build": "(cd backend && bun run build) && (cd cli && bun run build) && (cd mclib && bun run build) && (cd web && bun run build)"
     }
 }

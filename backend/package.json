@@ -7,6 +7,7 @@
     "dev": "bun --hot run src/index.ts",
     "start:prod": "bun run src/index.ts",
     "build": "tsc --build",
+    "lint": "eslint .",
     "opt:proxy": "HTTP_PROXY=http://127.0.0.1:8080 HTTPS_PROXY=http://127.0.0.1:8080"
   },
   "dependencies": {

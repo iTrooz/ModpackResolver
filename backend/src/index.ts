@@ -41,7 +41,7 @@ const repositories: IRepository[] = [
 ];
 const modQueryService = new LocalModQueryService(repositories);
 
-app.post('/getMinecraftVersions', async (req: Request, res: Response) => {
+app.post('/getMinecraftVersions', async (_: Request, res: Response) => {
     try {
         const versions = await modQueryService.getMinecraftVersions();
         res.json(versions);
@@ -66,9 +66,9 @@ app.post('/getModReleasesFromMetadata', async (req: Request, res: Response) => {
         const releases = await modQueryService.getModReleasesFromMetadata(modMeta);
 
         // Transform sets to arrays for JSON serialization
-        let jsonReleases= [];
-        for (let release of releases) {
-            let jsonRelease = {...release, mcVersions: Array.from(release.mcVersions), loaders: Array.from(release.loaders)};
+        const jsonReleases= [];
+        for (const release of releases) {
+            const jsonRelease = {...release, mcVersions: Array.from(release.mcVersions), loaders: Array.from(release.loaders)};
             jsonReleases.push(jsonRelease);
         }
 
