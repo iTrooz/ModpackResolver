@@ -35,7 +35,7 @@ jobs:
           path: 'web/build/'
 
   build-backend-image:
-    name: Build
+    name: Build backend image
     runs-on: ubuntu-latest
     permissions:
       packages: write
