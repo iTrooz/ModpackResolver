@@ -1,5 +1,6 @@
 {
     "name": "modpackcreator",
+    "type": "module",
     "workspaces": [
         "cli",
         "web",
