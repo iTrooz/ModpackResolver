@@ -37,8 +37,8 @@ jobs:
   build-backend-image:
     name: Build backend image
     runs-on: ubuntu-latest
-    permissions:
-      packages: write
+    # permissions:
+    #   packages: write
     steps:
     - uses: actions/checkout@v4
     - name: Log in to the Container registry
