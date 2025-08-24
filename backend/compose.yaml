@@ -1,3 +1,4 @@
+# Source: https://github.com/iTrooz/ModpackResolver/blob/main/backend/compose.yaml
 services:
   app:
     container_name: modpackresolver-backend
@@ -6,7 +7,7 @@ services:
       context: ..
       dockerfile: backend/backend.Containerfile
     ports:
-      - "3000:3000"
+      - "${PORT:-3000}:3000"
     restart: unless-stopped
 
     read_only: true
