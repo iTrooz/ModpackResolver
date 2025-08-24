@@ -2,7 +2,7 @@
 services:
   app:
     container_name: modpackresolver-backend
-    image: ghcr.io/itrooz/modpackresolver/backend:latest
+    image: none.local/modpackresolver/backend:latest
     build:
       context: ..
       dockerfile: backend/backend.Containerfile
