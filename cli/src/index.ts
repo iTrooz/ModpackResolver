@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 import { program, Option } from '@commander-js/extra-typings';
-import { CurseForgeRepository, LocalSolutionFinder, LoggerConfig, ModLoader, ModrinthRepository, LogLevel, Constraints, Solution, ModMetadata, RepositoryUtil, ModRepositoryName, ModRepoMetadata, RemoteModQueryService, IModQueryService, IRepository } from 'mclib';
+import { CurseForgeRepository, LocalSolutionFinder, LoggerConfig, ModLoader, ModrinthRepository, LogLevel, Constraints, Solution, ModMetadata, RepositoryUtil, ModRepositoryName, RemoteModQueryService, IModQueryService, IRepository } from 'mclib';
 import { readFileSync } from 'fs';
 import pino from 'pino';
 
@@ -80,20 +80,20 @@ async function getMods(modQueryService: IModQueryService, options: CliOptions): 
 
   if (options.modId) {
     for (const repoAndId of options.modId) {
-      let [repoName, modId] = repoAndId.split('/');
+      const [repoName, modId] = repoAndId.split('/');
       if (!modId) {
         logger.error(`Invalid mod ID format: ${repoAndId}. Expected format is 'repository/modId'.`);
         continue;
       }
 
-      let repo = RepositoryUtil.from(repoName as ModRepositoryName, fetch);
+      const repo = RepositoryUtil.from(repoName as ModRepositoryName, fetch);
       if (!repo) {
         logger.error(`Unknown repository: ${repoName}`);
         continue;
       }
 
       // Rebuild mod ID to ensure user input doesn't mess things up
-      let fullId = `${repo.getRepositoryName()}/${modId}`.toLowerCase();
+      const fullId = `${repo.getRepositoryName()}/${modId}`.toLowerCase();
 
       // Add mod to map
       if (modsMap.has(fullId)) {
@@ -117,12 +117,12 @@ async function getMods(modQueryService: IModQueryService, options: CliOptions): 
       try {
         // Read file
         const start = Date.now();
-        let modData = readFileSync(file);
+        const modData = readFileSync(file);
         const duration = Date.now() - start;
         logger.debug(`readFileSync(${file}): ${duration}ms`);
 
         // Get metadata
-        let modMetadatas = await modQueryService.getModByDataHash(new Uint8Array(modData));
+        const modMetadatas = await modQueryService.getModByDataHash(new Uint8Array(modData));
         if (modMetadatas.length === 0) {
           logger.warn(`Could not extract mod ID from file: ${file}`);
           continue;
@@ -131,7 +131,7 @@ async function getMods(modQueryService: IModQueryService, options: CliOptions): 
 
         // verify if there are duplicates
         for (const modMetadata of modMetadatas) {
-          let fullId = `${modMetadata.repository}|${modMetadata.id}`.toLowerCase();
+          const fullId = `${modMetadata.repository}|${modMetadata.id}`.toLowerCase();
           if (modsMap.has(fullId)) {
             logger.warn(`Duplicate mod ID from file: ${modMetadata.id} (file: ${file})`);
           }
@@ -156,7 +156,7 @@ async function findSolutions(
   nbSolutions: number,
   sinytra: boolean
 ): Promise<Solution[]> {
-  let solutionFinder = new LocalSolutionFinder(modQueryService);
+  const solutionFinder = new LocalSolutionFinder(modQueryService);
 
   // Resolve mods
   const mods = await solutionFinder.resolveMods(requestedMods);
@@ -199,7 +199,7 @@ program
   .option('--sinytra', 'Inject forge and neoforge into fabric-compatible releases', false)
   .option('-r, --repository <repo...>', 'Repositories to use (modrinth, curseforge)')
   .action(async (cliOptions: CliOptions & { repository?: string[] }) => {
-    let modQueryService = getModQueryService(cliOptions.repository);
+    const modQueryService = getModQueryService(cliOptions.repository);
     validateCliOptions(cliOptions);
 
     const requestedMods = await getMods(modQueryService, cliOptions);
@@ -232,7 +232,7 @@ program
       if (cliOptions.details && solution.mods.length != requestedMods.length) {
 
         // Get unsupported mods
-        let unsupportedModsMeta: ModMetadata[] = [];
+        const unsupportedModsMeta: ModMetadata[] = [];
         for (const requestedMod of requestedMods) {
           let hasIncludedRelease = false;
           for (const release of solution.mods) {

@@ -2,6 +2,8 @@
   "name": "mclib",
   "version": "0.0.1",
   "main": "dist/index.js",
+  "type": "module",
+  "types": "dist/index.d.ts",
   "devDependencies": {
     "@eslint/js": "^9.27.0",
     "@types/node": "^22.15.3",
@@ -14,8 +16,6 @@
     "test": "bunx vitest run",
     "lint": "eslint ."
   },
-  "type": "module",
-  "types": "dist/index.d.ts",
   "dependencies": {
     "cf-fingerprint": "https://github.com/iTrooz/cf-fingerprint/",
     "pino": "^9.7.0",

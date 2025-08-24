@@ -1,6 +1,8 @@
 {
   "name": "cli",
   "version": "0.0.1",
+  "type": "module",
+  "types": "dist/index.d.ts",
   "dependencies": {
     "@commander-js/extra-typings": "^14.0.0",
     "commander": "^10.0.0",
@@ -11,6 +13,7 @@
   "scripts": {
     "build": "(cd ../mclib && bun run build) && bun build src/index.ts --outdir dist --minify --target node",
     "start": "(cd ../mclib && bun run build) && bun src/index.ts",
+    "lint": "eslint .",
     "opt:proxy": "HTTP_PROXY=http://127.0.0.1:8080 HTTPS_PROXY=http://127.0.0.1:8080"
   }
 }
