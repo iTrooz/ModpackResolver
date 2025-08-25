@@ -2,7 +2,7 @@
   "name": "backend",
   "module": "src/index.ts",
   "type": "module",
-	"version": "0.0.1",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "dev": "bun --hot run src/index.ts",
@@ -12,7 +12,9 @@
     "opt:proxy": "HTTP_PROXY=http://127.0.0.1:8080 HTTPS_PROXY=http://127.0.0.1:8080"
   },
   "dependencies": {
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
+    "cors": "^2.8.5",
     "express": "^5.1.0",
     "lru-cache": "^11.1.0",
     "mclib": "workspace:*"

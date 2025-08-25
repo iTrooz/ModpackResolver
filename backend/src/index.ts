@@ -1,5 +1,6 @@
 import express from 'express';
 import type { Request, Response as ExpressResponse, NextFunction } from 'express';
+import cors from 'cors';
 
 import { cache, TTL } from './cache'
 import { router } from './modsEndpoints'
@@ -30,9 +31,9 @@ function loggerMiddleware(req: Request, res: ExpressResponse, next: NextFunction
     next();
 }
 
-// Middleware to parse JSON bodies
-app.use(express.json());
-app.use(loggerMiddleware);
+app.use(express.json()); // Parse JSON bodies
+app.use(loggerMiddleware); // Log
+app.use(cors()); // Enable CORS
 
 // Logic routes
 app.use('/', router);
