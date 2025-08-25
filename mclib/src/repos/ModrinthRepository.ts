@@ -19,14 +19,6 @@ export class ModrinthRepository implements IRepository {
         this.fetchClient = fetchClient;
     }
 
-    async getModIdFromHash(hash: string): Promise<string | null> {
-        // Modrinth API: https://api.modrinth.com/v2/version_file/{hash}
-        const resp = await this.fetchClient(`https://api.modrinth.com/v2/version_file/${hash}`);
-        if (!resp.ok) return null;
-        const data = await resp.json();
-        return data.project_id || null;
-    }
-
     async getModReleases(modId: string): Promise<RawModRepoRelease[]> {
         type Data = Array<{
             game_versions: string[];

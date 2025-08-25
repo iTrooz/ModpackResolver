@@ -25,10 +25,6 @@ class MockRepository implements IRepository {
         this.dataHashes[dataKey] = mod;
     }
 
-    async getModIdFromHash(hash: string): Promise<string | null> {
-        return this.hashes[hash] || null;
-    }
-
     async getModReleases(modId: string): Promise<ModReleases> {
         if (!this.mods[modId]) {
             throw new Error(`Mod with ID ${modId} not found`);

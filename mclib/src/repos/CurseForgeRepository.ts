@@ -24,11 +24,6 @@ export class CurseForgeRepository implements IRepository {
         this.fetchClient = fetchClient;
     }
 
-    async getModIdFromHash(_hash: string): Promise<string | null> {
-        // CurseForge does not support hash lookup via public API
-        return null;
-    }
-
     async getModReleases(modId: string): Promise<RawModRepoRelease[]> {
         const modInfo = await this.fetchModInfo(Number(modId));
         if (!modInfo || !modInfo.latestFilesIndexes) return [];
