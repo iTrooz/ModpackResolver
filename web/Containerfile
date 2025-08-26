@@ -1,0 +1,28 @@
+# Context is ..
+FROM oven/bun:1-debian AS base
+WORKDIR /src
+
+# Install deps
+COPY package.json bun.lock ./
+COPY backend/package.json backend/package.json
+COPY mclib/package.json mclib/package.json
+COPY cli/package.json cli/package.json
+COPY web/package.json web/package.json
+RUN --mount=type=cache,target=/root/.bun/install/cache bun install --filter=web
+
+# Copy project
+COPY web/ web/
+COPY mclib/ mclib/
+
+# Build project
+WORKDIR /src/web
+RUN bun run build
+
+# To allow copying only the build output
+FROM scratch AS assets
+COPY --from=base /src/web/build /
+
+# Final stage, serve with nginx
+FROM nginx AS final
+COPY --from=assets / /usr/share/nginx/html
+EXPOSE 80
