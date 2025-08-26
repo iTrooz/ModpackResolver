@@ -25,7 +25,7 @@ services:
     pull_policy: never
     build:
       context: .
-      dockerfile: sidecar.Dockerfile
+      dockerfile: sidecar.Containerfile
     environment:
       - TC_RATE=500kbit
       - TC_BURST=500kbit

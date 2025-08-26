@@ -1,6 +1,6 @@
 {
 	"name": "Bun (TypeScript) development container",
     "build": {
-        "dockerfile": "./Dockerfile"
+        "dockerfile": "./Containerfile"
     }
 }
