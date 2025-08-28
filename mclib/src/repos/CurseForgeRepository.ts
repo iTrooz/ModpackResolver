@@ -2,6 +2,7 @@ import type { IRepository } from "./IRepository";
 import { RawModRepoRelease, ModRepositoryName, ModLoader, ModRepoMetadata, MCVersion } from "..";
 import { cf_fingerprint } from 'cf-fingerprint';
 import { logger } from "../logger";
+import { validateParam } from "../utils";
 
 // Translation map for Curseforge modloader IDs
 // Source: https://docs.curseforge.com/rest-api/#tocS_ModLoaderType
@@ -25,6 +26,8 @@ export class CurseForgeRepository implements IRepository {
     }
 
     async getModReleases(modId: string): Promise<RawModRepoRelease[]> {
+        validateParam(modId);
+
         const modInfo = await this.fetchModInfo(Number(modId));
         if (!modInfo || !modInfo.latestFilesIndexes) return [];
 
@@ -47,6 +50,9 @@ export class CurseForgeRepository implements IRepository {
     }
 
     async searchMods(query: string, maxResults: number): Promise<ModRepoMetadata[]> {
+        validateParam(query);
+        validateParam(maxResults.toString());
+
         type Data = {
             data: {
                 id: number;
@@ -70,7 +76,7 @@ export class CurseForgeRepository implements IRepository {
             pageSize: maxResults.toString(),
             sortField: "1",
             sortOrder: "desc",
-            searchFilter: query
+            searchFilter: query,
         }));
         if (!resp.ok) throw new Error("Failed to fetch search results from CurseForge");
         const jsonResp: Data = (await resp.json());
@@ -87,12 +93,16 @@ export class CurseForgeRepository implements IRepository {
     }
 
     private async fetchModInfo(modId: number): Promise<ModInfoData | null> {
+        validateParam(modId.toString());
+
         const modResp = await this.fetchClient(`${CurseForgeRepository.BASE_URL}/mods/${modId}`);
         if (!modResp.ok) return null;
         return (await modResp.json()).data as ModInfoData;
     }
 
     async getByDataHash(hash: string): Promise<ModRepoMetadata | null> {
+        validateParam(hash);
+
         // Use the CurseForge API to get file info by fingerprint
         const resp = await this.fetchClient(`${CurseForgeRepository.BASE_URL}/fingerprints`, {
             method: 'POST',
