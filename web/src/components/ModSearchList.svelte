@@ -72,16 +72,26 @@
 						href={firstRepoMeta.homepageURL}
 						target="_blank"
 						rel="noopener noreferrer"
-						onmouseenter={() => { hoveredRow = firstRepoMeta.id; console.log('mouseenter', hoveredRow); }}
-						onmouseleave={() => { hoveredRow = null; console.log('mouseleave', hoveredRow); }}
+						onmouseenter={() => {
+							hoveredRow = firstRepoMeta.id;
+							console.log('mouseenter', hoveredRow);
+						}}
+						onmouseleave={() => {
+							hoveredRow = null;
+							console.log('mouseleave', hoveredRow);
+						}}
 					>
-						{m['add_mods.search_results.open_mod_repo_link']({ repo_name: firstRepoMeta.repository })}
+						{m['add_mods.search_results.open_mod_repo_link']({
+							repo_name: firstRepoMeta.repository
+						})}
 						{meta.length > 1 ? ' and more' : ''}
 					</a>
-					{(() => { console.log('tooltip condition', meta.length > 1 && hoveredRow === firstRepoMeta.id); })()}
+					{(() => {
+						console.log('tooltip condition', meta.length > 1 && hoveredRow === firstRepoMeta.id);
+					})()}
 					{#if meta.length > 1 && hoveredRow === firstRepoMeta.id}
 						<span class="repo-tooltip">
-							Found on: {meta.map(m => m.repository).join(', ')}
+							Found on: {meta.map((m) => m.repository).join(', ')}
 						</span>
 					{/if}
 				</td>
@@ -99,7 +109,7 @@
 		border-radius: 0.3rem;
 		font-size: 0.85rem;
 		z-index: 10;
-		box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 		margin-top: 0.2rem;
 		right: 0;
 		white-space: nowrap;
