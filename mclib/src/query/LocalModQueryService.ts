@@ -1,5 +1,6 @@
 import { type MCVersion, type ModRepositoryName, type ModRepoMetadata, type IRepository, type ModMetadata, type ModReleases, ModMetadataUtil, IModQueryService } from "..";
 import { logger } from "../logger";
+import { isSameModAndRepo } from "../utils";
 
 export class LocalModQueryService implements IModQueryService {
 
@@ -21,9 +22,9 @@ export class LocalModQueryService implements IModQueryService {
     async searchMods(
         query: string,
         specifiedRepos: ModRepositoryName[],
-        maxResults: number = 10,
-    ): Promise<Array<[ModRepositoryName, ModRepoMetadata]>> {
-        const allResults: Array<[ModRepositoryName, ModRepoMetadata]> = [];
+        maxResults: number,
+    ): Promise<ModMetadata[]> {
+        const allResults: Array<ModMetadata> = [];
 
         for (const repo of this.repositories) {
             try {
@@ -32,9 +33,20 @@ export class LocalModQueryService implements IModQueryService {
                     continue; // Skip repositories not in the specified list
                 }
 
-                const results = await repo.searchMods(query, maxResults);
-                for (const mod of results) {
-                    allResults.push([repoName, mod]);
+                // Loop over search results of this repository
+                for (const newModRepo of await repo.searchMods(query, maxResults)) {
+                    
+                    // Check if this mod already exists in the aggregated results
+                    let wasMerged = false;
+                    for (const existingMod of allResults) {
+                        if (isSameModAndRepo(existingMod, newModRepo)) {
+                            // Update existing mod entry with additional repository metadata
+                            existingMod.push(newModRepo);
+                            wasMerged = true;
+                            break;
+                        }
+                    }
+                    if (!wasMerged) allResults.push([newModRepo]); // Add as new entry
                 }
             } catch (_) {
                 // Ignore errors for individual repositories
@@ -42,11 +54,13 @@ export class LocalModQueryService implements IModQueryService {
         }
 
         // Sort by download count descending
-        allResults.sort((a, b) => b[1].downloadCount - a[1].downloadCount);
+        allResults.sort((a, b) => b[0].downloadCount - a[0].downloadCount);
 
+        // Limit results if maxResults is specified
         if (maxResults !== undefined) {
             return allResults.slice(0, maxResults);
         }
+
         return allResults;
     }
 

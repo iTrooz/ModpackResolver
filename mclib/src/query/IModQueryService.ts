@@ -6,7 +6,7 @@ export interface IModQueryService {
         query: string,
         specifiedRepos: ModRepositoryName[],
         maxResults: number,
-    ): Promise<Array<[ModRepositoryName, ModRepoMetadata]>>;
+    ): Promise<ModMetadata[]>;
     getModReleasesFromMetadata(modMeta: ModMetadata): Promise<ModReleases>;
     getModByDataHash(modData: Uint8Array): Promise<ModMetadata>;
 }
