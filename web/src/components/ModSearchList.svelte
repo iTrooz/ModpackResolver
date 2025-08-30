@@ -1,12 +1,13 @@
 <script lang="ts">
+	let hoveredRow = $state<string | null>(null);
 	import * as m from '$msg';
-	import type { ModRepositoryName, ModRepoMetadata } from 'mclib';
+	import type { ModRepoMetadata, ModMetadata } from 'mclib';
 
 	let {
 		search_results = $bindable(),
 		add_mod_to_list
 	}: {
-		search_results: [ModRepositoryName, ModRepoMetadata][]; // list of (repository, mod search metadata)
+		search_results: ModMetadata[]; // List of mod metadata, each an aggregation from multiple repositories
 		add_mod_to_list: (mod: ModRepoMetadata) => void;
 	} = $props();
 
@@ -39,36 +40,50 @@
 		</tr>
 	</thead> -->
 	<tbody>
-		{#each search_results.slice(0, 10) as [repository, mod] (mod.id)}
+		{#each search_results.slice(0, 10) as meta (meta[0].id)}
+			{@const firstRepoMeta = meta[0]}
 			<tr>
 				<td
 					class="img"
 					onclick={() => {
-						add_mod_to_list(mod);
+						add_mod_to_list(firstRepoMeta);
 					}}
 				>
-					<img src={mod.imageURL} alt="{mod.name} pic" />
+					<img src={firstRepoMeta.imageURL} alt="{firstRepoMeta.name} pic" />
 				</td>
 				<td
 					onclick={() => {
-						add_mod_to_list(mod);
+						add_mod_to_list(firstRepoMeta);
 					}}
 				>
-					{mod.name}
+					{firstRepoMeta.name}
 				</td>
 				<td
 					onclick={() => {
-						add_mod_to_list(mod);
+						add_mod_to_list(firstRepoMeta);
 					}}
 				>
-					{humanize_number(mod.downloadCount) +
+					{humanize_number(firstRepoMeta.downloadCount) +
 						' ' +
 						m['add_mods.search_results.downloads_count']()}
 				</td>
-				<td class="link">
-					<a href={mod.homepageURL} target="_blank" rel="noopener noreferrer">
-						{m['add_mods.search_results.open_mod_repo_link']({ repo_name: repository })}
+				<td class="link" style="position:relative;">
+					<a
+						href={firstRepoMeta.homepageURL}
+						target="_blank"
+						rel="noopener noreferrer"
+						onmouseenter={() => { hoveredRow = firstRepoMeta.id; console.log('mouseenter', hoveredRow); }}
+						onmouseleave={() => { hoveredRow = null; console.log('mouseleave', hoveredRow); }}
+					>
+						{m['add_mods.search_results.open_mod_repo_link']({ repo_name: firstRepoMeta.repository })}
+						{meta.length > 1 ? ' and more' : ''}
 					</a>
+					{(() => { console.log('tooltip condition', meta.length > 1 && hoveredRow === firstRepoMeta.id); })()}
+					{#if meta.length > 1 && hoveredRow === firstRepoMeta.id}
+						<span class="repo-tooltip">
+							Found on: {meta.map(m => m.repository).join(', ')}
+						</span>
+					{/if}
 				</td>
 			</tr>
 		{/each}
@@ -76,6 +91,19 @@
 </table>
 
 <style>
+	.repo-tooltip {
+		position: absolute;
+		background: var(--grey-dark-2);
+		color: var(--text-light);
+		padding: 0.3rem 0.7rem;
+		border-radius: 0.3rem;
+		font-size: 0.85rem;
+		z-index: 10;
+		box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+		margin-top: 0.2rem;
+		right: 0;
+		white-space: nowrap;
+	}
 	table#mod_search_list {
 		border-spacing: 0 0.5rem;
 		padding: 0 0.5rem;
