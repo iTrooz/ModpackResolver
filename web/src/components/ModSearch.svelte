@@ -35,7 +35,11 @@
 		try {
 			// set loading mode
 			is_loading_search = true;
-			const results = await modQueryService.searchMods(search_name_input, selected_mod_repo_names, 10);
+			const results = await modQueryService.searchMods(
+				search_name_input,
+				selected_mod_repo_names,
+				10
+			);
 			search_results = results;
 		} catch (err) {
 			console.log(err);

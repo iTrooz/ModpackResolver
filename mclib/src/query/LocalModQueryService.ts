@@ -1,4 +1,4 @@
-import { type MCVersion, type ModRepositoryName, type ModRepoMetadata, type IRepository, type ModMetadata, type ModReleases, ModMetadataUtil, IModQueryService } from "..";
+import { type MCVersion, type ModRepositoryName, type IRepository, type ModMetadata, type ModReleases, ModMetadataUtil, IModQueryService } from "..";
 import { logger } from "../logger";
 import { isSameModAndRepo } from "../utils";
 
