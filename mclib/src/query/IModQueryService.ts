@@ -1,4 +1,4 @@
-import { MCVersion, ModMetadata, ModReleases, ModRepoMetadata, ModRepositoryName } from "../types";
+import { MCVersion, ModMetadata, ModReleases, ModRepositoryName } from "../types";
 
 export interface IModQueryService {
     getMinecraftVersions(): Promise<MCVersion[]>;
