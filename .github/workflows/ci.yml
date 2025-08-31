@@ -8,7 +8,7 @@ on:
 
 jobs:
   check:
-    name: Check code
+    name: Check and Build code
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -24,17 +24,20 @@ jobs:
         run: bun run lint
 
       - name: Build all
-        run: bun run build
-
-      - name: Build website
         env:
+          # For website
           BACKEND_URL: https://backend-modpackresolver.itrooz.fr
-        run: cd web && bun run build
+        run: bun run build
 
       - name: Upload website artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: 'web/build/'
+
+      - name: Upload CLI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          path: 'cli/dist/*'
 
   build-backend-image:
     name: Build backend image
