@@ -1,0 +1,56 @@
+# Inspired from https://github.com/WerWolv/ImHex/blob/16dc199431858de984fb0ed3b50d60a9a9e511b1/.github/workflows/nightly_release.yml
+
+name: Nightly Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  NIGHTLY_TAG: nightly
+
+jobs:
+  nightly-release:
+    runs-on: ubuntu-24.04
+    name: 🌃 Update Nightly Release
+    permissions:
+      contents: write
+
+    steps:
+      - name: 🧰 Checkout
+        uses: actions/checkout@v4
+        with:
+          path: project
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: ⬇️ Download artifacts from latest workflow
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: ci.yml
+          branch: ${{ github.event.release.target_commitish }}
+          workflow_conclusion: success
+
+      - name: 📦 Update Pre-Release
+        run: |
+          set -e
+          
+          cd project
+
+          # Move nightly tag to latest commit
+          git tag -f $NIGHTLY_TAG HEAD
+          git push origin $NIGHTLY_TAG --force
+
+          # Auth for GitHub CLI
+          echo "${{ github.token }}" | gh auth login --with-token
+
+          # Delete existing assets
+          for asset in $(gh release view $NIGHTLY_TAG --json assets --jq '.assets[].name'); do
+            gh release delete-asset $NIGHTLY_TAG "$asset" --yes
+          done
+
+          # Upload new assets
+          gh release upload $NIGHTLY_TAG ../*.* --clobber
