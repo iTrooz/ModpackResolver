@@ -268,4 +268,11 @@ program
     }
   });
 
+
+// Workaround. See https://github.com/oven-sh/bun/issues/22283
+if (process.argv.length >= 3) {
+  if (process.argv[2].endsWith('modpackresolver-cli')) {
+    process.argv.splice(2, 1); // remove argv[2]
+  }
+}
 program.parse(process.argv);
