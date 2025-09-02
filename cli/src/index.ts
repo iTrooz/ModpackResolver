@@ -4,6 +4,7 @@ import { program, Option } from '@commander-js/extra-typings';
 import { CurseForgeRepository, LocalSolutionFinder, LoggerConfig, ModLoader, ModrinthRepository, LogLevel, Constraints, Solution, ModMetadata, RepositoryUtil, ModRepositoryName, RemoteModQueryService, IModQueryService, IRepository, LocalModQueryService } from 'mclib';
 import { readFileSync } from 'fs';
 import pino from 'pino';
+import pinoPretty from 'pino-pretty';
 
 // Logging setup
 const LOG_LEVEL = (process.env.LOG_LEVEL ?? "info") as LogLevel;
@@ -11,14 +12,8 @@ const logger = pino({
   level: LOG_LEVEL,
   base: {
     pid: false,
-  },
-  transport: {
-    target: 'pino-pretty',
-    options: {
-      colorize: true
-    }
   }
-});
+}, pinoPretty());
 LoggerConfig.setLevel(LOG_LEVEL);
 
 // Fetch wrapper to log timing and errors
@@ -268,4 +263,11 @@ program
     }
   });
 
+
+// Workaround. See https://github.com/oven-sh/bun/issues/22283
+if (process.argv.length >= 3) {
+  if (process.argv[2].endsWith('modpackresolver-cli')) {
+    process.argv.splice(2, 1); // remove argv[2]
+  }
+}
 program.parse(process.argv);
