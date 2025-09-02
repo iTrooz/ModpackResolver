@@ -38,7 +38,7 @@
 			const results = await modQueryService.searchMods(
 				search_name_input,
 				selected_mod_repo_names,
-				10
+				20 // bigger number = more chance of having aggregated results between repositories (e.g. "jei" will not match JEI on modrinth for maxResults=10)
 			);
 			search_results = results;
 		} catch (err) {
