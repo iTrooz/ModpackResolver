@@ -74,11 +74,9 @@
 						rel="noopener noreferrer"
 						onmouseenter={() => {
 							hoveredRow = firstRepoMeta.id;
-							console.log('mouseenter', hoveredRow);
 						}}
 						onmouseleave={() => {
 							hoveredRow = null;
-							console.log('mouseleave', hoveredRow);
 						}}
 					>
 						{m['add_mods.search_results.open_mod_repo_link']({
@@ -86,9 +84,6 @@
 						})}
 						{meta.length > 1 ? ' and more' : ''}
 					</a>
-					{(() => {
-						console.log('tooltip condition', meta.length > 1 && hoveredRow === firstRepoMeta.id);
-					})()}
 					{#if meta.length > 1 && hoveredRow === firstRepoMeta.id}
 						<span class="repo-tooltip">
 							Found on: {meta.map((m) => m.repository).join(', ')}
