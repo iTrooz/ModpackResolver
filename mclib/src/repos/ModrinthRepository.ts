@@ -1,13 +1,14 @@
 import type { IRepository } from "./IRepository";
 import { ModRepositoryName, ModRepoMetadata, ModLoaderUtil, RawModRepoRelease } from "..";
+import { validateParam } from "../utils";
 
 // https://devblogs.microsoft.com/typescript/announcing-typescript-5-9-rc/#notable-behavioral-changes
 function toArrayBuffer(buf: ArrayBufferLike): ArrayBuffer {
-  if (buf instanceof ArrayBuffer) return buf;
-  // SharedArrayBuffer → copy into a new ArrayBuffer
-  const copy = new Uint8Array(buf.byteLength);
-  copy.set(new Uint8Array(buf));
-  return copy.buffer;
+    if (buf instanceof ArrayBuffer) return buf;
+    // SharedArrayBuffer → copy into a new ArrayBuffer
+    const copy = new Uint8Array(buf.byteLength);
+    copy.set(new Uint8Array(buf));
+    return copy.buffer;
 }
 
 
@@ -20,6 +21,8 @@ export class ModrinthRepository implements IRepository {
     }
 
     async getModReleases(modId: string): Promise<RawModRepoRelease[]> {
+        validateParam(modId);
+
         type Data = Array<{
             game_versions: string[];
             version_number: string;
@@ -49,6 +52,9 @@ export class ModrinthRepository implements IRepository {
     }
 
     async searchMods(query: string, maxResults: number): Promise<ModRepoMetadata[]> {
+        validateParam(query);
+        validateParam(maxResults.toString());
+
         type Data = {
             hits: Array<{
                 slug: string;
@@ -74,6 +80,8 @@ export class ModrinthRepository implements IRepository {
     }
 
     async getByDataHash(hash: string): Promise<ModRepoMetadata | null> {
+        validateParam(hash);
+
         // Get version info using the hash
         const versionResp = await this.fetchClient(`https://api.modrinth.com/v2/version_file/${hash}`);
         if (!versionResp.ok) return null;
