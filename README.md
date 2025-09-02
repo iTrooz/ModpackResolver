@@ -19,6 +19,3 @@ Download the artifact from the [nightly release](https://github.com/iTrooz/Modpa
 - Clone project
 - Install dependencies with `bun i`
 - To run the web app in development mode, go the right folder (`cd web`) and run using `bun run dev`. You may specify to proxy/cache API requests through http://localhost:8080 by running `bun run opt:proxy bun run dev`
-
-# WIP
-Project is in dev state, not stable nor finished yet
