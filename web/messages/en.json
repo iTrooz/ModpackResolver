@@ -36,8 +36,17 @@
 		"error_while_calculating": "Error while processing",
 		"remaining_results": "{nb_remaining} other possibilities",
 		"results": {
-			"compatible_mods": "Compatible mods",
 			"best_config": "Best Minecraft configuration",
+			"mod": [
+				{
+					"declarations": ["input count", "local countPlural = count: plural"],
+					"selectors": ["countPlural"],
+					"match": {
+						"countPlural=one": "Mod",
+						"countPlural=other": "Mods"
+					}
+				}
+			],
 			"mc_version": [
 				{
 					"declarations": ["input count", "local countPlural = count: plural"],
