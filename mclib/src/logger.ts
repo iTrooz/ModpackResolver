@@ -1,4 +1,5 @@
 import pino from 'pino';
+import pinoPretty from 'pino-pretty';
 
 export enum LogLevel {
     Fatal = 'fatal',
@@ -13,14 +14,8 @@ const logger = pino({
     level: 'info', // default level
     base: {
         pid: false,
-    },
-    transport: {
-        target: 'pino-pretty',
-        options: {
-            colorize: true
-        }
     }
-});
+}, pinoPretty());
 
 class LoggerConfig {
     static setLevel(level: LogLevel): void {

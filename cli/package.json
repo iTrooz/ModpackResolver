@@ -11,7 +11,7 @@
     "pino-pretty": "^13.0.0"
   },
   "scripts": {
-    "build": "(cd ../mclib && bun run build) && bun build src/index.ts --outdir dist --minify --target node",
+    "build": "(cd ../mclib && bun run build) && bun build src/index.ts --outfile dist/modpackresolver-cli --compile",
     "start": "(cd ../mclib && bun run build) && bun src/index.ts",
     "lint": "eslint .",
     "opt:proxy": "HTTP_PROXY=http://127.0.0.1:8080 HTTPS_PROXY=http://127.0.0.1:8080"
