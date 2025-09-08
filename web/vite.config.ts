@@ -16,6 +16,6 @@ export default defineConfig({
 		CONFIG_BACKEND_URL: JSON.stringify(process.env.BACKEND_URL)
 	},
 	build: {
-		target: "esnext",
+		target: 'esnext'
 	}
 });
