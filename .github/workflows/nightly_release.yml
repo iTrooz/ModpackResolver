@@ -1,11 +1,11 @@
 # Inspired from https://github.com/WerWolv/ImHex/blob/16dc199431858de984fb0ed3b50d60a9a9e511b1/.github/workflows/nightly_release.yml
-
 name: Nightly Release
 
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
   workflow_dispatch:
 
 env:
@@ -15,6 +15,7 @@ jobs:
   nightly-release:
     runs-on: ubuntu-24.04
     name: 🌃 Update Nightly Release
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     permissions:
       contents: write
 
@@ -26,9 +27,11 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - name: ⬇️ Download artifacts from latest workflow
+      - name: ⬇️ Download artifact from latest workflow
         uses: dawidd6/action-download-artifact@v6
         with:
+          name: modpackresolver-cli
+          path: artifacts
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: ci.yml
           branch: ${{ github.event.release.target_commitish }}
@@ -53,4 +56,4 @@ jobs:
           done
 
           # Upload new assets
-          gh release upload $NIGHTLY_TAG ../*.* --clobber
+          gh release upload $NIGHTLY_TAG ../artifacts/* --clobber
