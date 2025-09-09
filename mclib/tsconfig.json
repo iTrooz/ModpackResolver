@@ -5,7 +5,7 @@
       "composite": true,
       "declaration": true,
       "module": "ESNext",
-      "target": "ES6",
+      "target": "esnext",
       "moduleResolution": "bundler",
       "strict": true,
       "lib": ["esnext", "DOM", "DOM.Iterable"]

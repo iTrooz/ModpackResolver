@@ -1,5 +1,4 @@
-import pino from 'pino';
-import pinoPretty from 'pino-pretty';
+import pino, { DestinationStream } from 'pino';
 
 export enum LogLevel {
     Fatal = 'fatal',
@@ -9,13 +8,17 @@ export enum LogLevel {
     Debug = 'debug',
     Trace = 'trace'
 }
-
+let maybePretty: DestinationStream | undefined = undefined;
+if (typeof window === 'undefined') {
+    const pinoPretty = (await import("pino-pretty")).default;
+    maybePretty = pinoPretty();
+}
 const logger = pino({
     level: 'info', // default level
     base: {
         pid: false,
     }
-}, pinoPretty());
+}, maybePretty);
 
 class LoggerConfig {
     static setLevel(level: LogLevel): void {
