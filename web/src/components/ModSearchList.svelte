@@ -2,6 +2,7 @@
 	let hoveredRow = $state<string | null>(null);
 	import * as m from '$msg';
 	import type { ModRepoMetadata, ModMetadata } from 'mclib';
+	import { slide } from 'svelte/transition';
 
 	let {
 		search_results = $bindable(),
@@ -28,50 +29,60 @@
 		// If no scale applies, just return the number as a string
 		return input.toString();
 	}
+
+	$effect(() => {
+		const scrollableList = document.querySelectorAll('div.scrollable');
+		if (scrollableList) {
+			for (const scrollableDiv of scrollableList.values()) {
+				if (scrollableDiv.id == hoveredRow)
+					scrollableDiv.querySelector('.links')?.scrollIntoView({ block: 'nearest' });
+				else scrollableDiv.querySelector('.displayed')?.scrollIntoView({ block: 'nearest' });
+			}
+		}
+	});
 </script>
 
-<table id="mod_search_list">
-	<!-- <thead>
-		<tr>
-			<th>Icon</th>
-			<th>Name</th>
-			<th>Downloads</th>
-			<th>Link</th>
-		</tr>
-	</thead> -->
-	<tbody>
-		{#each search_results.slice(0, 10) as meta (meta[0].id)}
-			{@const firstRepoMeta = meta[0]}
-			<tr>
-				<td
-					class="img"
-					onclick={() => {
-						add_mod_to_list(firstRepoMeta);
-					}}
-				>
-					<img src={firstRepoMeta.imageURL} alt="{firstRepoMeta.name} pic" />
-				</td>
-				<td
-					onclick={() => {
-						add_mod_to_list(firstRepoMeta);
-					}}
-				>
-					{firstRepoMeta.name}
-				</td>
-				<td
-					onclick={() => {
-						add_mod_to_list(firstRepoMeta);
-					}}
-				>
-					{humanize_number(firstRepoMeta.downloadCount) +
-						' ' +
-						m['add_mods.search_results.downloads_count']()}
-				</td>
-				<td class="link" style="position:relative;">
-					<a
-						href={firstRepoMeta.homepageURL}
-						target="_blank"
-						rel="noopener noreferrer"
+<ul id="mod_search_list">
+	{#each search_results.slice(0, 10) as modMeta (modMeta[0].id)}
+		{@const firstRepoMeta = modMeta[0]}
+		<li class="scroller">
+			<div
+				role="button"
+				tabindex="0"
+				class="scrollable"
+				id={firstRepoMeta.id}
+				onmouseleave={() => {
+					hoveredRow = null;
+				}}
+			>
+				<div class="displayed">
+					<div
+						class="infos"
+						role="button"
+						tabindex={0}
+						onclick={() => {
+							add_mod_to_list(firstRepoMeta);
+						}}
+						onkeydown={(ke) => {
+							if (ke.code == 'Enter') add_mod_to_list(firstRepoMeta);
+						}}
+					>
+						<div class="name">
+							<img src={firstRepoMeta.imageURL} alt="{firstRepoMeta.name} pic" />
+							<p>
+								{firstRepoMeta.name}
+							</p>
+						</div>
+						<p>
+							{humanize_number(modMeta.reduce((sum, current) => sum + current.downloadCount, 0)) +
+								' ' +
+								m['add_mods.search_results.downloads_count']()}
+						</p>
+					</div>
+					<div
+						role="button"
+						tabindex={0}
+						class="see-links {hoveredRow == firstRepoMeta.id ? 'hide' : ''}"
 						onmouseenter={() => {
 							hoveredRow = firstRepoMeta.id;
 						}}
@@ -79,63 +90,102 @@
 							hoveredRow = null;
 						}}
 					>
-						{m['add_mods.search_results.open_mod_repo_link']({
-							repo_name: firstRepoMeta.repository
-						})}
-						{meta.length > 1 ? ' and more' : ''}
-					</a>
-					{#if meta.length > 1 && hoveredRow === firstRepoMeta.id}
-						<span class="repo-tooltip">
-							Found on: {meta.map((m) => m.repository).join(', ')}
-						</span>
-					{/if}
-				</td>
-			</tr>
-		{/each}
-	</tbody>
-</table>
+						<p>{m['add_mods.search_results.repo_from']()} »</p>
+					</div>
+				</div>
+				<div
+					class="links"
+					role="list"
+					onmouseenter={() => {
+						hoveredRow = firstRepoMeta.id;
+					}}
+					onmouseleave={() => {
+						hoveredRow = null;
+					}}
+				>
+					{#each modMeta as repo (repo.id)}
+						<a href={repo.homepageURL} target="_blank" rel="noopener noreferrer"
+							>{repo.repository.toUpperCase()}</a
+						>
+					{/each}
+				</div>
+			</div>
+		</li>
+	{/each}
+</ul>
 
 <style>
-	.repo-tooltip {
-		position: absolute;
-		background: var(--grey-dark-2);
-		color: var(--text-light);
-		padding: 0.3rem 0.7rem;
-		border-radius: 0.3rem;
-		font-size: 0.85rem;
-		z-index: 10;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-		margin-top: 0.2rem;
-		right: 0;
-		white-space: nowrap;
-	}
-	table#mod_search_list {
-		border-spacing: 0 0.5rem;
-		padding: 0 0.5rem;
+	ul#mod_search_list {
+		padding: 0.5rem 0.5rem;
 		background: var(--grey-dark-1);
 		font-size: 0.9rem;
 		width: 100%;
-		& tbody tr {
-			&:is(:focus, :focus-visible, :active, :hover) td {
-				background: var(--grey);
-			}
-			& td {
-				&.img {
-					padding: 0.4rem;
-					padding-bottom: 0.1rem;
-					width: 32px;
-					height: 32px;
-					& img {
-						width: 32px;
-						height: 32px;
+		display: flex;
+		flex-direction: column;
+		& li.scroller {
+			width: 100%;
+			overflow-x: hidden;
+			scroll-snap-type: x mandatory;
+			scroll-behavior: smooth;
+			& .scrollable {
+				display: flex;
+				flex-direction: row;
+				align-items: stretch;
+				width: 200%;
+				& .displayed {
+					display: flex;
+					flex-direction: row;
+					align-items: stretch;
+					width: 50%;
+					& div.infos {
+						padding: 0.4rem;
+						flex: 1;
+						display: flex;
+						flex-direction: row;
+						justify-content: space-between;
+						gap: 0.5rem;
+						align-items: center;
+						cursor: pointer;
+						z-index: 1;
+						background: var(--grey-dark-2);
+						& div.name {
+							display: flex;
+							flex-direction: row;
+							align-items: center;
+							gap: 0.5rem;
+						}
+						&:hover {
+							background: var(--grey);
+						}
+						& img {
+							width: 32px;
+							height: 32px;
+						}
+					}
+					& div.see-links {
+						padding: 0.5rem;
+						align-content: center;
+						background: var(--blue);
+						white-space: nowrap;
+						overflow: hidden;
 					}
 				}
-				&.link {
-					text-align: end;
+				& .links {
+					display: flex;
+					flex-direction: row;
+					align-items: stretch;
+					& a {
+						align-content: center;
+						padding: 0.7rem;
+						background: var(--blue-dark-1);
+						color: var(--grey-light-1);
+						text-decoration: none;
+						&:is(:focus, :focus-visible, :active, :hover) {
+							background: var(--blue-light-1);
+							color: var(--grey-dark-2);
+						}
+					}
 				}
-				cursor: pointer;
-				padding: 0.4rem;
-				background: var(--grey-dark-2);
 			}
 		}
 	}

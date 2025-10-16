@@ -9,10 +9,8 @@
 		"search_mod_by_name": "Search for a mod by its name",
 		"search_mods_button": "Search",
 		"search_results": {
-			"loading_mod_search": "Please wait, we're searching your mod",
 			"downloads_count": "downloads",
-			"open_mod_repo_link": "See on {repo_name}",
-			"add_mod": "Add",
+			"repo_from": "From",
 			"remove_mod": "Remove"
 		},
 		"drag_and_drop": {
