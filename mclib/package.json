@@ -18,7 +18,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "cf-fingerprint": "https://github.com/iTrooz/cf-fingerprint/",
+    "cf-fingerprint": "itrooz/cf-fingerprint",
     "pino": "^9.7.0",
     "pino-pretty": "^13.0.0"
   }
