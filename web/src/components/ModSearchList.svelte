@@ -2,7 +2,6 @@
 	let hoveredRow = $state<string | null>(null);
 	import * as m from '$msg';
 	import type { ModRepoMetadata, ModMetadata } from 'mclib';
-	import { slide } from 'svelte/transition';
 
 	let {
 		search_results = $bindable(),
