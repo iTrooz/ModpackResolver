@@ -33,7 +33,7 @@ export class RemoteModQueryService implements IModQueryService {
         query: string,
         specifiedRepos: ModRepositoryName[],
         maxResults: number
-    ): Promise<Array<[ModRepositoryName, ModRepoMetadata]>> {
+    ): Promise<ModMetadata[]> {
         return this.callEndpoint("searchMods", { query, specifiedRepos, maxResults });
     }
 

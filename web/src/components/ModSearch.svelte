@@ -1,7 +1,7 @@
 <script lang="ts">
 	import * as m from '$msg';
 	import { ModRepositoryName } from 'mclib';
-	import type { ModRepoMetadata } from 'mclib';
+	import type { ModMetadata, ModRepoMetadata } from 'mclib';
 	import { ModSearchList, ToggleButtons } from '$cmpts';
 	import { slide } from 'svelte/transition';
 	import { modQueryService, repositories } from '../config';
@@ -13,7 +13,7 @@
 		add_mod_to_list
 	}: {
 		search_name_input: string;
-		search_results: [ModRepositoryName, ModRepoMetadata][];
+		search_results: ModMetadata[];
 		is_loading_search: boolean;
 		add_mod_to_list: (mod: ModRepoMetadata) => void;
 	} = $props();
@@ -35,7 +35,11 @@
 		try {
 			// set loading mode
 			is_loading_search = true;
-			const results = await modQueryService.searchMods(search_name_input, selected_mod_repo_names);
+			const results = await modQueryService.searchMods(
+				search_name_input,
+				selected_mod_repo_names,
+				20 // bigger number = more chance of having aggregated results between repositories (e.g. "jei" will not match JEI on modrinth for maxResults=10)
+			);
 			search_results = results;
 		} catch (err) {
 			console.log(err);
