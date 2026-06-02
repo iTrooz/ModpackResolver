@@ -4,6 +4,16 @@
 	import * as m from '$msg';
 </script>
 
+<svelte:head>
+	{#if import.meta.env.VITE_ANALYTICS}
+		<script
+			defer
+			data-domain="itrooz.github.io/modpackresolver"
+			src="https://viewcount.itrooz.fr/js/script.js"
+		></script>
+	{/if}
+</svelte:head>
+
 <header>
 	<a href="{base}/" class="default-color">ModpackResolver</a>
 	<!-- <div style="display: flex; gap: 1rem;">

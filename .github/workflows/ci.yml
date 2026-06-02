@@ -27,6 +27,7 @@ jobs:
         env:
           # For website
           BACKEND_URL: https://backend-modpackresolver.itrooz.fr
+          VITE_ANALYTICS: true
         run: bun run build
 
       - name: Upload website artifact
