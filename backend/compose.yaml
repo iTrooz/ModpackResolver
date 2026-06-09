@@ -2,7 +2,6 @@
 services:
   app:
     container_name: modpackresolver-backend
-    image: none.local/modpackresolver/backend:latest
     build:
       context: ..
       dockerfile: backend/backend.Containerfile
@@ -21,8 +20,6 @@ services:
           memory: 128M
 
   sidecar:
-    image: none.local/anythingispwa-sidecar:latest
-    pull_policy: never
     build:
       context: .
       dockerfile: sidecar.Containerfile
