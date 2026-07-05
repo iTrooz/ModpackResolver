@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
-	import type { Solution, ModRepoMetadata, ModRepositoryName, MCVersion } from 'mclib';
+	import type { Solution, ModRepoMetadata, ModMetadata, MCVersion } from 'mclib';
 	import { ModLoader } from 'mclib';
 	import {
 		ModSearch,
@@ -15,7 +15,7 @@
 
 	let search_name_input = $state('');
 	let is_loading_search = $state(false);
-	let search_results: [ModRepositoryName, ModRepoMetadata][] = $state([]);
+	let search_results: ModMetadata[] = $state([]);
 
 	let mod_list_added: ModRepoMetadata[] = $state([]);
 
