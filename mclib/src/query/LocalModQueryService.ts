@@ -11,9 +11,12 @@ export class LocalModQueryService implements IModQueryService {
     }
 
     async getMinecraftVersions(): Promise<MCVersion[]> {
-        const response = await fetch("https://mc-versions-api.net/api/java");
+        const response = await fetch("https://launchermeta.mojang.com/mc/game/version_manifest_v2.json");
         const data = await response.json();
-        return data.result.reverse();
+        return data.versions
+            .filter((v: { type: string }) => v.type === "release")
+            .map((v: { id: string }) => v.id)
+            .reverse();
     }
 
     /**
