@@ -60,6 +60,7 @@
 	let error: string | null = $state(null);
 
 	async function runModpackResolver() {
+		window.plausible?.('Run');
 		try {
 			if (mod_list_added.length < 1) {
 				throw new Error(m['runner.error_no_mod_added']());

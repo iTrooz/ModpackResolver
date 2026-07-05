@@ -8,6 +8,9 @@ declare global {
 		// interface PageState {}
 		// interface Platform {}
 	}
+	interface Window {
+		plausible?: (event: string, options?: { props?: Record<string, string | number> }) => void;
+	}
 }
 
 export {};
