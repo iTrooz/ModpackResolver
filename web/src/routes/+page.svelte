@@ -143,7 +143,7 @@
 		{:else if is_loading_mcresolver}
 			<p>{m['runner.processing_modpack_resolver']()}</p>
 		{:else if mc_results}
-			<ReleasesResult results={mc_results} />
+			<ReleasesResult results={mc_results} selected_mods={mod_list_added} />
 		{/if}
 	</section>
 {/if}

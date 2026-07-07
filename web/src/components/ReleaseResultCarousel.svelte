@@ -1,10 +1,11 @@
 <script lang="ts">
-	import type { Solution } from 'mclib';
+	import type { ModRepoMetadata, Solution } from 'mclib';
 	import { ModResultsList } from '$cmpts';
 	import { m } from '$msg';
 	import { fly } from 'svelte/transition';
 
-	let { results }: { results: Solution[] } = $props();
+	let { results, selected_mods }: { results: Solution[]; selected_mods: ModRepoMetadata[] } =
+		$props();
 	let [is_left_button_visible, is_right_button_visible]: [
 		is_left_button_visible: boolean,
 		is_right_button_visible: boolean
@@ -70,14 +71,22 @@
 	>
 		{#each results as result, _id (result)}
 			<li id={'page_' + _id.toString()}>
-				<p>
-					{m['runner.results.mc_version']({ count: 1 })}:
-					<b>{result.mcConfig.mcVersion}</b>
-				</p>
-				<p>
-					{m['runner.results.loader']({ count: 1 })}:
-					<b>{result.mcConfig.loader}</b>
-				</p>
+				<div class="infos">
+					<div class="config">
+						<p>
+							{m['runner.results.mc_version']({ count: 1 })}:
+							<b>{result.mcConfig.mcVersion}</b>
+						</p>
+						<p>
+							{m['runner.results.loader']({ count: 1 })}:
+							<b>{result.mcConfig.loader}</b>
+						</p>
+					</div>
+					<p>
+						<b>{result.mods.length}</b>/{selected_mods.length}
+						{m['runner.results.mod']({ count: selected_mods.length })}
+					</p>
+				</div>
 
 				<ModResultsList mod_list={result.mods} />
 			</li>
@@ -196,6 +205,17 @@
 				display: flex;
 				flex-direction: column;
 				gap: 0.8rem;
+				& .infos {
+					display: flex;
+					flex-direction: row;
+					justify-content: space-between;
+					align-items: end;
+					& .config {
+						display: flex;
+						flex-direction: column;
+						gap: 0.5rem;
+					}
+				}
 			}
 		}
 		& ul.pagination {
